@@ -1,0 +1,32 @@
+{
+  "name": "infra",
+  "version": "0.1.0",
+  "license": "MIT",
+  "bin": {
+    "infra": "bin/infra.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest",
+    "cdk": "cdk"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "@types/node": "22.13.1",
+    "aws-cdk": "2.178.1",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
+    "typescript": "~5.7.3"
+  },
+  "dependencies": {
+    "@aws/pdk": "^0.25.16",
+    "@types/node": "^22.13.1",
+    "aws-cdk-lib": "2.178.1",
+    "cdk-nag": "^2.35.12",
+    "constructs": "^10.4.2",
+    "joi": "^17.13.3",
+    "toml": "^3.0.0"
+  }
+}

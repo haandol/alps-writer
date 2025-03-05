@@ -1,0 +1,40 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/typescript-node
+{
+  "name": "CDK",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/aws-cli:1": {},
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/sshd:1": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers-contrib/features/aws-cdk:2": {},
+    "ghcr.io/devcontainers-community/npm-features/prettier:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "extensions.verifySignature": false
+      },
+      "extensions": [
+        "tamasfe.even-better-toml",
+        "PKief.material-icon-theme",
+        "aaron-bond.better-comments",
+        "jasonnutter.search-node-modules",
+        "shardulm94.trailing-spaces",
+        "esbenp.prettier-vscode",
+        "YoavBls.pretty-ts-errors",
+        "christian-kohler.path-intellisense",
+        "christian-kohler.npm-intellisense",
+        "dbaeumer.vscode-eslint",
+        "ClemensPeters.format-json",
+        "oderwat.indent-rainbow",
+        "eamodio.gitlens"
+      ]
+    }
+  },
+  "mounts": [
+    "source=${env:HOME}${env:USERPROFILE}/.aws,target=/home/node/.aws,type=bind",
+    "source=${env:HOME}${env:USERPROFILE}/.ssh,target=/root/.ssh,type=bind"
+  ]
+}

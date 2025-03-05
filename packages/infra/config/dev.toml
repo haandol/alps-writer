@@ -1,0 +1,15 @@
+[app]
+ns = "AlpsWriter"
+stage = "Dev"
+
+# [vpc]
+# vpcId = "vpc-xyz"
+
+[auth]
+callbackUrls = ["http://localhost:8000/auth/oauth/aws-cognito/callback"]
+
+[chatbot]
+tableName = "chat-history"
+
+[external.web]
+tavilyApiKey = "tvly-YOUR-TAVILY-API-KEY"
