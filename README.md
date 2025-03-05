@@ -47,6 +47,13 @@ Or deploy it to your personal AWS account:
 
 ## Next Steps
 
+The following features are planned for production-ready release:
+
+- [ ] Migrate from Chainlit to custom solution that supports concurrent user sessions per each conversation
+- [ ] Build document management system for specification generation and versioning
+- [ ] Integrate Anthropic API for efficient prompt caching
+- [ ] Enhance document quality with revision system via Thinking models
+
 ## License
 
 Apache License 2.0
