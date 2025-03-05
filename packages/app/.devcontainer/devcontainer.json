@@ -1,0 +1,31 @@
+{
+  "name": "Python 3.13",
+  "image": "mcr.microsoft.com/devcontainers/python:3.13-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/aws-cli:1": {},
+    "ghcr.io/mikaello/devcontainer-features/modern-shell-utils:1": {},
+    "ghcr.io/devcontainers/features/sshd:1": {},
+    "ghcr.io/georgofenbeck/features/lazygit-linuxbinary:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "extensions.verifySignature": false
+      },
+      "extensions": [
+        "PKief.material-icon-theme",
+        "aaron-bond.better-comments",
+        "shardulm94.trailing-spaces",
+        "oderwat.indent-rainbow",
+        "ms-azuretools.vscode-docker",
+        "ClemensPeters.format-json",
+        "ChaitanyaShahare.lazygit"
+      ]
+    }
+  },
+  "forwardPorts": [8000],
+  "mounts": [
+    "source=${localEnv:HOME}/.aws,target=/home/vscode/.aws,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached"
+  ]
+}

@@ -1,0 +1,16 @@
+---
+description: Guideline for Implementing with Amazon Bedrock and Langchain AWS
+globs: src/services/llm.py, src/prompts/*.py
+alwaysApply: false
+---
+# Rules for Implementing LLM-based Features
+
+## Platform Requirements
+
+- Use Amazon Bedrock's Converse API
+- Use Claude 3.7 Sonnet model
+- Use Langchain (langchain) and Langchain AWS (langchain-aws) libraries
+
+## Prompts
+
+Always separate prompts into dedicated files, under `src/prompts/`
