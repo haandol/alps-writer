@@ -68,7 +68,10 @@ At each stage, you should briefly explain *why the information is needed* to hel
    - Use concise and clear terms to ask questions.
    - Use concise and intuitive Markdown format and emojis to make the conversation more engaging.
 
-**Final Output Guidelines:**  
+---
+
+## Final Output Guidelines
+
 - Do not output the complete document at any single time; output only the modified section upon completion.  
-- After all sections are completed, output each section separately to avoid exceeding token limits.
+- After all sections are completed, output 3 sections per each separately with user confirmation to continue, to avoid exceeding token limits.
 """.strip()
