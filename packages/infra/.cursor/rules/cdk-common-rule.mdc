@@ -1,0 +1,178 @@
+---
+description: best practices for writing AWS Cloud Development Kit (CDK) code
+globs: *
+alwaysApply: true
+---
+# AWS CDK Best Practices: Writing Stacks and Constructs
+
+This guide provides best practices for writing AWS Cloud Development Kit (CDK) code. It covers project configuration, stack organization, naming conventions, dependency management, and best practices for resource sharing. Follow these guidelines to build scalable, maintainable, and well-structured CDK applications.
+
+---
+
+## General Guidelines
+
+When working with AWS CDK, follow these service-specific rules where applicable. For services not explicitly mentionedK best practices.
+
+- DynamoDB: Follow the guidelines specified in [cdk-dynamodb-rule.mdc](mdc:.cursor/rules/cdk-dynamodb-rule.mdc)
+
+### Security Considerations
+
+- Any stack or construct deployed in a public subnet or serr entry point (e.g., Load Balancers, API Gateways) must comply with security best practices: [cdk-security-rule.mdc](mdc:.cursor/rules/cdk-security-rule.mdc).
+
+---
+
+## Prerequisites
+
+Before working with AWS CDK, ensure that you have:
+
+- Node.js 20+
+- AWS CLI installed and configured
+
+---
+
+## Project Configuration
+
+- The project uses a single configuration file, located at: `<project_root>/.toml`
+- The executable TypeScript file is stored under: `<project_root>/bin/infra.ts`
+- The configuration file must only be imported in the executable file.
+- The executable file should act solely as orchestration layers—they must not modify stack states directly.
+  - All stack logic, resource creation, and state manipulation must be handled inside the respective stacks and constructs.
+
+### Resource Tags
+
+AWS resource tagging simplifies grouping, searching, tracking, and cost allocation by project or team.
+
+To ensure consistency, resource tagging should be applied at the end of the executable file using the following code:
+
+```typescript
+const tags = cdk.Tags.of(app);
+tags.add("namespace", Config.app.ns);
+tags.add("stage", Config.app.stage);
+```
+
+### Schema Validation Example
+
+The following TypeScript example loads and validates the configuration file using the `joi` library.
+If the configuration does not match the predefined schema, an error is thrown.
+
+```typescript
+import * as fs from 'fs';
+import * as path from 'path';
+import * as toml from 'toml';
+import * as joi from 'joi';
+
+interface IConfig {
+  app: {
+    ns: string;
+    stage: string;
+  };
+  aws: {
+    region: string;
+  };
+}
+
+// Load and parse the configuration file
+const cfg = toml.parse(
+  fs.readFileSync(path.resolve(__dirname, '..', '.toml'), 'utf-8')
+);
+console.log('Loaded config:', cfg);
+
+// Define schema validation
+const schema = joi.object({
+  app: joi.object({
+    ns: joi.string().required(),
+    stage: joi.string().required(),
+  }).required(),
+  aws: joi.object({
+    region: joi.string().required(),
+  }).required(),
+}).unknown();
+
+// Validate the configuration
+const { error } = schema.validate(cfg);
+if (error) {
+  throw new Error(`Config validation error: ${error.message}`);
+}
+
+// Export the validated config
+export const Config: IConfig = {
+  ...cfg,
+  app: {
+    ...cfg.app,
+    ns: `${cfg.app.ns}${cfg.app.stage}`,
+  },
+};
+```
+
+### Additional Notes
+
+- Do not create `CfnOutput` resources unless explicitly requested by the user.
+  (This prevents unnecessary CloudFormation outputs.)
+
+---
+
+## Stacks and Constructs
+
+- An AWS CDK project can have multiple stacks, each serving as a logically distinct and reusable unit.
+- Stacks are the smallest deployable and maintainable units in AWS CDK.
+- Before creating a new stack, ensure that its functionality does not overlap with existing stacks and that it cannot be logically integrated into an existing one. This helps maintain a modular, scalable, and well-structured architecture.
+
+### Stack Structure
+
+- Stack and construct classes should be placed in the following directories:
+  ```
+  <project_root>/lib/stacks       # Stack classes
+  <project_root>/lib/constructs   # Construct classes
+  <project_root>/lib/functions    # Lambda Functions files
+  ```
+
+### Example Stack Organization
+
+For an AWS ECS-based architecture, a well-structured project might include:
+
+1. AuthStack
+   - Manages Cognito user authentication.
+   - Exists independently of external services.
+
+2. GatewayStack
+   - Hosts the API Gateway.
+   - Should remain even if backend services change.
+
+3. CommonECSStack
+   - Creates an AWS ECS Cluster.
+   - Must be reusable regardless of individual services.
+
+4. Mock1ServiceStack
+   - Represents an ECS service with its own constructs.
+   - Can be modified or deleted independently.
+
+5. Mock2ServiceStack
+   - Another independent ECS service stack.
+   - Can be modified or deleted separately from `Mock1ServiceStack`.
+
+---
+
+## Naming Conventions
+
+### Stack Naming
+
+- Stack names must be unique within the project.
+- Use the `ns` value from the project configuration file as a prefix.
+
+### Construct Naming
+- Construct names must be unique within their stack.
+
+---
+
+## Deploy and Synth
+
+DO NOT use `npm build` command, which is not necessary, just use `cdk deploy` or `cdk sync` for deployment and synthesization.
+
+---
+
+## Managing Stack Dependencies
+
+### Best Practices for Dependency Handling
+
+- Stacks lly independent wherever possible.
+- If dependencies are unavoidable, follow best practices outlined in: [cdk-stack-dependency-rule.mdc](mdc:.cursor/rules/cdk-stack-dependency-rule.mdc)

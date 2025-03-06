@@ -1,0 +1,93 @@
+---
+description: security rule that every stack should be followed
+globs: lib/**/*.ts
+alwaysApply: false
+---
+# AWS CDK Security Guidelines
+
+## Core Security Principles
+
+All AWS CDK stacks must adhere to the following core security principles:
+
+1. Protect Data in Transit
+ - All communications must use TLS/SSL.
+ - Services such as API Gateway and Load Balancer should enforce HTTPS-only connections.
+ - Internal service-to-service communication must also be encrypted.
+
+2. Encrypt Data at Rest
+ - All stored data must be encrypted.
+ - AWS KMS keys are recommended for encryption.
+ - Enable encryption for storage services such as S3, DynamoDB, and RDS.
+
+3. Apply the Principle of Least Privilege (IAM)
+ - Use the least privilege principle when assigning IAM roles and permissions.
+ - Avoid using wildcard (`*`) permissions.
+ - Define fine-grained permissions at the resource level.
+ - Use temporary credentials whenever possible.
+
+## Network Security
+
+1. VPC Internal Communication Policy
+  - Data stores such as S3, RDS, and DynamoDB should only be accessible within the VPC.
+  - Use VPC Endpointsfor secure access.
+  - If internet access is required, document the reason explicitly.
+
+```typescript
+// Example: S3 VPC Endpoint
+const s3Endpoint = vpc.addGatewayEndpoint('S3Endpoint', {
+  service: ec2.GatewayVpcEndpointAwsService.S3
+});
+
+// Example: DynamoDB VPC Endpoint
+const dynamoEndpoint = vpc.addGatewayEndpoint('DynamoDBEndpoint', {
+  service: ec2.GatewayVpcEndpointAwsService.DYNAMODB
+});
+```
+
+2. Security Group Configuration
+  - Minimize inbound and outbound rules.
+  - Restrict port ranges.
+  - Limit source IP addresses whenever possible.
+
+3. Public Resource Access Control
+  - For resources exposed to the internet (e.g., Load Balancer, WAF), always use whitelist-basedaccess control when feasible.
+
+## Encryption Settings
+
+Always use AWS-managed encryption whenever possible.
+
+```typescript
+// S3 Bucket with Encryption
+new s3.Bucket(this, 'EncryptedBucket', {
+  encryption: s3.BucketEncryption.AWS_MANAGED,
+  enforceSSL: true,
+  blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL
+});
+
+// DynamoDB Table with Encryption
+new dynamodb.Table(this, 'EncryptedTable', {
+  encryption: dynamodb.TableEncryption.AWS_MANAGED,
+});
+```
+
+## Monitoring & Auditing
+
+1. Enable CloudWatch logging(retain logs for at least 3 months).
+2. Configure AWS CloudTrailfor tracking API activity.
+3. Set up AWS Config rulesto enforce compliance.
+4. Integrate with AWS Security Hubfor centralized security monitoring.
+
+## Implementation Checklist
+
+- [ ] Use TLS 1.2 or higher.
+- [ ] Encrypt all stored data.
+- [ ] Configure VPC Endpoints for private service access.
+- [ ] Apply the principle of least privilege for IAM roles/policies.
+- [ ] Minimize security group rules.
+- [ ] Block public access unless explicitly required.
+- [ ] Enable logging and monitoring.
+
+## Exception Handling
+
+- Security policies may be bypassed only when explicitly requested by the user
+- Before granting an exception, always attempt to guide the user toward an alternative approach that does not require bypassing security best practices.
