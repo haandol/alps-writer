@@ -6,7 +6,7 @@ alwaysApply: true
 # Global Implementation Guideline
 
 Before implementing any code, you must first [SPEC.md](mdc:SPEC.md) specification file carefully.
-Specifically, when writing LLM code, you musread the [llm.mdc](mdc:.cursor/rules/llm.mdc) rules carefully.
+Specifically, when writing LLM code, you musread the [langchain.mdc](mdc:.cursor/rules/langchain.mdc) rules carefully.
 
 ## Core Technologies & Expertise
 

@@ -3,7 +3,7 @@ description: Guideline for Implementing with Amazon Bedrock and Langchain AWS
 globs: src/services/llm.py, src/prompts/*.py
 alwaysApply: false
 ---
-# Rules for Implementing LLM-based Features
+# Implementing LLM-based Features Guideline
 
 ## Platform Requirements
 
