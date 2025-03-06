@@ -9,10 +9,10 @@ Before implementing any code, you must first [SPEC.md](mdc:SPEC.md) specificatio
 Specifically, when writing LLM code, you musread the [langchain.mdc](mdc:.cursor/rules/langchain.mdc) rules carefully.
 
 ## Core Technologies & Expertise
-
-- Built on Python 3.13+ and Chainlit framework
-- Integrates with Claude Sonnet 3.7 LLM via Amazon Bedrock and Langchain
-- Supports step-by-step document creation based on user input, with real-time web search via Tavily API
+- Use uv to manage dependencies. Do not specify the build system; use the default.
+- Use the latest version of each library without specifying a version, unless the user requests a specific one.
+- Built on Python 3.13+ and the Chainlit framework.
+- Integrates with Claude Sonnet 3.7 LLM via Amazon Bedrock and LangChain AWS.
 
 ## Code Style & Architecture
 
