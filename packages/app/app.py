@@ -76,8 +76,7 @@ if not DISABLE_OAUTH:
 
             if message["type"] == "user_message":
                 message_history.append(
-                    {"role": "user",
-                        "content": f"<user>{message['output']}</user>"}
+                    {"role": "user", "content": message['output']}
                 )
             else:
                 message_history.append(
@@ -162,20 +161,20 @@ async def main(message: cl.Message):
         message_history.append(
             {
                 "role": "user",
-                "content": f"<user><context>{text_context}</context>\n---\n{message.content}</user>",
+                "content": f"<context>{text_context}</context>\n---\n{message.content}",
             }
         )
     elif image_context:
         message_history.append(
             {
                 "role": "user",
-                "content": f"<user>{message.content}</user>",
+                "content": message.content,
                 "image": image_context,
             }
         )
     else:
         message_history.append(
-            {"role": "user", "content": f"<user>{message.content}</user>"}
+            {"role": "user", "content": message.content}
         )
     cl.user_session.set("message_history", message_history)
 
