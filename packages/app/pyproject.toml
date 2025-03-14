@@ -7,7 +7,7 @@ requires-python = ">=3.13"
 dependencies = [
     "awscli>=1.37.12",
     "boto3>=1.36.12",
-    "chainlit>=2.1.2",
+    "chainlit>=2.4.1",
     "langchain>=0.3.17",
     "langchain-aws>=0.2.12",
     "langchain-community>=0.3.16",

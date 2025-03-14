@@ -1,4 +1,5 @@
 version = 1
+revision = 1
 requires-python = ">=3.13"
 
 [[package]]
@@ -107,7 +108,7 @@ dependencies = [
 requires-dist = [
     { name = "awscli", specifier = ">=1.37.12" },
     { name = "boto3", specifier = ">=1.36.12" },
-    { name = "chainlit", specifier = ">=2.1.2" },
+    { name = "chainlit", specifier = ">=2.4.1" },
     { name = "langchain", specifier = ">=0.3.17" },
     { name = "langchain-aws", specifier = ">=0.2.12" },
     { name = "langchain-community", specifier = ">=0.3.16" },
@@ -225,7 +226,7 @@ wheels = [
 
 [[package]]
 name = "chainlit"
-version = "2.2.1"
+version = "2.4.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiofiles" },
@@ -237,6 +238,7 @@ dependencies = [
     { name = "httpx" },
     { name = "lazify" },
     { name = "literalai" },
+    { name = "mcp" },
     { name = "nest-asyncio" },
     { name = "packaging" },
     { name = "pydantic" },
@@ -251,9 +253,9 @@ dependencies = [
     { name = "uvicorn" },
     { name = "watchfiles" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/5a/0d/19f66ced254c35cd0595ba064402a15c2ca3d3fba2a75f7ea75b52619871/chainlit-2.2.1.tar.gz", hash = "sha256:45bfc5721f7b0766a3b9ef748478ec1043cfdcb9edc78e23a89db489335f10e9", size = 9473105 }
+sdist = { url = "https://files.pythonhosted.org/packages/50/a5/0dd6f9fb5863e41e244cf810b56e2e01de2e5c9f48b345498e1846171887/chainlit-2.4.1.tar.gz", hash = "sha256:5f4c7092b32cf76b52709427dbf532ee11b084aacc6b9ab1aede1da390eb40e9", size = 9512776 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b8/ef/4408863d8110462bea8ee971a9f747ceeaafe3aa0404f0d7e85d6b06bb1c/chainlit-2.2.1-py3-none-any.whl", hash = "sha256:c2cc7d84386073899164b960371a9c046f175a9659763189cb9f1130b544b694", size = 9623188 },
+    { url = "https://files.pythonhosted.org/packages/94/c4/d566b3318c45f9c1bfcaa37f279d3fddd664182c744e6a527dbb8f9eb073/chainlit-2.4.1-py3-none-any.whl", hash = "sha256:39235662b46a2140c28329ca11eb8b7565ad251d008064ef3d07acdd2e947b33", size = 9661543 },
 ]
 
 [[package]]
@@ -718,6 +720,25 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/ab/5e/5e53d26b42ab75491cda89b871dab9e97c840bf12c63ec58a1919710cd06/marshmallow-3.26.1.tar.gz", hash = "sha256:e6d8affb6cb61d39d26402096dc0aee12d5a26d490a121f118d2e81dc0719dc6", size = 221825 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/34/75/51952c7b2d3873b44a0028b1bd26a25078c18f92f256608e8d1dc61b39fd/marshmallow-3.26.1-py3-none-any.whl", hash = "sha256:3350409f20a70a7e4e11a27661187b77cdcaeb20abca41c1454fe33636bea09c", size = 50878 },
+]
+
+[[package]]
+name = "mcp"
+version = "1.4.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "anyio" },
+    { name = "httpx" },
+    { name = "httpx-sse" },
+    { name = "pydantic" },
+    { name = "pydantic-settings" },
+    { name = "sse-starlette" },
+    { name = "starlette" },
+    { name = "uvicorn" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/00/9d/ac1aaa3de8655a72fe07c0c2901ed35f0da2b3ffb2a1bfc4f46bbd7b6710/mcp-1.4.0.tar.gz", hash = "sha256:5b750b14ca178eeb7b2addbd94adb21785d7b4de5d5f3577ae193d787869e2dd", size = 155809 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/93/05/1cbc9f93900d4348f4e782811f251541d860e7d13c30cd68b402cd9edbd4/mcp-1.4.0-py3-none-any.whl", hash = "sha256:d2760e1ea7635b1e70da516698620a016cde214976416dd894f228600b08984c", size = 73036 },
 ]
 
 [[package]]
@@ -1351,6 +1372,19 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/b2/27/17f143013aabbe1256dce19061eafdce0b0142465ce32168cdb9a18c04b1/SQLAlchemy-2.0.38-cp313-cp313-win32.whl", hash = "sha256:eae27ad7580529a427cfdd52c87abb2dfb15ce2b7a3e0fc29fbb63e2ed6f8120", size = 2073023 },
     { url = "https://files.pythonhosted.org/packages/e2/3e/259404b03c3ed2e7eee4c179e001a07d9b61070334be91124cf4ad32eec7/SQLAlchemy-2.0.38-cp313-cp313-win_amd64.whl", hash = "sha256:b335a7c958bc945e10c522c069cd6e5804f4ff20f9a744dd38e748eb602cbbda", size = 2096908 },
     { url = "https://files.pythonhosted.org/packages/aa/e4/592120713a314621c692211eba034d09becaf6bc8848fabc1dc2a54d8c16/SQLAlchemy-2.0.38-py3-none-any.whl", hash = "sha256:63178c675d4c80def39f1febd625a6333f44c0ba269edd8a468b156394b27753", size = 1896347 },
+]
+
+[[package]]
+name = "sse-starlette"
+version = "2.2.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "anyio" },
+    { name = "starlette" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/71/a4/80d2a11af59fe75b48230846989e93979c892d3a20016b42bb44edb9e398/sse_starlette-2.2.1.tar.gz", hash = "sha256:54470d5f19274aeed6b2d473430b08b4b379ea851d953b11d7f1c4a2c118b419", size = 17376 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d9/e0/5b8bd393f27f4a62461c5cf2479c75a2cc2ffa330976f9f00f5f6e4f50eb/sse_starlette-2.2.1-py3-none-any.whl", hash = "sha256:6410a3d3ba0c89e7675d4c273a301d64649c03a5ef1ca101f10b47f895fd0e99", size = 10120 },
 ]
 
 [[package]]

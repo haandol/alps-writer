@@ -76,7 +76,9 @@ if not DISABLE_OAUTH:
 
             if message["type"] == "user_message":
                 message_history.append(
-                    {"role": "user", "content": message["output"]})
+                    {"role": "user",
+                        "content": f"<user>{message['output']}</user>"}
+                )
             else:
                 message_history.append(
                     {"role": "assistant", "content": message["output"]}
