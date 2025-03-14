@@ -16,6 +16,3 @@ dependencies = [
     "python-dotenv>=1.0.1",
     "tavily-python>=0.5.0",
 ]
-[project.authors]
-name = "haandol"
-email = "ldg55d@gmail.com"
