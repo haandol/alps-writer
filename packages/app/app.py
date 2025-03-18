@@ -68,12 +68,7 @@ if not DISABLE_OAUTH:
         logger.info(f"Chat resumed: {thread}")
         # restore the message history from the thread
         message_history = cl.user_session.get("message_history", [])
-        root_messages = [m for m in thread["steps"] if m["parentId"] is None]
-        for message in root_messages:
-            # skip the message if the metadata indicates that the history should be skipped
-            if message["metadata"].get("skip_history", False):
-                continue
-
+        for message in [m for m in thread["steps"]]:
             if message["type"] == "user_message":
                 message_history.append(
                     {"role": "user", "content": message['output']}

@@ -30,7 +30,11 @@ class LLMCowriterService:
         messages = [SystemMessage(content=self.alps_system_prompt)]
 
         if message_history:
-            for msg in message_history:
+            # 빈 content를 가진 메시지 필터링
+            filtered_history = [
+                msg for msg in message_history if msg.get("content")]
+
+            for msg in filtered_history:
                 content = msg["content"]
                 # Process messages containing images
                 if "image" in msg:
@@ -97,7 +101,7 @@ class LLMCowriterService:
 
         except Exception as e:
             logger.error(f"Error streaming from Bedrock: {e}")
-            yield ""
+            yield f"죄송합니다. 응답을 생성하는 중에 오류가 발생했습니다: {str(e)}"
 
     async def cowrite_alps_template_stream(
         self, message_history: List[dict]
@@ -111,4 +115,4 @@ class LLMCowriterService:
                 await asyncio.sleep(0)
         except Exception as e:
             logger.error(f"Error streaming from Bedrock: {e}")
-            yield ""
+            yield f"죄송합니다. 응답을 생성하는 중에 오류가 발생했습니다: {str(e)}"
