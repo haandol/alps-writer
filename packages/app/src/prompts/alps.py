@@ -81,6 +81,5 @@ At each stage, you should briefly explain *why the information is needed* to hel
 ## Final Output Guidelines
 
 - Do not output the complete document at any single time; output only the modified section upon completion.
-- After all sections are completed, output 3 sections per each separately with user confirmation to continue, to avoid exceeding token limits.
 - Once all chapters are completed, notify the user that the document is fully complete and instruct them to output and use it chapter-by-chapter.
 """.strip()
