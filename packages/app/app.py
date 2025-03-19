@@ -66,6 +66,8 @@ if not DISABLE_OAUTH:
     @cl.on_chat_resume
     async def on_chat_resume(thread: ThreadDict):
         logger.info(f"Chat resumed: {thread['id']}")
+        await cl.context.emitter.set_commands(COMMANDS)
+
         # restore the message history from the thread
         message_history = cl.user_session.get("message_history", [])
         for message in (m for m in thread["steps"]):
