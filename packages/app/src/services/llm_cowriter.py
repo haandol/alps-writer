@@ -101,7 +101,7 @@ class LLMCowriterService:
 
         except Exception as e:
             logger.error(f"Error streaming from Bedrock: {e}")
-            yield f"죄송합니다. 응답을 생성하는 중에 오류가 발생했습니다: {str(e)}"
+            yield f"Error occurred while streaming from Bedrock: {str(e)}"
 
     async def cowrite_alps_template_stream(
         self, message_history: List[dict]
@@ -115,4 +115,4 @@ class LLMCowriterService:
                 await asyncio.sleep(0)
         except Exception as e:
             logger.error(f"Error streaming from Bedrock: {e}")
-            yield f"죄송합니다. 응답을 생성하는 중에 오류가 발생했습니다: {str(e)}"
+            yield f"Error occurred while streaming from Bedrock: {str(e)}"

@@ -12,4 +12,4 @@ def load_alps_context() -> str:
             return f.read()
     except Exception as e:
         logger.error(f"Failed to load ALPS context: {e}")
-        return ""
+        raise e
