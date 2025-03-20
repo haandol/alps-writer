@@ -3,65 +3,56 @@ description: Global ALPS Writer Implementation Guideline
 globs: **/*
 alwaysApply: true
 ---
-# Global Implementation Guideline
-
+<rules>
 - Before implementing any code, you must first [SPEC.md](mdc:SPEC.md) specification file carefully.
 - When writing LLM code, you must read the [langchain.mdc](mdc:.cursor/rules/langchain.mdc) rules carefully.
 - When writing Chainlit code, you must read the [chainlit.mdc](mdc:.cursor/rules/chainlit.mdc) rules carefully.
+</rules>
 
-## Dependency Management
-
+<dependency-management>
 - Use `uv` tool and `pyproject.toml` to manage dependencies and Python environment
 - Use the latest version of each library without specifying a version, unless the user requests a specific one
 - As this is a standalone application, no build-system configuration is required in pyproject.toml
+</dependency-management>
 
-## Core Technologies & Expertise
-
+<core-tech-stacks>
 - Built on Python 3.13+ and the Chainlit framework.
 - Integrates with Claude Sonnet 3.7 LLM via Amazon Bedrock and LangChain AWS.
+</core-tech-stacks>
 
-## Code Style & Architecture
+<code-style-and-architecture>
+  <core-principles>
+  - Write clean code with clear intent while following PEP8 style guidelines
+  - Minimize code duplication through DRY principles and maintain modular/separated structure
+  - Utilize type hints extensively to enhance code stability and readability
+  </core-principles>
 
-### Core Principles
+  <architecture-design>
+  - Organize code structure by roles: services (src/services), handlers (src/handlers), utilities (src/utils), constants (src/constant)
+  - Manage user interactions through Chainlit's async message processing (Async/Await)
+  - Securely handle sensitive information (e.g., AWS, Tavily API Keys) via environment variables (.env) loaded with dotenv module
+  - Ensure stable operation through Python's logging module and appropriate exception handling (e.g., ClientError)
+  </architecture-design>
+</code-style-and-architecture>
 
-- Write clean code with clear intent while following PEP8 style guidelines
-- Minimize code duplication through DRY principles and maintain modular/separated structure
-- Utilize type hints extensively to enhance code stability and readability
-- Aim for complete implementation without unfinished code or temporary TODOs
-
-### Architecture Design
-
-- Organize code structure by roles: services (src/services), handlers (src/handlers), utilities (src/utils), constants (src/constant)
-- Manage user interactions through Chainlit's async message processing (Async/Await)
-- Securely handle sensitive information (e.g., AWS, Tavily API Keys) via environment variables (.env) loaded with dotenv module
-- Ensure stable operation through Python's logging module and appropriate exception handling (e.g., ClientError)
-
-## User Interface & Message Flow
-
-- Process user input and feedback using Chainlit's `Message`, `File`, and other components
+<user-interface-and-user-experience>
 - Structure document creation flow: "New Document" button, chapter-wise Q&A, confirmation messages, file saving
 - Store user inputs in internal data structures allowing modifications and reconfirmations when needed
+</user-interface-and-user-experience>
 
-## LLM & Web Search Integration
-
+<integration-web-search-feature>
 - Request chapter-specific questions from LLM (Claude Sonnet 3.7) based on ALPS template and context (F6)
 - Process web search commands (`/search [query]`) through command parsing, Tavily API calls, and result formatting
 - Include appropriate exception handling and user guidance messages for each feature call
+</integration-web-search-feature>
 
-## Testing & Maintenance
-
+<testing-and-maintenance>
 - Write comprehensive test cases for all features (document creation, file saving, web search, etc.)
 - Maintain code quality and consistency through code reviews and regular refactoring
 - Update both SPEC.md and cursorrules when adding new features to ensure documentation stays current
+</testing-and-maintenance>
 
-## Additional Considerations
-
-- Process sensitive information server-side and expose minimal information to clients
-- Follow latest security best practices for security-related features with regular security audits
-- Strengthen team collaboration and maintenance culture through commit messages, code reviews, and documentation
-
-## Error Handling
-
+<error-handling>
 - Implement comprehensive error handling for all operations
 - Log errors appropriately using Python's logging module
 - Provide user-friendly error messages through Chainlit interface
@@ -76,49 +67,58 @@ alwaysApply: true
       logging.error(f"Unexpected error: {str(e)}")
       await cl.Message(content="An unexpected error occurred.").send()
   ```
+</error-handling>
 
-## File Structure
-
-```
-src/
-  ├── services/       # Core business logic
-  ├── handlers/       # Request handlers
-  ├── utils/          # Utility functions
-  ├── prompts/        # LLM prompt templates
-  ├── constant.py     # Global constants
-  └── types.py        # Type definitions
-templates/
-  └── ALPS.md         # Document template
-env/                  # Env files
-tests/                # Test files
-.env                  # Current Environment variables
-```
-
-## Naming Conventions
-
-- Classes: PascalCase (e.g., `FileLoadHandler`)
-- Functions/Methods: snake_case (e.g., `handle_save_document`)
-- Variables: snake_case (e.g., `user_message`)
-- Constants: UPPER_SNAKE_CASE (e.g., `MAX_RETRIES`)
-- Files: snake_case (e.g., `file_handler.py`)
-
-## Documentation Standards
-
-- Include docstrings for all classes and functions using Google style:
-
-  ```python
-  def function_name(param1: str, param2: int) -> bool:
-      """
-      Brief description of function.
-
-      Args:
-          param1 (str): Description of param1
-          param2 (int): Description of param2
-
-      Returns:
-          bool: Description of return value
-
-      Raises:
-          ValueError: Description of when this error occurs
-      """
+<file-structure>
+- Recommended file structure of the project:
   ```
+  src/
+    ├── services/       # Core business logic
+    ├── handlers/       # Request handlers
+    ├── utils/          # Utility functions
+    ├── prompts/        # LLM prompt templates
+    ├── constant.py     # Global constants
+    └── types.py        # Type definitions (optional)
+  templates/
+    └── ALPS.md         # Document template
+  env/                  # Env files
+  tests/                # Test files
+  .env                  # Current Environment variables
+  ```
+</file-structure>
+
+<conventions>
+  <naming-conventions>
+  - Classes: PascalCase (e.g., `FileLoadHandler`)
+  - Functions/Methods: snake_case (e.g., `handle_save_document`)
+  - Variables: snake_case (e.g., `user_message`)
+  - Constants: UPPER_SNAKE_CASE (e.g., `MAX_RETRIES`)
+  - Files: snake_case (e.g., `file_handler.py`)
+  </naming-conventions>
+
+  <documentation-conventions>
+  - Include docstrings for all classes and functions using Google style:
+    ```python
+    def function_name(param1: str, param2: int) -> bool:
+        """
+        Brief description of function.
+
+        Args:
+            param1 (str): Description of param1
+            param2 (int): Description of param2
+
+        Returns:
+            bool: Description of return value
+
+        Raises:
+            ValueError: Description of when this error occurs
+        """
+    ```
+  </documentation-conventions>
+</conventions>
+
+<additional-considerations>
+- Process sensitive information server-side and expose minimal information to clients
+- Follow latest security best practices for security-related features with regular security audits
+- Strengthen team collaboration and maintenance culture through commit messages, code reviews, and documentation
+</additional-considerations>
