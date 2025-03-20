@@ -1,6 +1,6 @@
 ---
 description: Guideline for Implementing with Amazon Bedrock and Langchain AWS
-globs: src/services/*.py, src/prompts/*.py
+globs: src/services/*.py
 alwaysApply: false
 ---
 # Implementing LLM-based Features Guideline
@@ -10,6 +10,95 @@ alwaysApply: false
 - Use Amazon Bedrock's Converse API
 - Use Claude 3.7 Sonnet model
 - Use Langchain (langchain) and Langchain AWS (langchain-aws) libraries
+
+## Langchain Usage Guidelines
+
+- Use `langchain-aws` library
+
+### Instantiate
+
+- Use `ChatBedrockConverse` class to use Bedrock's Converse API
+
+```python
+from langchain_aws.chat_models import ChatBedrockConverse
+
+llm = ChatBedrockConverse(
+    model="us.anthropic.claude-3-7-sonnet-20250219-v1:0",
+    temperature=0.33,
+    max_tokens=4096,
+    # other params...
+)
+```
+
+### Streaming
+
+```python
+for chunk in llm.stream(messages):
+    print(chunk)
+```
+
+### Stream Tool Calls
+
+```python
+first = True
+async for chunk in llm_with_tools.astream(query):
+    if first:
+        gathered = chunk
+        first = False
+    else:
+        gathered = gathered + chunk
+
+    print(type(gathered.tool_calls[0]["args"])) #   <class 'dict'>
+```
+
+### Image Input
+
+- Attatch image to the message, encode image with base64 and put it in the content with `image` type
+
+```python
+import base64
+import httpx
+from langchain_core.messages import HumanMessage
+
+image_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg"
+image_data = base64.b64encode(httpx.get(image_url).content).decode("utf-8")
+message = HumanMessage(
+    content=[
+        {"type": "text", "text": "describe the weather in this image"},
+        {
+            "type": "image",
+            "source": {"type": "base64", "media_type": "image/jpeg", "data": image_data},
+        },
+    ],
+)
+ai_msg = llm.invoke([message])
+```
+
+### Extened Thinking
+
+- Some models, such as Claude 3.7 Sonnet, support an extended thinking feature that outputs the step-by-step reasoning process that led to an answer.
+- To use it, specify the thinking parameter when initializing ChatBedrockConverse as shown below.
+
+```python
+from langchain_aws import ChatBedrockConverse
+
+thinking_params= {
+    "thinking": {
+        "type": "enabled",
+        "budget_tokens": 2000
+    }
+}
+
+llm = ChatBedrockConverse(
+    model="us.anthropic.claude-3-7-sonnet-20250219-v1:0",
+    max_tokens=5000,
+    region_name="us-west-2",
+    additional_model_request_fields=thinking_params,
+)
+
+response = llm.invoke("What is the cube root of 50.653?")
+print(response.content)
+```
 
 ## Prompts
 
