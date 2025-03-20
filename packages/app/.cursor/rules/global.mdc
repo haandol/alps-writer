@@ -5,12 +5,18 @@ alwaysApply: true
 ---
 # Global Implementation Guideline
 
-Before implementing any code, you must first [SPEC.md](mdc:SPEC.md) specification file carefully.
-Specifically, when writing LLM code, you musread the [langchain.mdc](mdc:.cursor/rules/langchain.mdc) rules carefully.
+- Before implementing any code, you must first [SPEC.md](mdc:SPEC.md) specification file carefully.
+- When writing LLM code, you must read the [langchain.mdc](mdc:.cursor/rules/langchain.mdc) rules carefully.
+- When writing Chainlit code, you must read the [chainlit.mdc](mdc:.cursor/rules/chainlit.mdc) rules carefully.
+
+## Dependency Management
+
+- Use `uv` tool and `pyproject.toml` to manage dependencies and Python environment
+- Use the latest version of each library without specifying a version, unless the user requests a specific one
+- As this is a standalone application, no build-system configuration is required in pyproject.toml
 
 ## Core Technologies & Expertise
-- Use uv to manage dependencies. Do not specify the build system; use the default.
-- Use the latest version of each library without specifying a version, unless the user requests a specific one.
+
 - Built on Python 3.13+ and the Chainlit framework.
 - Integrates with Claude Sonnet 3.7 LLM via Amazon Bedrock and LangChain AWS.
 
@@ -32,7 +38,7 @@ Specifically, when writing LLM code, you musread the [langchain.mdc](mdc:.cursor
 
 ## User Interface & Message Flow
 
-- Process user input and feedback using Chainlit's cl.Message, cl.File, and other components
+- Process user input and feedback using Chainlit's `Message`, `File`, and other components
 - Structure document creation flow: "New Document" button, chapter-wise Q&A, confirmation messages, file saving
 - Store user inputs in internal data structures allowing modifications and reconfirmations when needed
 
