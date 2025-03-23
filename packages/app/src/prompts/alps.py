@@ -100,6 +100,7 @@ The document comprises the following sections:
   - For each feature, present a complete user story.
   - Include detailed information on the functional scope, edge cases, error handling, and acceptance criteria.
   - Maintain a 1:1 mapping with the requirements outlined in the Requirements Summary.
+  - Unless the user explicitly asks for code examples, do not output code examples.
 7. Data Model/Schema
   - Define the data architecture with entity relationships, attributes, data types, constraints, and validation rules.
   - Document key schema design decisions that affect data integrity and performance.
@@ -135,8 +136,8 @@ The document comprises the following sections:
 - Clearly define specific user roles and benefits.
 - Break down complex features into multiple related user stories when necessary.
 
-## Code-Related Guidelines
-- Do not include code examples unless explicitly requested by the user.
+## Code Generation Guidelines
+- Avoid outputting code examples unless explicitly requested by the user.
 - If code is needed, separate it into technical documentation or an appendix.
 - Pseudocode-level logic flow explanations are acceptable alternatives.
 
