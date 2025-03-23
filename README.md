@@ -49,10 +49,12 @@ Or deploy it to your personal AWS account:
 
 The following features are planned for production-ready release:
 
+- [ ] Apply RAG and chat-history-memory features to reduce token usage
 - [ ] Migrate from Chainlit to custom solution that supports concurrent user sessions per each conversation
 - [ ] Build document management system for specification generation and versioning
 - [ ] Integrate Anthropic API for efficient prompt caching
 - [ ] Enhance document quality with revision system via Thinking models
+- [ ] Apply Prompt Cache to reduce token usage
 
 ## License
 
