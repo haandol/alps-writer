@@ -1,10 +1,10 @@
 import os
 import asyncio
 import logging
-from typing import AsyncGenerator, List
+from typing import AsyncGenerator, List, Optional
 
 from langchain_aws import ChatBedrockConverse
-from langchain.schema import HumanMessage, AIMessage, SystemMessage, BaseMessage
+from langchain.schema import HumanMessage, SystemMessage
 
 from src.prompts.alps import SYSTEM_PROMPT as ALPS_SYSTEM_PROMPT
 from src.prompts.web_qa import SYSTEM_PROMPT as WEB_QA_SYSTEM_PROMPT
@@ -22,78 +22,65 @@ class LLMCowriterService:
             region_name=os.getenv("AWS_REGION"),
         )
         self.alps_context = load_alps_context()
-        self.alps_system_prompt = f"{ALPS_SYSTEM_PROMPT}\n\n<template>{self.alps_context}</template>\n\nPlease answer in user's language, if you don't know the language, answer in English."
+        self.alps_system_prompt = ALPS_SYSTEM_PROMPT
         self.web_qa_system_prompt = WEB_QA_SYSTEM_PROMPT
 
-    def _create_messages(self, message_history: List[dict]) -> List[BaseMessage]:
-        """Create a list of LLM messages from the message history."""
-        messages = [SystemMessage(content=self.alps_system_prompt)]
+    def _build_system_message(
+        self,
+        recent_history: Optional[str] = None,
+        relevant_history: Optional[str] = None,
+    ) -> SystemMessage:
+        """
+        Builds a system message for ALPS template generation.
 
-        if message_history:
-            # 빈 content를 가진 메시지 필터링
-            filtered_history = [
-                msg for msg in message_history if msg.get("content")]
+        Args:
+            recent_history: Recent conversation history
+            relevant_history: Relevant conversation history (optional)
 
-            for msg in filtered_history:
-                content = msg["content"]
-                # Process messages containing images
-                if "image" in msg:
-                    image_context = msg["image"]
-                    image_content = {
-                        "type": "image",
-                        "source": {
-                            "type": "base64",
-                            "media_type": image_context["mime"],
-                            "data": image_context["base64"],
-                        },
-                    }
-                    if msg["role"] == "user":
-                        messages.append(
-                            HumanMessage(
-                                content=[
-                                    {"type": "text", "text": content},
-                                    image_content,
-                                ]
-                            )
-                        )
-                    else:
-                        messages.append(
-                            AIMessage(
-                                content=[
-                                    {"type": "text", "text": content},
-                                    image_content,
-                                ]
-                            )
-                        )
-                else:
-                    if msg["role"] == "user":
-                        messages.append(HumanMessage(content=content))
-                    else:
-                        messages.append(AIMessage(content=content))
+        Returns:
+            List of BaseMessage
+        """
+        system_message_contents: List[str] = [
+            self.alps_system_prompt,
+            f"<template>{self.alps_context}</template>",
+        ]
 
-        return messages
-
-    def _create_answer_question_messages(
-        self, query: str, web_result: str
-    ) -> List[BaseMessage]:
-        """Create messages for answering a question."""
-        messages = [SystemMessage(content=self.web_qa_system_prompt)]
-        messages.append(
-            HumanMessage(
-                content=f"<query>{query}</query>\n\n<web_result>{
-                    web_result
-                }</web_result>"
+        if recent_history and len(recent_history.strip()) > 0:
+            logger.info(
+                f"Using system prompt with recent history: {len(recent_history)}")
+            system_message_contents.append(
+                f"<recent_conversation>\n{recent_history}\n</recent_conversation>"
             )
+
+        # append relevant history if recent history has 20 lines or more
+        # TODO: make 20 to constant
+        if len(recent_history.split('\n')) >= 20:
+            logger.info(
+                f"Using system prompt with relevant history: {len(relevant_history)}")
+            system_message_contents.append(
+                f"<relevant_conversation>\n{relevant_history}\n</relevant_conversation>"
+            )
+        else:
+            logger.info("No relevant history")
+
+        system_message_contents.append(
+            "Please answer in user's language, if you don't know the language, answer in English."
         )
-        return messages
+
+        return SystemMessage(content="\n".join(system_message_contents))
 
     async def answer_question_stream(
         self, query: str, web_result: str
     ) -> AsyncGenerator[str, None]:
         """Process a question based on web search results in a streaming manner."""
-        try:
-            messages = self._create_answer_question_messages(query, web_result)
+        messages = [
+            SystemMessage(content=self.web_qa_system_prompt),
+            HumanMessage(
+                content=f"<query>{query}</query>\n\n<web_result>{web_result}</web_result>"
+            ),
+        ]
 
+        try:
             async for chunk in self.llm.astream(messages):
                 for content in chunk.content:
                     yield content.get("text", "")
@@ -104,12 +91,28 @@ class LLMCowriterService:
             yield f"Error occurred while streaming from Bedrock: {str(e)}"
 
     async def cowrite_alps_template_stream(
-        self, message_history: List[dict]
+        self,
+        user_message: HumanMessage,
+        recent_history: Optional[str] = None,
+        relevant_history: Optional[str] = None,
     ) -> AsyncGenerator[str, None]:
-        """Generate ALPS template interactively in a streaming manner."""
+        """
+        Generate ALPS template interactively in a streaming manner.
+
+        Args:
+            user_message: User message
+            recent_history: Recent conversation history
+            relevant_history: Relevant conversation history
+
+        Returns:
+            Generated text stream
+        """
         try:
-            messages = self._create_messages(message_history)
-            async for chunk in self.llm.astream(messages):
+            system_message = self._build_system_message(
+                recent_history,
+                relevant_history,
+            )
+            async for chunk in self.llm.astream([system_message, user_message]):
                 for content in chunk.content:
                     yield content.get("text", "")
                 await asyncio.sleep(0)

@@ -2,7 +2,7 @@ import os
 import boto3
 import logging
 from pathlib import Path
-from typing import cast, Optional, List
+from typing import cast, Optional
 
 import dotenv
 import chainlit as cl
@@ -10,6 +10,7 @@ import chainlit.data as cl_data
 from chainlit.logger import logger as cl_logger
 from chainlit.types import ThreadDict
 from chainlit.data.dynamodb import DynamoDBDataLayer
+from langchain.schema import HumanMessage
 
 from src.constant import COMMANDS
 from src.services.llm_cowriter import LLMCowriterService
@@ -17,6 +18,7 @@ from src.services.web_search import WebSearchService
 from src.handlers.file_handler import FileLoadHandler
 from src.handlers.image_file_handler import ImageFileLoadHandler
 from src.handlers.search_handler import WebSearchHandler
+from src.utils.memory import VectorMemoryManager, RecentMemoryManager
 
 dotenv.load_dotenv()
 
@@ -69,8 +71,21 @@ if not DISABLE_OAUTH:
         await cl.context.emitter.set_commands(COMMANDS)
 
         # restore the message history from the thread
-        message_history = cl.user_session.get("message_history", [])
+        message_history = []
         for message in (m for m in thread["steps"]):
+            # skip messages with exclude_from_history metadata
+            if message['metadata'].get('exclude_from_history', False):
+                continue
+
+            # skip empty messages
+            if message['output'] == "":
+                continue
+
+            # skip error messages
+            if message["isError"]:
+                logger.error(f"Error message: {message}")
+                continue
+
             if message["type"] == "user_message":
                 message_history.append(
                     {"role": "user", "content": message['output']}
@@ -80,7 +95,16 @@ if not DISABLE_OAUTH:
                     {"role": "assistant", "content": message["output"]}
                 )
         logger.info(f"Restored message_history: {len(message_history)}")
-        cl.user_session.set("message_history", message_history)
+
+        # Initialize and restore the memory managers
+        vector_memory = VectorMemoryManager()
+        recent_memory = RecentMemoryManager()
+
+        vector_memory.add_message_history(message_history)
+        recent_memory.add_message_history(message_history)
+
+        cl.user_session.set("vector_memory", vector_memory)
+        cl.user_session.set("recent_memory", recent_memory)
 
     @cl.oauth_callback
     async def oauth_callback(
@@ -118,9 +142,12 @@ Examples Messages:
 - If you input the item you want to buy, LLM will search for reviews and prices of the item
     """.strip()
     await cl.context.emitter.set_commands(COMMANDS)
-    await cl.Message(content=welcome_message).send()
-    # Initialize the message history
-    cl.user_session.set("message_history", [])
+    await cl.Message(content=welcome_message, metadata={"exclude_from_history": True}).send()
+    # Initialize both memory systems
+    vector_memory = VectorMemoryManager()
+    recent_memory = RecentMemoryManager()
+    cl.user_session.set("vector_memory", vector_memory)
+    cl.user_session.set("recent_memory", recent_memory)
 
 
 @cl.on_message
@@ -152,43 +179,56 @@ async def main(message: cl.Message):
             elif Path(element.path).suffix.lower() in image_file_ext:
                 image_context = await image_file_handler.handle(element)
 
+    # Get memory managers from user session
+    vector_memory = cast(
+        VectorMemoryManager, cl.user_session.get("vector_memory")
+    )
+    recent_memory = cast(
+        RecentMemoryManager, cl.user_session.get("recent_memory"),
+    )
+
     # Process general messages
-    message_history = cast(List, cl.user_session.get("message_history", []))
+    user_message_content = message.content
+
+    # Add user message to vector memory
+    vector_memory.add_user_message(user_message_content)
+
+    # Get relevant history from vector memory
+    relevant_history = vector_memory.get_relevant_history(user_message_content)
+
+    # Get recent conversation history from recent memory
+    recent_history = recent_memory.get_conversation_string()
+
+    logger.info(
+        f"Using recent history: {len(recent_history.strip()) > 0} and relevant history: {len(relevant_history.strip()) > 0}")
+
+    user_message = HumanMessage(content=message.content)
     if text_context:
-        message_history.append(
-            {
-                "role": "user",
-                "content": f"<context>{text_context}</context>\n---\n{message.content}",
-            }
-        )
+        user_message.content = f"<context>{text_context}</context>\n---\n{message.content}"
     elif image_context:
-        message_history.append(
-            {
-                "role": "user",
-                "content": message.content,
-                "image": image_context,
-            }
-        )
-    else:
-        message_history.append(
-            {"role": "user", "content": message.content}
-        )
-    cl.user_session.set("message_history", message_history)
+        user_message.content = {
+            "content": message.content,
+            "image": image_context,
+        }
 
     msg = cl.Message(content="")
     if search_result:
         async for chunk in llm_cowriter_service.answer_question_stream(
-            message.content, search_result
+            user_message, search_result,
         ):
             if chunk:
                 await msg.stream_token(chunk)
     else:
         async for chunk in llm_cowriter_service.cowrite_alps_template_stream(
-            message_history
+            user_message, recent_history, relevant_history,
         ):
             if chunk:
                 await msg.stream_token(chunk)
     await msg.send()
 
-    message_history.append({"role": "assistant", "content": msg.content})
-    cl.user_session.set("message_history", message_history)
+    # Add AI response to both memory systems
+    vector_memory.add_ai_message(user_message_content, msg.content)
+    recent_memory.add_ai_message(user_message_content, msg.content)
+
+    cl.user_session.set("vector_memory", vector_memory)
+    cl.user_session.set("recent_memory", recent_memory)
