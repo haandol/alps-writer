@@ -6,6 +6,7 @@ from typing import AsyncGenerator, List, Optional
 from langchain_aws import ChatBedrockConverse
 from langchain.schema import HumanMessage, SystemMessage
 
+from src.constant import MAX_RECENT_HISTORY_TURNS, TEMPERATURE, MAX_TOKENS
 from src.prompts.alps import SYSTEM_PROMPT as ALPS_SYSTEM_PROMPT
 from src.prompts.web_qa import SYSTEM_PROMPT as WEB_QA_SYSTEM_PROMPT
 from src.utils.context import load_alps_context
@@ -14,14 +15,16 @@ logger = logging.getLogger(__name__)
 
 
 class LLMCowriterService:
-    def __init__(self, model_id: str = "us.anthropic.claude-3-7-sonnet-20250219-v1:0"):
+    def __init__(self, model_id: str):
         self.llm = ChatBedrockConverse(
             model_id=model_id,
-            temperature=0.33,
-            max_tokens=8192,
+            temperature=TEMPERATURE,
+            max_tokens=MAX_TOKENS,
             region_name=os.getenv("AWS_REGION"),
         )
+        # TODO: split alps template into sections and load them as context on demand via RAG to reduce token usage
         self.alps_context = load_alps_context()
+        # TODO: apply prompt cache on alps_context or use RAG for the context
         self.alps_system_prompt = ALPS_SYSTEM_PROMPT
         self.web_qa_system_prompt = WEB_QA_SYSTEM_PROMPT
 
@@ -42,7 +45,7 @@ class LLMCowriterService:
         """
         system_message_contents: List[str] = [
             self.alps_system_prompt,
-            f"<template>{self.alps_context}</template>",
+            f"<alps-template>{self.alps_context}</alps-template>",
         ]
 
         if recent_history and len(recent_history.strip()) > 0:
@@ -53,8 +56,7 @@ class LLMCowriterService:
             )
 
         # append relevant history if recent history has 20 lines or more
-        # TODO: make 20 to constant
-        if len(recent_history.split('\n')) >= 20:
+        if len(recent_history.split('\n')) >= MAX_RECENT_HISTORY_TURNS:
             logger.info(
                 f"Using system prompt with relevant history: {len(relevant_history)}")
             system_message_contents.append(

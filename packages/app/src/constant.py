@@ -10,16 +10,9 @@ COMMANDS: List[CommandDict] = [
     },
 ]
 
-CHAPTERS: List[str] = [
-    "1. Overview",
-    "2. MVP Goal & Metrics",
-    "3. Requirements Summary",
-    "4. High-Level Architecture",
-    "5. Design Specification",
-    "6. Feature-Level Specification",
-    "7. Data Model",
-    "8. API Endpoint Specification",
-    "9. Deployment & Operation",
-    "10. MVP Metrics",
-    "11. Out of Scope",
-]
+# LLM
+MAX_TOKENS: int = 8192
+TEMPERATURE: float = 0.33
+
+# Memory
+MAX_RECENT_HISTORY_TURNS: int = 20

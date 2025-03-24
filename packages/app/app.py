@@ -35,10 +35,11 @@ DISABLE_OAUTH = os.environ.get("DISABLE_OAUTH", "false").lower() == "true"
 logger.info(f"DISABLE_OAUTH: {DISABLE_OAUTH}")
 AWS_PROFILE_NAME = os.environ.get("AWS_PROFILE_NAME", None)
 logger.info(f"AWS_PROFILE_NAME: {AWS_PROFILE_NAME}")
-
+MODEL_ID = os.environ.get("MODEL_ID", None)
+logger.info(f"MODEL_ID: {MODEL_ID}")
 
 # Initialize services and handlers
-llm_cowriter_service = LLMCowriterService()
+llm_cowriter_service = LLMCowriterService(MODEL_ID)
 web_search_service = WebSearchService()
 file_handler = FileLoadHandler()
 image_file_handler = ImageFileLoadHandler()

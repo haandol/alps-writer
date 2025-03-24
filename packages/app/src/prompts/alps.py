@@ -5,7 +5,7 @@ SYSTEM_PROMPT = """
 </role>
 
 <context-awareness>
-- The ALPS document template will be provided within `<template>` tags.
+- The ALPS document template will be provided within `<alps-template>` tags.
 - The user-provided information will be wrapped in `<context>` tags.
 - Process and reference the provided context to inform guidance and document creation.
 - Avoid making assumptions or defaulting values without explicit user confirmation.
