@@ -1,5 +1,6 @@
 import os
 import logging
+from abc import ABC, abstractmethod
 from typing import Dict, List, Any
 
 import faiss
@@ -11,8 +12,51 @@ from langchain.memory import VectorStoreRetrieverMemory, ConversationBufferWindo
 logger = logging.getLogger(__name__)
 
 
-class VectorMemoryManager:
-    """Memory management class. Uses VectorStoreRetrieverMemory to manage conversation history."""
+class MemoryManager(ABC):
+    """Abstract base class for memory management."""
+
+    @abstractmethod
+    def add_user_message(self, message_content: str) -> None:
+        """
+        Add user message to memory.
+
+        Args:
+            message_content (str): User message content
+        """
+        pass
+
+    @abstractmethod
+    def add_ai_message(self, user_message: str, ai_message: str) -> None:
+        """
+        Add AI response to memory.
+
+        Args:
+            user_message (str): User message content
+            ai_message (str): AI response content
+        """
+        pass
+
+    def add_message_history(self, message_history: List[Dict[str, Any]]) -> None:
+        """
+        Add message history to memory.
+
+        Args:
+            message_history (List[Dict[str, Any]]): Message history list
+        """
+        for i in range(0, len(message_history), 2):
+            if i + 1 < len(message_history):
+                user_message = message_history[i]
+                ai_message = message_history[i + 1]
+
+                if user_message.get("role") == "user" and ai_message.get("role") == "assistant":
+                    self.add_ai_message(
+                        user_message.get("content", ""),
+                        ai_message.get("content", "")
+                    )
+
+
+class VectorMemoryManager(MemoryManager):
+    """Memory management class using VectorStoreRetrieverMemory."""
 
     def __init__(self, k: int = 5):
         """
@@ -34,40 +78,15 @@ class VectorMemoryManager:
         )
         self.retriever = self.vector_store.as_retriever(search_kwargs={"k": k})
         self.memory = VectorStoreRetrieverMemory(retriever=self.retriever)
+        self.k = k
 
     def add_user_message(self, message_content: str) -> None:
-        """
-        Add user message to memory.
-
-        Args:
-            message_content (str): User message content
-        """
         self.memory.save_context(
             {"input": message_content},
             {"output": ""}
         )
 
     def add_ai_message(self, user_message: str, ai_message: str) -> None:
-        """
-        Add AI response to memory.
-
-        Args:
-            user_message (str): User message content
-            ai_message (str): AI response content
-        """
-        self.memory.save_context(
-            {"input": user_message},
-            {"output": ai_message}
-        )
-
-    def add_message_pair(self, user_message: str, ai_message: str) -> None:
-        """
-        Add user and AI message pair to memory.
-
-        Args:
-            user_message (str): User message content
-            ai_message (str): AI response content
-        """
         self.memory.save_context(
             {"input": user_message},
             {"output": ai_message}
@@ -85,30 +104,9 @@ class VectorMemoryManager:
         """
         return self.memory.load_memory_variables({"input": query})["history"]
 
-    def add_message_history(self, message_history: List[Dict[str, Any]]) -> None:
-        """
-        Add all message history to memory.
 
-        Args:
-            message_history (List[Dict[str, Any]]): Message history list
-        """
-        for i in range(0, len(message_history), 2):
-            if i + 1 < len(message_history):
-                user_message = message_history[i]
-                ai_message = message_history[i + 1]
-
-                if user_message.get("role") == "user" and ai_message.get("role") == "assistant":
-                    self.add_message_pair(
-                        user_message.get("content", ""),
-                        ai_message.get("content", "")
-                    )
-
-
-class RecentMemoryManager:
-    """
-    Memory management class that only stores the latest N conversations.
-    Uses ConversationBufferWindowMemory to manage conversation history.
-    """
+class RecentMemoryManager(MemoryManager):
+    """Memory management class using ConversationBufferWindowMemory."""
 
     def __init__(self, k: int = 10):
         """
@@ -121,23 +119,10 @@ class RecentMemoryManager:
         self.k = k
 
     def add_user_message(self, message_content: str) -> None:
-        """
-        Add user message to memory.
-        Actually, it is stored as a message pair, so nothing is done here.
-
-        Args:
-            message_content (str): User message content
-        """
-        pass  # ConversationBufferWindowMemory is stored as a pair, so nothing is done here.
+        # ConversationBufferWindowMemory is stored as a pair, so nothing is done here
+        pass
 
     def add_ai_message(self, user_message: str, ai_message: str) -> None:
-        """
-        Add user message and AI response to memory.
-
-        Args:
-            user_message (str): User message content
-            ai_message (str): AI response content
-        """
         self.memory.save_context(
             {"input": user_message},
             {"output": ai_message}
