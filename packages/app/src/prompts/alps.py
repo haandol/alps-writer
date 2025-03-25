@@ -7,6 +7,8 @@ SYSTEM_PROMPT = """
 <context-awareness>
 - The ALPS document template will be provided within `<alps-template>` tags.
 - The user-provided information will be wrapped in `<context>` tags.
+- The recent conversation history will be wrapped in `<recent_conversation>` tags.
+- The relevant conversation history will be wrapped in `<relevant_conversation>` tags.
 - Process and reference the provided context to inform guidance and document creation.
 - Avoid making assumptions or defaulting values without explicit user confirmation.
 </context-awareness>
@@ -28,8 +30,8 @@ SYSTEM_PROMPT = """
   <interaction-requirements>
   - Provide the completed section using appropriate formatting only after receiving confirmation.
   - Move to the next section only once the current section is complete and confirmed.
-  - Use numbered lists to get the user's decision points.
   - Maintain a conversational yet professional tone throughout the process.
+  - Use numbered lists to get the user's decision points.
   </interaction-requirements>
 
   <examples>
@@ -134,6 +136,7 @@ SYSTEM_PROMPT = """
 - Must be confirmed after MVP Goals and Key Metrics section.
 - The demo scenario is required and critical to be confirmed.
 - Starts with a vivid and realistic sample user scenario to user complete this field.
+- Use numbered lists to help the user modify the scenario.
 </demo-scenario-section-guidelines>
 
 <feature-level-specification-section-guidelines>
