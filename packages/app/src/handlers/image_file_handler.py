@@ -68,10 +68,11 @@ class ImageFileLoadHandler:
 
                 return {
                     "type": "image",
-                    "mime": f"image/{img.format.lower()}",
-                    "base64": base64_img,
-                    "width": img.width,
-                    "height": img.height,
+                    "source": {
+                        "type": "base64",
+                        "mediaType": f"image/{img.format.lower()}",
+                        "data": base64_img
+                    }
                 }
         except Exception as e:
             self._log_exception("Error occurred while processing the image")
