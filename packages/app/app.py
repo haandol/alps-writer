@@ -10,7 +10,6 @@ import chainlit.data as cl_data
 from chainlit.logger import logger as cl_logger
 from chainlit.types import ThreadDict
 from chainlit.data.dynamodb import DynamoDBDataLayer
-from langchain.schema import HumanMessage
 
 from src.constant import COMMANDS
 from src.services.llm_cowriter import LLMCowriterService
@@ -191,38 +190,30 @@ async def main(message: cl.Message):
     # Process general messages
     user_message_content = message.content
 
-    # Add user message to vector memory
-    vector_memory.add_user_message(user_message_content)
-
-    # Get relevant history from vector memory
-    relevant_history = vector_memory.get_relevant_history(user_message_content)
-
-    # Get recent conversation history from recent memory
-    recent_history = recent_memory.get_conversation_string()
-
-    logger.info(
-        f"Using recent history: {len(recent_history.strip()) > 0} and relevant history: {len(relevant_history.strip()) > 0}")
-
-    user_message = HumanMessage(content=message.content)
-    if text_context:
-        user_message.content = f"<context>{text_context}</context>\n---\n{message.content}"
-    elif image_context:
-        user_message.content = {
-            "content": message.content,
-            "image": image_context,
-        }
-
     msg = cl.Message(content="")
     if search_result:
-        async for chunk in llm_cowriter_service.answer_question_stream(
-            user_message, search_result,
-        ):
+        messages = llm_cowriter_service.build_web_search_messages(
+            query=user_message_content,
+            web_result=search_result,
+        )
+        async for chunk in llm_cowriter_service.stream_llm_response(messages):
             if chunk:
                 await msg.stream_token(chunk)
     else:
-        async for chunk in llm_cowriter_service.cowrite_alps_template_stream(
-            user_message, recent_history, relevant_history,
-        ):
+        # Get relevant history from vector memory
+        relevant_history = vector_memory.get_relevant_history(
+            user_message_content)
+        # Get recent conversation history from recent memory
+        recent_history = recent_memory.get_conversation_string()
+
+        messages = llm_cowriter_service.build_alps_messages(
+            message_content=user_message_content,
+            recent_history=recent_history,
+            relevant_history=relevant_history,
+            text_context=text_context,
+            image_context=image_context,
+        )
+        async for chunk in llm_cowriter_service.stream_llm_response(messages):
             if chunk:
                 await msg.stream_token(chunk)
     await msg.send()
