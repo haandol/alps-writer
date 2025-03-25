@@ -42,7 +42,14 @@ class LLMCowriterService:
             "Please answer in user's language, if you don't know the language, answer in English."
         ]
 
-        return SystemMessage(content="\n".join(system_message_contents))
+        return SystemMessage(
+            content="\n".join(system_message_contents),
+            additional_kwargs={
+                "cachePoint": {
+                    "type": "default",
+                }
+            },
+        )
 
     def build_alps_messages(
         self,
