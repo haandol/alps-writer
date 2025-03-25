@@ -43,12 +43,13 @@ class LLMCowriterService:
         ]
 
         return SystemMessage(
-            content="\n".join(system_message_contents),
-            additional_kwargs={
-                "cachePoint": {
-                    "type": "default",
-                }
-            },
+            content=[
+                {
+                    "type": "text",
+                    "text": "\n".join(system_message_contents),
+                    "checkPoint": {"type": "default"},
+                },
+            ],
         )
 
     def build_alps_messages(
