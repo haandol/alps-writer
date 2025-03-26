@@ -4,21 +4,20 @@ globs: **/*
 alwaysApply: true
 ---
 <rules>
-- Before implementing any code, you must first [SPEC.md](mdc:SPEC.md) specification file carefully.
-- When writing LLM code, you must read the [langchain.mdc](mdc:.cursor/rules/langchain.mdc) rules carefully.
-- When writing Chainlit code, you must read the [chainlit.mdc](mdc:.cursor/rules/chainlit.mdc) rules carefully.
+- Before implementing any feature, please read first [SPEC.md](mdc:SPEC.md) file carefully.
+- When writing LLM code, please read the [langchain.mdc](mdc:.cursor/rules/langchain.mdc) rules carefully.
+- When writing Chainlit code, pease read the [chainlit.mdc](mdc:.cursor/rules/chainlit.mdc) rules carefully.
 </rules>
+
+<prerequisites>
+- Use Python 3.13
+</prerequisites>
 
 <dependency-management>
 - Use `uv` tool and `pyproject.toml` to manage dependencies and Python environment
 - Use the latest version of each library without specifying a version, unless the user requests a specific one
 - As this is a standalone application, no build-system configuration is required in pyproject.toml
 </dependency-management>
-
-<core-tech-stacks>
-- Built on Python 3.13+ and the Chainlit framework.
-- Integrates with Claude Sonnet 3.7 LLM via Amazon Bedrock and LangChain AWS.
-</core-tech-stacks>
 
 <code-style-and-architecture>
   <core-principles>
@@ -37,7 +36,7 @@ alwaysApply: true
 
 <user-interface-and-user-experience>
 - Structure document creation flow: "New Document" button, chapter-wise Q&A, confirmation messages, file saving
-- Store user inputs in internal data structures allowing modifications and reconfirmations when needed
+- Store user inputs in internal data structures allowing modifications and rations when needed
 </user-interface-and-user-experience>
 
 <integration-web-search-feature>
@@ -49,7 +48,7 @@ alwaysApply: true
 <testing-and-maintenance>
 - Write comprehensive test cases for all features (document creation, file saving, web search, etc.)
 - Maintain code quality and consistency through code reviews and regular refactoring
-- Update both SPEC.md and cursorrules when adding new features to ensure documentation stays current
+- Update both [SPEC.md](mdc:SPEC.md) and cursorrules when adding new features to ensure documentation stays current
 </testing-and-maintenance>
 
 <error-handling>
@@ -77,10 +76,7 @@ alwaysApply: true
     ├── handlers/       # Request handlers
     ├── utils/          # Utility functions
     ├── prompts/        # LLM prompt templates
-    ├── constant.py     # Global constants
-    └── types.py        # Type definitions (optional)
-  templates/
-    └── ALPS.md         # Document template
+    └── constant.py     # Global constants
   env/                  # Env files
   tests/                # Test files
   .env                  # Current Environment variables

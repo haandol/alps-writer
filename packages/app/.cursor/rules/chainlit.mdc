@@ -4,22 +4,20 @@ globs: **/*.py
 alwaysApply: false
 ---
 <prerequisites>
-
-- Langchain AWS (`langchain-aws`) library
+- Use Langchain AWS (`langchain-aws`) library
 - Use `<project_root>/app.py` file as main event loop entry point
-
 </prerequisites>
 
-<chat-life-cycle>
-
+<chat-life-cycle-hooks>
 - The `on_chat_start` decorator is used to define a hook that is called when a new chat session is created.
-- The `on_message decorator` is used to define a hook that is called when a new message is received from the user.
-- The `on_chat_end decorator` is used to define a hook that is called when the chat session ends either because the user disconnected or started a new chat session.
+- The `on_message` decorator is used to define a hook that is called when a new message is received from the user.
+- The `on_chat_end` decorator is used to define a hook that is called when the chat session ends either because the user disconnected or started a new chat session.
+- The `on_chat_resume` decorator is used to define a hook that is called when a user resumes a chat session that was previously disconnected. This can only happen if `authentication` and `data persistence` are enabled.
+</chat-life-cycle-hooks>
 
-</chat-life-cycle>
-
-<async-invoke>
-
+<async-invoke-message>
+- Use async/await for message
+- Example:
 ```python
 from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
@@ -61,12 +59,11 @@ async def on_message(message: cl.Message):
 
     await msg.send()
 ```
-</async-invoke>
+</async-invoke-message>
 
 <multi-modality>
-
-- You have the capability to access these attached files through the `cl.on_message` decorated function.
-
+- Chainlit supports the multi-modal functionality to access these attached files through the `cl.on_message` decorated function.
+- Image and Text files (e.g. PDF, Markdown) can be attached.
 - Example:
 ```python
 @cl.on_message
@@ -86,8 +83,7 @@ async def on_message(msg: cl.Message):
 ```
 </multi-modality>
 
-<streaming>
-
+<streaming-message>
 - Example:
 ```python
 @cl.on_message
@@ -108,12 +104,10 @@ async def main(message: cl.Message):
     message_history.append({"role": "assistant", "content": msg.content})
     await msg.update()
 ```
-</streaming>
+</streaming-message>
 
-<step_component>
-
+<step-component>
 - The `Step` class is a Python Context Manager that can be used to create steps in your chainlit app. The step is created when the context manager is entered and is updated to the client when the context manager is exited.
-
 - Example:
 ```python
 @cl.step(type="tool")
@@ -132,12 +126,9 @@ async def main(message: cl.Message):
     # Send the final answer.
     await cl.Message(content="This is the final answer").send()
 ```
-</step_component>
+</step-component>
 
-<on_chat_resume>
-
-- The `on_chat_resume decorator` is used to define a hook that is called when a user resumes a chat session that was previously disconnected. This can only happen if `authentication` and `data persistence` are enabled.
-
+<hook-on-chat-resume>
 - Example:
 ```python
 @cl.on_chat_resume
@@ -160,4 +151,4 @@ async def on_chat_resume(thread: ThreadDict):
     logger.info(f"Restored message_history: {len(message_history)}")
     cl.user_session.set("message_history", message_history)
 ```
-</on_chat_resume>
+</hook-on-chat-resume>

@@ -4,15 +4,16 @@ globs: src/services/*.py
 alwaysApply: false
 ---
 <prerequisites>
-
 - Use Amazon Bedrock's Converse API
 - Use Claude 3.7 Sonnet model, `us.anthropic.claude-3-7-sonnet-20250219-v1:0`
 - Use Langchain (`langchain`) and Langchain AWS (`langchain-aws`) libraries
-
 </prerequisites>
 
-<instantiate>
+<prompt-file-location>
+- Always separate prompts into dedicated files
+</prompt-file-location>
 
+<instantiate-model>
 - Use `ChatBedrockConverse` class to use Bedrock's Converse API
 - Example:
 ```python
@@ -25,19 +26,18 @@ llm = ChatBedrockConverse(
     # other params...
 )
 ```
-<instantiate>
+</instantiate-model>
 
-<streaming>
-
+<streaming-response>
 - Example:
 ```python
 for chunk in llm.stream(messages):
     print(chunk)
 ```
-</streaming>
+</streaming-response>
 
 <streaming-tool-calls>
-
+- In streaming, `tool_calls` can be used after all tokens are generated
 - Example:
 ```python
 first = True
@@ -53,7 +53,6 @@ async for chunk in llm_with_tools.astream(query):
 </streaming-tool-calls>
 
 <multi-modal-image-input>
-
 - Attatch image to the message, encode image with base64 and put it in the content with `image` type
 - Example:
 ```python
@@ -75,36 +74,3 @@ message = HumanMessage(
 ai_msg = llm.invoke([message])
 ```
 </multi-modal-image-input>
-
-<sonnet-3-7-extened-thinking>
-
-- Some models, such as Claude 3.7 Sonnet, support an extended thinking feature that outputs the step-by-step reasoning process that led to an answer.
-- To use it, specify the thinking parameter when initializing ChatBedrockConverse as shown below.
-- Example:
-```python
-from langchain_aws import ChatBedrockConverse
-
-thinking_params= {
-    "thinking": {
-        "type": "enabled",
-        "budget_tokens": 2000
-    }
-}
-
-llm = ChatBedrockConverse(
-    model="us.anthropic.claude-3-7-sonnet-20250219-v1:0",
-    max_tokens=5000,
-    region_name="us-west-2",
-    additional_model_request_fields=thinking_params,
-)
-
-response = llm.invoke("What is the cube root of 50.653?")
-print(response.content)
-```
-</sonnet-3-7-extened-thinking>
-
-<prompt-file-location>
-
-- Always separate prompts into dedicated files, under `src/prompts/`
-
-</prompt-file-location>
