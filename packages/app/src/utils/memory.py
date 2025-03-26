@@ -9,6 +9,8 @@ from langchain_community.docstore.in_memory import InMemoryDocstore
 from langchain_aws import BedrockEmbeddings
 from langchain.memory import VectorStoreRetrieverMemory, ConversationBufferWindowMemory
 
+from src.constant import MAX_RECENT_HISTORY_TURNS
+
 logger = logging.getLogger(__name__)
 
 
@@ -108,7 +110,7 @@ class VectorMemoryManager(MemoryManager):
 class RecentMemoryManager(MemoryManager):
     """Memory management class using ConversationBufferWindowMemory."""
 
-    def __init__(self, k: int = 10):
+    def __init__(self, k: int = MAX_RECENT_HISTORY_TURNS // 2):
         """
         Initialize recent memory manager.
 

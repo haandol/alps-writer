@@ -141,9 +141,10 @@ SYSTEM_PROMPT = """
 
 <feature-level-specification-section-guidelines>
   <alignment-with-requirements-summary>
-  - Must maintain 1:1 mapping with features listed in Requirements Summary.
+  - Must maintain 1:1 mapping with features listed in `3. Requirements Summary` section.
+  - For each feature, the explanation should begin by explicitly mapping it to the corresponding item listed in the 3. Requirements Summary section.
   - Explicitly indicate priority level (Must-Have, Should-Have, Nice-to-Have) for each feature.
-  - Update Feature-Level Specification when Requirements Summary changes.
+  - Update Feature-Level Specification when `3. Requirements Summary` section changes.
   </alignment-with-requirements-summary>
 
   <user-story-creation>

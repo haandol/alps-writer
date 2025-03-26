@@ -18,7 +18,7 @@ from src.handlers.file_handler import FileLoadHandler
 from src.handlers.image_file_handler import ImageFileLoadHandler
 from src.handlers.search_handler import WebSearchHandler
 from src.utils.memory import VectorMemoryManager, RecentMemoryManager
-
+from src.constant import MAX_RECENT_HISTORY_TURNS
 dotenv.load_dotenv()
 
 logging.basicConfig(
@@ -200,11 +200,18 @@ async def main(message: cl.Message):
             if chunk:
                 await msg.stream_token(chunk)
     else:
-        # Get relevant history from vector memory
-        relevant_history = vector_memory.get_relevant_history(
-            user_message_content)
         # Get recent conversation history from recent memory
         recent_history = recent_memory.get_conversation_string()
+        # Get relevant history from vector memory
+        last_message_contents = "\n".join([
+            m.content for m in recent_memory.memory.chat_memory.messages[MAX_RECENT_HISTORY_TURNS // 4:]
+        ])
+        relevant_query = f"{last_message_contents}\n{user_message_content}".strip(
+        )
+        relevant_history = vector_memory.get_relevant_history(relevant_query)
+        logger.info(
+            f"Relevant query: {relevant_query[:100]}...{relevant_query[-100:]}")
+        logger.info(f"Relevant history: {relevant_history[:100]}")
 
         messages = llm_cowriter_service.build_alps_messages(
             message_content=user_message_content,
