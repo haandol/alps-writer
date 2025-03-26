@@ -20,6 +20,7 @@
 ```md
 - 2025-01-31: 초기 초안 작성
 - 2025-03-05: 현재 구현 상태 반영 업데이트
+- 2025-03-20: 메모리 관리 시스템 추가 및 기능 업데이트
 ```
 
 ---
@@ -29,10 +30,12 @@
 ### 2.1 목적
 
 - AI가 주어진 템플릿 기반으로 사용자의 입력을 반영하여 기술 사양 문서를 빠르게 생성할 수 있는가?
+- 사용자와 AI의 대화 컨텍스트를 효과적으로 유지하며 문서를 작성할 수 있는가?
 
 ### 2.2 핵심 지표 (KPI)
 
 - 사용자가 AI를 통해 문서를 완성하는 평균 시간: **30분 이하**
+- 대화 컨텍스트 유지율: **90% 이상**
 
 ---
 
@@ -42,15 +45,18 @@
 
 - **F1: 템플릿 기반 AI 문서 작성**
   - 미리 지정된 ALPS 템플릿을 기반으로 AI가 사용자 입력을 반영하여 문서를 생성
+  - 벡터 메모리와 최근 메모리를 활용한 대화 컨텍스트 관리
 
 - **F2: 대화형 입력 지원**
   - 사용자가 AI와 대화하며 단계적으로 문서를 채워갈 수 있도록 지원
+  - 스트리밍 방식의 실시간 응답 제공
 
 - **F3: 문서 다운로드 기능**
   - 작성된 문서를 Markdown (`.md`) 형식으로 다운로드할 수 있음
 
 - **F4: 기존 문서 불러오기 및 편집**
   - 이전에 작성한 문서(`.md`, `.json`, `.pdf`) 및 이미지 파일(`.jpg`, `.jpeg`, `.png`, `.gif`, `.webp`)을 불러와 AI와 함께 추가 편집 가능
+  - 멀티모달 입력 지원으로 이미지 컨텍스트 활용
 
 - **F5: 웹 검색 기능**
   - `/search` 명령어를 통해 실시간 웹 검색 결과를 대화에 반영 가능
@@ -61,10 +67,12 @@
 - **NF1: 성능**
   - 1,000명의 동시 사용자 지원
   - 문서 생성 속도는 30초 이내여야 함
+  - 메모리 관리 시스템을 통한 효율적인 컨텍스트 유지
 
 - **NF2: 보안**
   - AWS Cognito를 통한 OAuth 인증 지원 (개발 환경에서는 비활성화 가능)
   - DynamoDB를 사용한 대화 히스토리 저장
+  - 환경 변수를 통한 민감 정보 관리
 
 ---
 
@@ -72,7 +80,7 @@
 
 ### 4.1 시스템 구성도
 
-초기 MVP는 **Python Chainlit**을 사용하여 프론트엔드와 백엔드를 통합 처리하며, **Amazon Bedrock의 Claude 3.7 Sonnet**을 활용해 AI와 대화하며 문서를 생성합니다. 생성된 문서는 **로컬 파일(`.md`)로 저장**됩니다.
+초기 MVP는 **Python Chainlit**을 사용하여 프론트엔드와 백엔드를 통합 처리하며, **Amazon Bedrock의 Claude 3.7 Sonnet**을 활용해 AI와 대화하며 문서를 생성합니다. 생성된 문서는 **로컬 파일(`.md`)로 저장**됩니다. 대화 컨텍스트는 **벡터 메모리**와 **최근 메모리**를 통해 관리됩니다.
 
 ```mermaid
 flowchart LR
@@ -81,6 +89,7 @@ flowchart LR
     Chainlit -- "Web Search" --> Tavily(Tavily API)
     Chainlit -- "Save File" --> FileSystem(Local)
     User -- "Upload/Download File" --> Chainlit
+    Chainlit -- "Context Management" --> Memory[Vector & Recent Memory]
 ```
 
 ### 4.2 기술 스택
@@ -94,6 +103,7 @@ flowchart LR
 | **파일 저장**           | 로컬 파일 (`.md`) 저장                                           |
 | **히스토리 저장**       | AWS DynamoDB (선택적)                                            |
 | **인증**                | AWS Cognito OAuth (선택적)                                       |
+| **메모리 관리**         | Vector Memory (FAISS), Recent Memory (Window Buffer)             |
 | **배포 환경**           | 로컬 실행 (MVP 1단계), 이후 ECS 배포 예정                        |
 
 ---
@@ -190,7 +200,9 @@ sequenceDiagram
   - Langchain을 통한 LLM 인터페이스 구현
   - 챕터별 질문을 통해 순차적 문서 작성 유도
 
-- **메시지 처리**:
+- **메모리 관리**:
+  - Vector Memory: FAISS를 사용한 의미론적 메모리 검색
+  - Recent Memory: Window Buffer를 통한 최근 대화 컨텍스트 유지
   - 히스토리를 유지하면서 대화 컨텍스트 관리
 
 ### 6.2 기능 B (F2: 대화형 입력 지원)
@@ -213,9 +225,10 @@ sequenceDiagram
 - **메시지 처리**:
   - 사용자 메시지를 Chainlit의 `cl.Message` 객체로 관리
   - 메시지 히스토리를 세션 변수에 저장하여 대화 연속성 유지
+  - Vector Memory와 Recent Memory를 통한 효율적인 컨텍스트 관리
 
 - **스트리밍 응답**:
-  - `llm_cowriter_service.cowrite_alps_template_stream` 메서드를 통해 응답 스트리밍
+  - `llm_cowriter_service.stream_llm_response` 메서드를 통해 응답 스트리밍
   - 실시간으로 토큰을 받아 UI에 표시하여 사용자 경험 향상
 
 - **이미지 처리**:
@@ -371,10 +384,25 @@ message_history = [
 
 - `.env` 파일에 다음 환경 변수 설정 필요:
   ```
-  TAVILY_API_KEY=your_tavily_api_key
-  AWS_REGION=your_aws_region
-  DISABLE_OAUTH=true  # 로컬 테스트용
+  # AWS
+  AWS_DEFAULT_REGION=your_aws_region
   AWS_PROFILE_NAME=your_aws_profile  # 선택사항
+
+  # Bedrock
+  MODEL_ID=us.anthropic.claude-3-7-sonnet-20250219-v1:0
+
+  # Search
+  TAVILY_API_KEY=your_tavily_api_key
+
+  # OAuth
+  DISABLE_OAUTH=true  # 로컬 테스트용
+  OAUTH_COGNITO_CLIENT_ID=your_cognito_client_id
+  OAUTH_COGNITO_CLIENT_SECRET=your_cognito_client_secret
+  OAUTH_COGNITO_DOMAIN=your_cognito_domain
+  CHAINLIT_AUTH_SECRET=your_chainlit_auth_secret
+  CHAINLIT_URL=http://localhost:8000
+
+  # Chat
   HISTORY_TABLE_NAME=your_dynamo_table  # OAuth 사용 시
   ```
 
@@ -383,6 +411,11 @@ message_history = [
 - 파이썬 기본 로깅 모듈 사용
 - 로그 레벨: INFO (기본), ERROR (예외 상황)
 - 로그 포맷: 타임스탬프, 로그 레벨, 메시지
+- 주요 모니터링 항목:
+  - 메시지 처리 시간
+  - 메모리 사용량
+  - 대화 컨텍스트 유지율
+  - 사용자 상호작용 패턴
 
 ---
 
@@ -409,3 +442,5 @@ message_history = [
 - **다국어 지원 개선**: 현재는 기본적인 다국어 지원만 구현, 향후 확장
 - **사용자 피드백 시스템**: 문서 품질에 대한 피드백 수집 메커니즘
 - **ECS 배포**: 현재는 로컬 실행, 이후 AWS ECS를 통한 확장 가능한 배포 계획
+- **메모리 최적화**: Vector Memory와 Recent Memory의 성능 및 효율성 개선
+- **템플릿 섹션 분리**: ALPS 템플릿을 섹션별로 분리하여 RAG를 통한 토큰 사용량 최적화
