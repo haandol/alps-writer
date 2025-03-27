@@ -1,6 +1,6 @@
 # Agentic Lean Prototyping Spec (ALPS) Template
 
-## 1. Overview
+## Section 1. Overview
 
 ### 1.1 Purpose
 
@@ -12,7 +12,7 @@
 
 ---
 
-## 2. MVP Goals and Key Metrics
+## Section 2. MVP Goals and Key Metrics
 
 ### 2.1 Purpose
 
@@ -44,7 +44,7 @@ Revisit rate within 14 days after sign-up: 30% or higher
 
 ---
 
-## 3. Requirements Summary
+## Section 3. Requirements Summary
 
 ### 3.1 Core Functional Requirements
 
@@ -89,7 +89,7 @@ Revisit rate within 14 days after sign-up: 30% or higher
 
 ---
 
-## 4. High-Level Architecture
+## Section 4. High-Level Architecture
 
 ### 4.1 Simple System Diagram
 
@@ -117,7 +117,7 @@ flowchart LR
 
 ---
 
-## 5. Design Specification
+## Section 5. Design Specification
 
 - Define the minimum UI/UX guidelines that will be directly reflected in MVP development.
 
@@ -191,7 +191,7 @@ flowchart LR
 
 ---
 
-## 6. Feature-Level Specification
+## Section 6. Feature-Level Specification
 
 - Detail the implementation for each core functional requirement (Fx) from Section 3.1.
 - Ensure all requirements in Section 3.1 are covered without introducing additional features.
@@ -284,7 +284,7 @@ flowchart LR
 
 ---
 
-## 7. Data Model
+## Section 7. Data Model
 
 - This section consolidates the API specifications detailed in Section 6 (Feature-Level Specification).
 - Define the database structure or table/collection design for the MVP.
@@ -299,7 +299,7 @@ flowchart LR
 
 ---
 
-## 8. API Endpoint Specification
+## Section 8. API Endpoint Specification
 
 - This section consolidates the API specifications detailed in Section 6 (Feature-Level Specification).
 - Define the API Endpoints for the MVP.
@@ -314,7 +314,7 @@ flowchart LR
 
 ---
 
-## 9. Deployment & Operation
+## Section 9. Deployment & Operation
 
 ### 9.1 Deployment Method
 
@@ -345,7 +345,7 @@ Deploy via GitHub Actions with automatic deployment to AWS EC2.
 
 ---
 
-## 10. MVP Metrics
+## Section 10. MVP Metrics
 
 ### 10.1 Data to Collect
 
@@ -359,7 +359,7 @@ Deploy via GitHub Actions with automatic deployment to AWS EC2.
 
 ---
 
-## 11. Technical Debt Management (Out-of-Scope)
+## Section 11. Out-of-Scope
 
 - Describe out-of-scope requirements for the MVP.
 
