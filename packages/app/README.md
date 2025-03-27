@@ -6,7 +6,7 @@ An AI-powered tool that generates technical/functional specification documents t
 
 1. Python 3.13 or higher
 2. Configured AWSCLI
-3. Enabled AWS Bedrock for `Anthropic Claude 3.7 Sonnet` and `Amazon Titan Embeddings Text V2`
+3. Enabled AWS Bedrock for `Anthropic Claude 3.5 Sonnet V2` and `Amazon Titan Embeddings Text V2`
 
 ## Installation
 

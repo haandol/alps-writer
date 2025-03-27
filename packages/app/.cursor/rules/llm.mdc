@@ -1,11 +1,11 @@
 ---
 description: Guideline for Implementing with Amazon Bedrock and Langchain AWS
-globs: src/services/*.py
+globs: src/**/*.py
 alwaysApply: false
 ---
 <prerequisites>
 - Use Amazon Bedrock's Converse API
-- Use Claude 3.7 Sonnet model, `us.anthropic.claude-3-7-sonnet-20250219-v1:0`
+- Use Claude 3.5 Sonnet V2 model, ID: `us.anthropic.claude-3-5-sonnet-20241022-v2:0`
 - Use Langchain (`langchain`) and Langchain AWS (`langchain-aws`) libraries
 </prerequisites>
 
@@ -20,7 +20,7 @@ alwaysApply: false
 from langchain_aws.chat_models import ChatBedrockConverse
 
 llm = ChatBedrockConverse(
-    model="us.anthropic.claude-3-7-sonnet-20250219-v1:0",
+    model="us.anthropic.claude-3-5-sonnet-20241022-v2:0",
     temperature=0.33,
     max_tokens=4096,
     # other params...

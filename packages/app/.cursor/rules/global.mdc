@@ -5,8 +5,8 @@ alwaysApply: true
 ---
 <rules>
 - Before implementing any feature, please read first [SPEC.md](mdc:SPEC.md) file carefully.
-- When writing LLM code, please read the [langchain.mdc](mdc:.cursor/rules/langchain.mdc) rules carefully.
-- When writing Chainlit code, pease read the [chainlit.mdc](mdc:.cursor/rules/chainlit.mdc) rules carefully.
+- When writing LLM code, please read the [llm.mdc](mdc:.cursor/rules/llm.mdc) rules carefully.
+- When writing Chainlit code, pease read the [chainlit.mdc](mdc:.cursor/rules/chainlit.mdc)chainlit.md rules carefully.
 </rules>
 
 <prerequisites>
@@ -40,22 +40,16 @@ alwaysApply: true
 </user-interface-and-user-experience>
 
 <integration-web-search-feature>
-- Request chapter-specific questions from LLM (Claude Sonnet 3.7) based on ALPS template and context (F6)
+- Request chapter-specific questions from LLM based on ALPS template and context (F6)
 - Process web search commands (`/search [query]`) through command parsing, Tavily API calls, and result formatting
 - Include appropriate exception handling and user guidance messages for each feature call
 </integration-web-search-feature>
-
-<testing-and-maintenance>
-- Write comprehensive test cases for all features (document creation, file saving, web search, etc.)
-- Maintain code quality and consistency through code reviews and regular refactoring
-- Update both [SPEC.md](mdc:SPEC.md) and cursorrules when adding new features to ensure documentation stays current
-</testing-and-maintenance>
 
 <error-handling>
 - Implement comprehensive error handling for all operations
 - Log errors appropriately using Python's logging module
 - Provide user-friendly error messages through Chainlit interface
-- Handle specific exceptions:
+- Handle speciftions:
   ```python
   try:
       # Operation code

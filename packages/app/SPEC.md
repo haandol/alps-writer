@@ -80,12 +80,12 @@
 
 ### 4.1 시스템 구성도
 
-초기 MVP는 **Python Chainlit**을 사용하여 프론트엔드와 백엔드를 통합 처리하며, **Amazon Bedrock의 Claude 3.7 Sonnet**을 활용해 AI와 대화하며 문서를 생성합니다. 생성된 문서는 **로컬 파일(`.md`)로 저장**됩니다. 대화 컨텍스트는 **벡터 메모리**와 **최근 메모리**를 통해 관리됩니다.
+초기 MVP는 **Python Chainlit**을 사용하여 프론트엔드와 백엔드를 통합 처리하며, **Amazon Bedrock의 Claude 3.5 Sonnet V2**을 활용해 AI와 대화하며 문서를 생성합니다. 생성된 문서는 **로컬 파일(`.md`)로 저장**됩니다. 대화 컨텍스트는 **벡터 메모리**와 **최근 메모리**를 통해 관리됩니다.
 
 ```mermaid
 flowchart LR
     User -- "Chat with AI" --> Chainlit(Python App)
-    Chainlit -- "LLM Query" --> Bedrock(Claude 3.7 Sonnet)
+    Chainlit -- "LLM Query" --> Bedrock(Claude 3.5 Sonnet V2)
     Chainlit -- "Web Search" --> Tavily(Tavily API)
     Chainlit -- "Save File" --> FileSystem(Local)
     User -- "Upload/Download File" --> Chainlit
@@ -98,7 +98,7 @@ flowchart LR
 | ----------------------- | ---------------------------------------------------------------- |
 | **프론트엔드 & 백엔드** | Python (Chainlit)                                                |
 | **LLM API**             | Amazon Bedrock, Langchain                                        |
-| **LLM Model**           | Claude Sonnet 3.7 (us.anthropic.claude-3-7-sonnet-20250219-v1:0) |
+| **LLM Model**           | Claude Sonnet 3.5 V2 (us.anthropic.claude-3-5-sonnet-20241022-v2:0) |
 | **웹 검색 API**         | Tavily API                                                       |
 | **파일 저장**           | 로컬 파일 (`.md`) 저장                                           |
 | **히스토리 저장**       | AWS DynamoDB (선택적)                                            |
@@ -196,7 +196,7 @@ sequenceDiagram
   - 언어 감지를 통해 사용자 언어로 응답
 
 - **LLM 통합**:
-  - Amazon Bedrock의 Claude 3.7 Sonnet 모델 활용
+  - Amazon Bedrock의 Claude 3.5 Sonnet V2 모델 활용
   - Langchain을 통한 LLM 인터페이스 구현
   - 챕터별 질문을 통해 순차적 문서 작성 유도
 
