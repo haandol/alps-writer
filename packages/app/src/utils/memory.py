@@ -8,7 +8,7 @@ from langchain_community.vectorstores import FAISS
 from langchain_community.docstore.in_memory import InMemoryDocstore
 from langchain_aws import BedrockEmbeddings
 from langchain.memory import VectorStoreRetrieverMemory, ConversationBufferWindowMemory
-
+from langchain.schema import BaseMessage
 from src.constant import MAX_RECENT_HISTORY_TURNS
 
 logger = logging.getLogger(__name__)
@@ -117,7 +117,7 @@ class RecentMemoryManager(MemoryManager):
         Args:
             k (int): Maximum number of message pairs to store
         """
-        self.memory = ConversationBufferWindowMemory(k=k)
+        self.memory = ConversationBufferWindowMemory(k=k, return_messages=True)
         self.k = k
 
     def add_user_message(self, message_content: str) -> None:
@@ -130,12 +130,12 @@ class RecentMemoryManager(MemoryManager):
             {"output": ai_message}
         )
 
-    def get_conversation_string(self) -> str:
+    def get_conversation_history(self) -> List[BaseMessage]:
         """
-        Return the stored conversation history as a string.
+        Return the stored conversation history as a list of messages.
 
         Returns:
-            str: Conversation history string
+            List[BaseMessage]: Conversation history list
         """
         return self.memory.load_memory_variables({})["history"]
 

@@ -18,7 +18,7 @@ from src.handlers.file_handler import FileLoadHandler
 from src.handlers.image_file_handler import ImageFileLoadHandler
 from src.handlers.search_handler import WebSearchHandler
 from src.utils.memory import VectorMemoryManager, RecentMemoryManager
-from src.constant import MAX_RECENT_HISTORY_TURNS
+
 dotenv.load_dotenv()
 
 logging.basicConfig(
@@ -83,7 +83,7 @@ if not DISABLE_OAUTH:
 
             # skip error messages
             if message["isError"]:
-                logger.error(f"Error message: {message}")
+                logger.debug(f"Skip Error message: {message}")
                 continue
 
             if message["type"] == "user_message":
@@ -201,10 +201,11 @@ async def main(message: cl.Message):
                 await msg.stream_token(chunk)
     else:
         # Get recent conversation history from recent memory
-        recent_history = recent_memory.get_conversation_string()
+        recent_history = recent_memory.get_conversation_history()
+        logger.info(f"Recent history: {len(recent_history)}")
         # Get relevant history from vector memory
         last_message_contents = "\n".join([
-            m.content for m in recent_memory.memory.chat_memory.messages[MAX_RECENT_HISTORY_TURNS // 4:]
+            m.content for m in recent_history[-6:]
         ])
         relevant_query = f"{last_message_contents}\n{user_message_content}".strip(
         )

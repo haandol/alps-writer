@@ -55,8 +55,8 @@ class LLMCowriterService:
     def build_alps_messages(
         self,
         message_content: str,
-        recent_history: Optional[str] = None,
-        relevant_history: Optional[str] = None,
+        recent_history: List[str] = [],
+        relevant_history: str = '',
         text_context: Optional[str] = None,
         image_context: Optional[str] = None,
     ) -> List[SystemMessage | HumanMessage]:
@@ -71,26 +71,19 @@ class LLMCowriterService:
             image_context: Image context from uploaded files
 
         Returns:
-            List[SystemMessage | HumanMessage]: List of messages ready for LLM processing
+            List[SystemMessage | BaseMessage]: List of messages ready for LLM processing
         """
         logger.info(
-            f"Using recent history: {len(recent_history.strip()) > 0} and relevant history: {len(relevant_history.strip()) > 0}")
+            f"Using recent history: {len(recent_history) > 0} and relevant history: {len(relevant_history.strip()) > 0}")
 
         message_contents = []
 
-        # Add conversation history if available
-        if recent_history and len(recent_history.strip()) > 0:
-            logger.info(
-                f"Adding recent history to user message: {len(recent_history)}")
-            message_contents.append(
-                f"<recent_conversation>\n{recent_history}\n</recent_conversation>"
-            )
-
-        if recent_history and len(recent_history.split('\n')) >= MAX_RECENT_HISTORY_TURNS:
+        # Add relevant history if recent history is exceed MAX_RECENT_HISTORY_TURNS
+        if len(recent_history) > MAX_RECENT_HISTORY_TURNS:
             logger.info(
                 f"Adding relevant history to user message: {len(relevant_history)}")
             message_contents.append(
-                f"<relevant_conversation>\n{relevant_history}\n</relevant_conversation>"
+                f"<relevant-conversation>\n{relevant_history}\n</relevant-conversation>"
             )
 
         # Add context if available
@@ -112,7 +105,7 @@ class LLMCowriterService:
         else:
             user_message = HumanMessage(content="\n\n".join(message_contents))
 
-        return [self._build_system_message(), user_message]
+        return [self._build_system_message(), *recent_history, user_message]
 
     def build_web_search_messages(
         self,
