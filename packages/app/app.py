@@ -206,7 +206,6 @@ async def main(message: cl.Message):
         # Get relevant history from vector memory
         relevant_history = vector_memory.get_relevant_history(
             user_message_content)
-        logger.info(f"Relevant history: {relevant_history}")
 
         messages = llm_cowriter_service.build_alps_messages(
             message_content=user_message_content,
