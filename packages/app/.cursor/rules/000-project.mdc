@@ -1,0 +1,34 @@
+---
+description: Global ALPS Writer Implementation Guideline
+globs: **/*
+alwaysApply: true
+---
+<rules>
+  <chainlit>
+    - When writing Chainlit code, please read the [100-chainlit.mdc](mdc:.cursor/rules/100-chainlit.mdc) rule carefully.
+  </chainlit>
+  <llm>
+    - When writing LLM related code, please read the [101-langchain.mdc](mdc:.cursor/rules/101-langchain.mdc) rule carefully.
+  </llm>
+</rules>
+
+<project-overview>
+  <goal>
+    - Before implementing any feature, please read first [SPEC.md](mdc:SPEC.md) file carefully.
+    - This project is a PoC (Proof of Concept) development for an image-based Q&A system using Chainlit.
+  </goal>
+
+  <features>
+    - Text-based conversation
+    - Image upload and analysis
+    - Streaming response
+    - Conversation context management
+  </features>
+
+  <tech-stacks>
+    - Amazon Bedrock Claude 3 Sonnet for text and image processing
+    - Chainlit for UI/UX
+    - LangChain for LLM
+    - Python 3.13
+  </tech-stacks>
+</project-overview>

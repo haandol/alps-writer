@@ -1,0 +1,9 @@
+---
+description: 
+globs: *.py
+alwaysApply: false
+---
+<prerequisites>
+  - Use Langchaing AWS library, `langchain-aws`, to intgrate with Amazon Bedrock
+  - Use `langchain_aws.chat_models.BedrockChatConverse` class to use Amazon Converse API
+</prerequisites>

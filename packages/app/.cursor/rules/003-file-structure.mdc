@@ -1,0 +1,17 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+<structure>
+  ```
+  src/
+    ├── services/       # Core business logic
+    ├── handlers/       # Request handlers
+    ├── utils/          # Utility functions
+    ├── prompts/        # LLM prompt templates
+    └── constant.py     # Global constants
+  env/                  # Env files
+  .env                  # Current Environment variables
+  ```
+</structure>
