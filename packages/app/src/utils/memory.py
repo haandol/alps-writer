@@ -60,7 +60,7 @@ class MemoryManager(ABC):
 class VectorMemoryManager(MemoryManager):
     """Memory management class using VectorStoreRetrieverMemory."""
 
-    def __init__(self, k: int = 5):
+    def __init__(self, k: int = 7):
         """
         Initialize memory manager.
 
@@ -104,7 +104,7 @@ class VectorMemoryManager(MemoryManager):
         Returns:
             str: Relevant conversation history
         """
-        return self.memory.load_memory_variables({"input": query})["history"]
+        return self.memory.load_memory_variables({"output": query})["history"]
 
 
 class RecentMemoryManager(MemoryManager):
