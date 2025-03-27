@@ -74,14 +74,14 @@ class LLMCowriterService:
             List[SystemMessage | BaseMessage]: List of messages ready for LLM processing
         """
         logger.info(
-            f"Using recent history: {len(recent_history) > 0} and relevant history: {len(relevant_history.strip()) > 0}")
+            f"Got recent history: {len(recent_history)} and relevant history: {len(relevant_history.strip())}")
 
         message_contents = []
 
         # Add relevant history if recent history is exceed MAX_RECENT_HISTORY_TURNS
         if len(recent_history) > MAX_RECENT_HISTORY_TURNS:
             logger.info(
-                f"Adding relevant history to user message: {len(relevant_history)}")
+                f"Using relevant history to user message: {len(relevant_history)}")
             message_contents.append(
                 f"<relevant-conversation>\n{relevant_history}\n</relevant-conversation>"
             )

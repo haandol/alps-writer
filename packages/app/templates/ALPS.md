@@ -53,7 +53,6 @@ Revisit rate within 14 days after sign-up: 30% or higher
 - The functionalities listed in 3.1 define the upper limit of the development scope; additional features are not included.
 - Each core functional requirement (Fx) must be mapped to its corresponding design in Section 6.
 
-
 <example>
 - F1: Sign up via email
 - F2: Log in via email
@@ -68,6 +67,17 @@ Revisit rate within 14 days after sign-up: 30% or higher
 - Define non-functional requirements such as security, performance, and scalability.
 - Set the minimum standards for the MVP phase. Detailed specifications may be elaborated in Section 6 or the Architecture section.
 
+<additional-considerations>
+- Requirement IDs
+  - Each functional requirement must be assigned a unique ID (F1, F2, …).
+  - This ensures easy mapping with Section 6.
+- No Additional Features
+  - Features not defined in Section 3.1 are excluded from the MVP scope.
+  - If additional features are needed, they should be listed in Section 11.
+- Requirement-Design Mapping
+  - A mapping table linking requirement IDs and design elements is recommended for verification.
+</additional-considerations>
+
 <example>
 - NF1: Minimum security requirement (No email verification)
 - NF2: Performance requirement (Up to 1,000 daily users)
@@ -75,17 +85,6 @@ Revisit rate within 14 days after sign-up: 30% or higher
 - NF4: System stability (99.5% uptime or higher)
 ...
 </example>
-
-#### Additional Considerations
-
-- **Requirement IDs**
-  - Each functional requirement must be assigned a unique ID (F1, F2, …).
-  - This ensures easy mapping with Section 6.
-- **No Additional Features**
-  - Features not defined in Section 3.1 are excluded from the MVP scope.
-  - If additional features are needed, they should be listed in Section 11 (Technical Debt Management).
-- **Requirement-Design Mapping**
-  - A mapping table linking requirement IDs and design elements is recommended for verification.
 
 ---
 
@@ -157,11 +156,12 @@ flowchart LR
 - For applications with multiple pages, create separate subsections (5.2.1, 5.2.2, etc.) for each unique layout.
 
 <example>
-- **Header** (Logo, Sign-up/Login button)
+- Header (Logo, Sign-up/Login button)
   - Logo: Left-aligned, height 40px
   - Login/Sign-up button: Right-aligned, padding 8px 16px
 
-- **Main Content** (Post list, search bar)
+- Main Content (Post list, search bar)
+
   - Search bar: Centered at the top, width 50%
   - Post List: Grid layout
     - PC: 3-column grid (24px spacing)
@@ -172,10 +172,10 @@ flowchart LR
     - Title: Limit to 2 lines
     - Summary: Limit to 3 lines
 
-- **Footer** (Basic links)
+- Footer (Basic links)
   - Height: 60px
   - Links: Left-aligned, 24px spacing
-</example>
+    </example>
 
 #### 5.3 Responsive Design Guidelines
 
@@ -184,9 +184,9 @@ flowchart LR
 - Document critical breakpoints and their corresponding layout changes
 
 <example>
-- **Desktop (> 1024px)**: Three-column grid layout with right-aligned navigation
-- **Tablet (768px - 1024px)**: Two-column grid with preserved navigation
-- **Mobile (< 768px)**: Single-column layout with condensed navigation bar fixed to top
+- Desktop (> 1024px): Three-column grid layout with right-aligned navigation
+- Tablet (768px - 1024px): Two-column grid with preserved navigation
+- Mobile (< 768px): Single-column layout with condensed navigation bar fixed to top
 </example>
 
 ---
@@ -223,7 +223,7 @@ flowchart LR
    - Validate input
    - Trigger an API call
    - Redirect to the main page upon successful sign-up
-</example>
+     </example>
 
 #### 6.1.3 Technical Description
 
@@ -236,10 +236,12 @@ flowchart LR
    - Check for duplicate emails in the database
 
 2. Password Processing
+
    - Ensure a minimum of 8 characters, including at least one special character
    - Hash the password using bcrypt
 
 3. User Creation Process
+
    - Insert a new record into the `users` table
    - Generate and return a JWT token
 
@@ -247,40 +249,40 @@ flowchart LR
    - Return a 400 error for validation failures
    - Return a 409 error for duplicate email conflicts
    - Return a 500 error for server errors
-</example>
+     </example>
 
 #### 6.1.4 Scoped API Specification (Optional)
 
 - Describe the API specifications for this feature.
 
 <example>
-**User Story: As a user, I want to sign up, so I can access the service.**
+User Story: As a user, I want to sign up, so I can access the service.
 
-- **Endpoint:** POST /api/users
-- **Request Body:**
+- Endpoint: POST /api/users
+- Request Body:
   {
-    "email": string,
-    "password": string
+  "email": string,
+  "password": string
   }
-- **Response Body:**
+- Response Body:
   {
-    "userId": string,
-    "email": string
+  "userId": string,
+  "email": string
   }
-</example>
+  </example>
 
 #### 6.1.5 Scoped Data Model / Schema
 
 - Define the database table/collection schema for this feature.
 
 <example>
-**users table:**
+**users** table:
 
 - id: PRIMARY KEY
 - email: STRING (UNIQUE)
 - password: STRING (HASHED)
 - createdAt: TIMESTAMP
-</example>
+  </example>
 
 ---
 
@@ -329,19 +331,21 @@ Deploy via GitHub Actions with automatic deployment to AWS EC2.
 - List the tools and services used for logging, monitoring, and tracing.
 
 <example>
-**Logs:**
+Logs:
 - JSON-structured logs
 - AWS CloudWatch for log storage
 - AWS CloudWatch Log Insights for querying logs
 
-**Monitoring:**
+Monitoring:
+
 - AWS CloudWatch Metrics and Alarms
 - CloudWatch Alarms integrated with AWS SNS for Slack notifications on errors
 
-**Tracing:**
+Tracing:
+
 - Amazon X-Ray for application tracing
 - Arize Phoenix for LLM request tracing
-</example>
+  </example>
 
 ---
 

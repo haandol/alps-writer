@@ -79,7 +79,9 @@ class VectorMemoryManager(MemoryManager):
             index_to_docstore_id={}
         )
         self.retriever = self.vector_store.as_retriever(search_kwargs={"k": k})
-        self.memory = VectorStoreRetrieverMemory(retriever=self.retriever)
+        self.memory = VectorStoreRetrieverMemory(
+            retriever=self.retriever,
+        )
         self.k = k
 
     def add_user_message(self, message_content: str) -> None:
@@ -94,17 +96,44 @@ class VectorMemoryManager(MemoryManager):
             {"output": ai_message}
         )
 
-    def get_relevant_history(self, query: str) -> str:
+    def get_relevant_history(self, query: str, recent_history: List[BaseMessage] = None) -> str:
         """
         Search for relevant conversation history for the given query.
 
         Args:
             query (str): Search query
+            recent_history (List[BaseMessage], optional): Recent conversation history to exclude from results
 
         Returns:
             str: Relevant conversation history
         """
-        return self.memory.load_memory_variables({"output": query})["history"]
+        relevant_history = self.memory.load_memory_variables({"output": query})[
+            "history"]
+
+        # If recent_history is provided, remove duplicates
+        if recent_history:
+            # Convert recent_history messages to a set of tuples for easy comparison
+            recent_messages = set()
+            for msg in recent_history:
+                if hasattr(msg, 'content'):
+                    if isinstance(msg.content, str):
+                        recent_messages.add(msg.content)
+                    elif isinstance(msg.content, list):
+                        # Handle multi-modal content
+                        for content in msg.content:
+                            if isinstance(content, dict) and content.get('type') == 'text':
+                                recent_messages.add(content.get('text', ''))
+
+            # Filter out messages that are in recent_history
+            filtered_history = []
+            for line in relevant_history.split('\n'):
+                line = line.strip()
+                if line and line not in recent_messages:
+                    filtered_history.append(line)
+
+            relevant_history = '\n'.join(filtered_history)
+
+        return relevant_history
 
 
 class RecentMemoryManager(MemoryManager):

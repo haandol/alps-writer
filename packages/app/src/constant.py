@@ -15,4 +15,4 @@ MAX_TOKENS: int = 8192
 TEMPERATURE: float = 0.33
 
 # Memory
-MAX_RECENT_HISTORY_TURNS: int = 20
+MAX_RECENT_HISTORY_TURNS: int = 60  # 30 pairs

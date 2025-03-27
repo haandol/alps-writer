@@ -202,10 +202,11 @@ async def main(message: cl.Message):
     else:
         # Get recent conversation history from recent memory
         recent_history = recent_memory.get_conversation_history()
-        logger.info(f"Recent history: {len(recent_history)}")
         # Get relevant history from vector memory
         relevant_history = vector_memory.get_relevant_history(
-            user_message_content)
+            user_message_content,
+            recent_history=recent_history
+        )
 
         messages = llm_cowriter_service.build_alps_messages(
             message_content=user_message_content,
