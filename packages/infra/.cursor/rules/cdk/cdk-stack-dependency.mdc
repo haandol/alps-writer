@@ -1,0 +1,114 @@
+---
+description: 
+globs: bin/*.ts,lib/**/*.ts
+alwaysApply: false
+---
+<stack-dependency-management>
+  <visualize-dependency-graph>
+    - Analyzing the relationships between stacks beforehand minimizes unnecessary dependencies.
+    Example of a simple stack dependency diagram using Mermaid:
+
+    ```mermaid
+    graph TD
+        VpcStack --> CommonAppStack
+        CommonAppStack --> AuthStack
+        AuthStack --> ServiceAppStack
+        CommonAppStack --> ServiceAppStack
+    ```
+  </visualize-dependency-graph>
+
+  <dependency-hierarchy>
+    - Top-Level Stacks (Long-lived services)
+      Stacks such as `LoadBalancerStack`, `APIGatewayStack`, and `DatabaseStack` should be placed at the top to ensure stability. Application stacks (e.g., `ECSServiceStack`) depend on these.
+    - Lower-Level Stacks (Application services)
+      These stacks reference resources provided by the top-level stacks and can be managed independently as long as the underlying resources remain unchanged.
+    - Independent Stacks
+      For example, the `DatabaseStack` should remain independent and be maintained separately from `LoadBalancerStack` or `APIGatewayStack`.
+  </dependency-hierarchy>
+</stack-dependency-management>
+
+<passing-values-between-stacks>
+  - In AWS CDK, it is recommended to use dependency injection via constructor properties to pass values between stacks.
+
+  <example>
+    - Creating and Passing a Resource:
+
+    ```typescript
+    // Resource creation stack (creating and exposing the resource)
+    export class ResourceStack extends cdk.Stack {
+      public readonly myResource: SomeResourceType;
+
+      constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+        super(scope, id, props);
+        this.myResource = new SomeResourceType(this, 'MyResource', {
+          // Resource properties
+        });
+      }
+    }
+
+    // Resource consumer stack (using the resource passed via props)
+    interface ConsumerStackProps extends cdk.StackProps {
+      myResource: SomeResourceType;
+    }
+
+    export class ConsumerStack extends cdk.Stack {
+      constructor(scope: Construct, id: string, props: ConsumerStackProps) {
+        super(scope, id, props);
+        new SomeConstruct(this, 'MyConstruct', {
+          resource: props.myResource
+        });
+      }
+    }
+    ```
+  </example>
+</passing-values-between-stacks>
+
+<managing-explicit-and-implicit-dependencies>
+  <explicit-dependencies>
+    - To ensure a specific deployment order between stacks, you can explicitly add dependencies:
+    <example>
+      ```typescript
+      const authStack = new AuthStack(app, 'AuthStack', {
+        redirectUris: Config.auth.redirectUris,
+      });
+
+      const gatewayStack = new GatewayStack(app, 'GatewayStack', {
+        userPool: authStack.userPool,
+        userPoolClient: authStack.userPoolClient,
+      });
+
+      // gatewayStack depends on authStack
+      gatewayStack.addDependency(authStack);
+      ```
+    </example>
+  </explicit-dependencies>
+
+  <implicit-dependencies-and-avoiding-cyclic-dependencies>
+    - To prevent cyclic dependencies, consider the following approaches:
+      1. Resource Re-importation:
+        Instead of directly using a resource passed via the constructor, re-import the resource within the stack (e.g., using methods like `fromAttribute`) to limit its scope to the current stack.
+      2. Creating New Constructs:
+        Rather than using methods like `addXXX` to add sub-resources to an existing resource, create a new independent construct.
+
+    <example>
+      - Example of re-importing API Gateway and Load Balancer:
+      ```typescript
+      export class ServiceStack extends cdk.Stack {
+        constructor(scope: cdk.Construct, id: string, props: ServiceProps) {
+          super(scope, id, props);
+
+          const restApi = apigw.RestApi.fromRestApiAttributes(this, 'RestApi', {
+            restApiId: props.restApiId,
+            rootResourceId: props.restApiRootId,
+          });
+          const loadBalancer = elbv2.ApplicationLoadBalancer.fromApplicationLoadBalancerAttributes(this, 'ALB', {
+            loadBalancerArn: props.loadBalancerArn,
+            securityGroupId: props.loadBalancerSecurityGroupId,
+            vpc: props.cluster.vpc,
+          });
+        }
+      }
+      ```
+    </example>
+  </implicit-dependencies-and-avoiding-cyclic-dependencies>
+</managing-explicit-and-implicit-dependencies>

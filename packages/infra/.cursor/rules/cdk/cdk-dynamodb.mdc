@@ -1,0 +1,47 @@
+---
+description: writing dynamodb table cdk code
+globs: lib/**/*.ts
+alwaysApply: false
+---
+<single-table-design-approach>
+   This project uses Single Table Design approach to deal with various entities on DynamoDB.
+
+   1. Identify Entities
+      - List all data entities (e.g., users, orders, products) required by the application.
+
+   2. Define Access Patterns
+      - Determine how the application will query, filter, and sort data.
+      - Example considerations:
+      - What queries are needed?
+      - How will data be filtered?
+      - What sorting orders are required?
+
+   3. Design PK/SK Schema
+      - Construct partition key (`PK`) and sort key (`SK`) combinations based on access patterns.
+
+   4. Design Global Secondary Indexes (GSIs)
+      - Define GSIs for access patterns that the base table cannot support.
+
+   5. Define Item Attributes
+      - Determine which attributes each entity type will store.
+
+   6. Implement Table in CDK
+      - Write CDK code according to the finalized table schema and index design.
+</single-table-design-approach>
+
+<table-configuration>
+   - Use a single table unless a strong justification exists for multiple tables.
+   - Standardize key naming:
+   - Partition key: `PK`
+   - Sort key: `SK`
+   - Default to on-demand capacity mode for cost efficiency.
+</table-configuration>
+
+<global-secondary-index>
+   - Create Global Secondary Indexes (GSIs) only when necessary for access patterns.
+   - Avoid using Local Secondary Indexes (LSIs) due to their tight coupling with the base table.
+   - Standardize naming conventions:
+   - Indexes: `GS1`, `GS2`, ..., `GSn`
+   - Index partition keys: `GSnPK`
+   - Index sort keys: `GSnSK`
+</global-secondary-index>

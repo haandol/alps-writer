@@ -1,0 +1,19 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+<project-structure>
+- Stack and construct classes should be placed in the following directories:
+
+```typescript
+project_root/
+  ├── bin/                    # CDK app entrypoint
+  ├── lib/                    # Stacks and constructs
+  │   ├── stacks/             # Stack classes
+  │   └── constructs/         # Reusable constructs
+  ├── functions/              # Lambda function code
+  ├── config/                 # Environment config files
+  └── package.json
+```
+</project-structure>

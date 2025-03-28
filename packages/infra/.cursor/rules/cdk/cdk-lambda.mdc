@@ -1,0 +1,82 @@
+---
+description: writing dynamodb table cdk code
+globs: functions/**/*.py
+alwaysApply: false
+---
+<lambda-language>
+  - Use Python 3.13
+</lambda-language>
+
+<dependency-management>
+  - Use `pip` tool and `requirements.txt` to manage dependencies and Python environment
+  - Use the latest version of each library without specifying a version
+</dependency-management>
+
+<code-style-and-architecture>
+  <core-principles>
+    - Write clean code with clear intent while following PEP8 style guidelines
+    - Minimize code duplication through DRY principles and maintain modular/separated structure
+    - Utilize type hints extensively to enhance code stability and readability
+  </core-principles>
+
+  <type-annotation>
+    - Use def for pure functions and async def for asynchronous operations.
+    - Use type hints for all function signatures.
+  </type-annotation>
+
+  <architecture-design>
+    - Manage user interactions through async message processing (async/await)
+    - Securely handle sensitive information (e.g., AWS, Tavily API Keys) via environment variables (.env) loaded with dotenv module
+    - Ensure stable operation through Python's logging module and appropriate exception handling (e.g., ClientError)
+  </architecture-design>
+</code-style-and-architecture>
+
+<naming-conventions>
+  - Classes: PascalCase (e.g., `FileLoadHandler`)
+  - Functions/Methods: snake_case (e.g., `handle_save_document`)
+  - Variables: snake_case (e.g., `user_message`)
+  - Constants: UPPER_SNAKE_CASE (e.g., `MAX_RETRIES`)
+  - Files: snake_case (e.g., `file_handler.py`)
+</naming-conventions>
+
+<documentation-conventions>
+  - Include docstrings for all classes and functions using Google style:
+    ```python
+    def function_name(param1: str, param2: int) -> bool:
+        """
+        Brief description of function.
+
+        Args:
+            param1 (str): Description of param1
+            param2 (int): Description of param2
+
+        Returns:
+            bool: Description of return value
+
+        Raises:
+            ValueError: Description of when this error occurs
+        """
+    ```
+</documentation-conventions>
+
+<error-handling>
+  - Implement comprehensive error handling for all operations
+  - Log errors appropriately using Python's logging module
+
+  <example>
+    ```python
+    import traceback
+
+    # define logger
+
+    try:
+        # Operation code
+    except ClientError as e:
+        logger.info(traceback.format_exc())
+        await cl.Message(content="Operation failed. Please try again.").send()
+    except Exception as e:
+        logger.info(traceback.format_exc())
+        await cl.Message(content="An unexpected error occurred.").send()
+    ```
+  </example>
+</error-handling>

@@ -1,0 +1,44 @@
+---
+description: writing dynamodb table cdk code
+globs: lib/**/*.ts
+alwaysApply: false
+---
+<service-relationship-overview>
+    - In Amazon Cognito, a User Pool is a user directory that manages user accounts and authentication.
+    - A User Pool Domain provides a hosted interface for authentication, including login, registration, and password recovery.
+    - A User Pool Client enables applications to interact with the User Pool—handling login, token issuance, and authorization flows.
+</service-relationship-overview>
+
+<amazon-cognito-userpool>
+  <setup-guidelines>
+    - User sign-up is disabled; all accounts are created manually by the administrator.
+    - Configure user verification with a custom email subject, email body, and code-based verification style.
+    - Enforce a robust password policy: a minimum of 8 characters, requiring uppercase, lowercase, digits, and symbols; temporary password validity is set to 3 days.
+    - Set MFA to REQUIRED, supporting both SMS and OTP as second factors.
+    - Allow sign-in using both username and email, with sign-in aliases being case-insensitive.
+    - Specify standard attributes: require email, givenName, and familyName; phoneNumber remains optional.
+    - Enable auto-verification for email and phone, while preserving their original values.
+    - Users can recover their accounts via email.
+    - Automatically verify email and phone numbers to facilitate system-generated recovery messages.
+    - Apply deletion protection: use RETAIN in production and DESTROY in non-production.
+  </setup-guidelines>
+</amazon-cognito-userpool>
+
+<amazon-cognito-userpool-domain>
+  <setup-guidelines>
+    - Configure the User Pool Domain using a domain prefix that combines the lower-case namespace, a fixed identifier (e.g., "alps-app"), and the AWS account ID (e.g., <code>${ns.toLowerCase()}-alps-app-${account}</code>).
+    - Use the latest managed login version (NEWER_MANAGED_LOGIN) to leverage updated features and enhance user experience.
+    - Expose the domain name as a CloudFormation output (e.g., UserPoolDomainName) to facilitate integration with other systems.
+  </setup-guidelines>
+</amazon-cognito-userpool-domain>
+
+<amazon-cognito-userpool-client>
+  <setup-guidelines>
+    - Enable authentication flows: adminUserPassword and userSrp.
+    - Configure OAuth to support the authorization code grant flow with the following scopes: OPENID, EMAIL, PHONE, and PROFILE.
+    - Construct callback URLs by combining a fixed suffix (e.g., "auth/oauth/aws-cognito/callback") with dynamic parts (recordName and domainName) along with any additional callback URLs.
+    - Set token validity periods as follows: ID token for 1 day, access token for 12 hours, and refresh token for 30 days.
+    - Enable secret generation and prevent user existence errors.
+    - Supported Identity Providers: COGNITO.
+  </setup-guidelines>
+</amazon-cognito-userpool-client>
