@@ -21,7 +21,7 @@ alwaysApply: true
   </core-principles>
 
   <type-annotation>
-    - Use def for pure functions and async drations.
+    - Use def for pure functions and async def for asynchronous operations.
     - Use type hints for all function signatures.
   </type-annotation>
 

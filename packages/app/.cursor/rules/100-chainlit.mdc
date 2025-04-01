@@ -31,7 +31,7 @@ alwaysApply: false
 
     @cl.on_chat_start
     async def on_chat_start():
-        model = ChatOpenAI(streaming=True)
+        model = ChatOpenAI()
         prompt = ChatPromptTemplate.from_messages(
             [
                 (
@@ -61,6 +61,26 @@ alwaysApply: false
     ```
   </example>
 </async-invoke-message>
+
+<image-element>
+  - The Image class is designed to create and handle image elements to be sent and displayed in the chatbot user interface.
+  - You must provide either an url or a path or content bytes.
+  <example>
+  ```python
+  import chainlit as cl
+
+  @cl.on_chat_start
+  async def start():
+      image = cl.Image(path="./cat.jpeg", name="image1", display="inline")
+
+      # Attach the image to the message
+      await cl.Message(
+          content="This message has an image!",
+          elements=[image],
+      ).send()
+  ```
+  </example>
+</image-element>
 
 <multi-modality>
   - Chainlit supports the multi-modal functionality to access these attached files through the `cl.on_message` decorated function.

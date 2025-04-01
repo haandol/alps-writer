@@ -5,5 +5,50 @@ alwaysApply: false
 ---
 <prerequisites>
   - Use Langchaing AWS library, `langchain-aws`, to intgrate with Amazon Bedrock
-  - Use `langchain_aws.chat_models.BedrockChatConverse` class to use Amazon Converse API
+  - Use `ChatBedrockConverse` class to use Amazon Converse API
 </prerequisites>
+
+<examples>
+  <example title="initiate">
+    ```python
+    from langchain_aws import ChatBedrockConverse
+
+    llm = ChatBedrockConverse(
+        model="anthropic.claude-3-sonnet-20240229-v1:0",
+        temperature=0,
+        max_tokens=None,
+    )
+    ```
+  </example>
+  <example title="asynchronous stream">
+    ```python
+    async for chunk in llm.astream(messages):
+      for content in chunk.content:
+            yield content.get("text", "")
+        await asyncio.sleep(0)
+    ```
+  </example>
+  <example title="image input">
+    ```python
+    import base64
+    import httpx
+    from langchain_core.messages import HumanMessage
+
+    image_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg"
+    image_data = base64.b64encode(httpx.get(image_url).content).decode("utf-8")
+    message = HumanMessage(
+        content=[
+            {"type": "text", "text": "describe the weather in this image"},
+            {
+                "type": "image",
+                "source": {"type": "base64", "media_type": "image/jpeg", "data": image_data},
+            },
+        ],
+    )
+    ai_msg = llm.invoke([message])
+    ai_msg.content
+
+    >>> [{'type': 'text', 'text': 'The image depicts a sunny day ...'}]
+    ```
+  </example>
+</examples>
