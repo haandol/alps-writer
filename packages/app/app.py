@@ -11,7 +11,7 @@ from chainlit.logger import logger as cl_logger
 from chainlit.types import ThreadDict
 from chainlit.data.dynamodb import DynamoDBDataLayer
 
-from src.constant import COMMANDS
+from src.constant import COMMANDS, SECTIONS
 from src.services.llm_cowriter import LLMCowriterService
 from src.services.web_search import WebSearchService
 from src.handlers.file_handler import FileLoadHandler
@@ -130,17 +130,20 @@ async def start():
     welcome_message = """
 Hello! I'm ALPS Writer. I can help you write a technical specification for your product/service.
 
-Note:
+**Here is the section list:**
+{SECTIONS}
+
+**Note:**
 - If you want to modify an existing document, please attach a markdown (.md) or PDF (.pdf) file.
 - If you want to write a new document, please describe the features of the MVP you want to create.
 
-Available Commands:
+**Available Commands:**
 - `/search <query>`: Reflect the web search results in the conversation
 
-Examples Messages:
+**Examples Messages:**
 - If you input a todo list, LLM will help you complete the todo list
 - If you input the item you want to buy, LLM will search for reviews and prices of the item
-    """.strip()
+    """.format(SECTIONS="\n".join(SECTIONS)).strip()
     await cl.context.emitter.set_commands(COMMANDS)
     await cl.Message(content=welcome_message, metadata={"exclude_from_history": True}).send()
     # Initialize both memory systems

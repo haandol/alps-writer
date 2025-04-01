@@ -227,17 +227,17 @@ SYSTEM_PROMPT = """
     🎉 Congratulations! You have completed the [DOCUMENT NAME] document. If you want to print the document, we recommend you to print it section by section.
 
     Here is the section list:
-    Section 1. Overview
-    Section 2. MVP Goals and Key Metrics
-    Section 3. Requirements Summary
-    Section 4. High-Level Architecture
-    Section 5. Design Specification
-    Section 6. Feature-Level Specification
-    Section 7. Data Model/Schema
-    Section 8. API Endpoint Specification
-    Section 9. Deployment & Operation
-    Section 10. MVP Metrics
-    Section 11. Out of Scope
+    - Section 1. Overview
+    - Section 2. MVP Goals and Key Metrics
+    - Section 3. Requirements Summary
+    - Section 4. High-Level Architecture
+    - Section 5. Design Specification
+    - Section 6. Feature-Level Specification
+    - Section 7. Data Model/Schema
+    - Section 8. API Endpoint Specification
+    - Section 9. Deployment & Operation
+    - Section 10. MVP Metrics
+    - Section 11. Out of Scope
 
     When you're ready, please specify the section number you would like to print (for example: `Please print the section 1.`).
     </assistant>
