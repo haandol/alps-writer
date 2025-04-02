@@ -23,9 +23,7 @@ class LLMCowriterService:
             max_tokens=MAX_TOKENS,
             region_name=os.getenv("AWS_REGION"),
         )
-        # TODO: split alps template into sections and load them as context on demand via RAG to reduce token usage
         self.alps_context = load_alps_context()
-        # TODO: apply prompt cache on alps_context or use RAG for the context
         self.alps_system_prompt = ALPS_SYSTEM_PROMPT
         self.web_qa_system_prompt = WEB_QA_SYSTEM_PROMPT
 
