@@ -47,7 +47,9 @@ class LLMCowriterService:
                 {
                     "type": "text",
                     "text": "\n".join(system_message_contents),
-                    "checkPoint": {"type": "default"},
+                },
+                {
+                    "cachePoint": {"type": "default"},
                 },
             ],
         )
