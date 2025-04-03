@@ -26,7 +26,7 @@ alwaysApply: true
   </type-annotation>
 
   <architecture-design>
-    - Organize file structure by roles: [003-file-structure.mdc](mdc:.cursor/rules/003-file-structure.mdc)
+    - Organize file structure by roles: [002-file-structure.mdc](mdc:.cursor/rules/002-file-structure.mdc)
     - Manage user interactions through async message processing (Async/Await)
     - Securely handle sensitive information (e.g., AWS, Tavily API Keys) via environment variables (.env) loaded with dotenv module
     - Ensure stable operation through Python's logging module and appropriate exception handling (e.g., ClientError)
