@@ -10,6 +10,7 @@ alwaysApply: true
     ├── handlers/       # Request handlers
     ├── utils/          # Utility functions
     ├── prompts/        # LLM prompt templates
+    ├── tools/          # LLM tools
     └── constant.py     # Global constants
   env/                  # Env files
   .env                  # Current Environment variables
