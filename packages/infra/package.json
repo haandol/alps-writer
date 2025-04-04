@@ -14,17 +14,17 @@
   "devDependencies": {
     "@types/jest": "^29.5.14",
     "@types/node": "22.13.13",
-    "aws-cdk": "2.1005.0",
+    "aws-cdk": "2.1007.0",
     "jest": "^29.7.0",
-    "ts-jest": "^29.3.0",
+    "ts-jest": "^29.3.1",
     "ts-node": "^10.9.2",
     "typescript": "~5.8.2"
   },
   "dependencies": {
-    "@aws/pdk": "^0.26.2",
-    "@types/node": "^22.13.1",
-    "aws-cdk-lib": "2.185.0",
-    "cdk-nag": "^2.35.55",
+    "@aws/pdk": "^0.26.3",
+    "@types/node": "^22.14.0",
+    "aws-cdk-lib": "2.188.0",
+    "cdk-nag": "^2.35.63",
     "constructs": "^10.4.2",
     "joi": "^17.13.3",
     "toml": "^3.0.0"
