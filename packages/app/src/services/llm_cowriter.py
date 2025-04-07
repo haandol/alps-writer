@@ -141,7 +141,7 @@ class LLMCowriterService:
                     for content in chunk.content:
                         yield content.get("text", "")
                 await asyncio.sleep(0)
-            logger.info('Usage metadata: %s', full_response.usage_metadata)
+            logger.info(f'Usage metadata: {full_response.usage_metadata}')
         except Exception as e:
             logger.error(traceback.format_exc())
             yield f"Error occurred while streaming from Bedrock: {str(e)}"
