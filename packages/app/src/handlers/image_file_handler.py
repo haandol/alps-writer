@@ -1,7 +1,6 @@
 import io
 import sys
 import base64
-import logging
 import traceback
 from typing import Optional
 from pathlib import Path
@@ -10,7 +9,7 @@ import chainlit as cl
 from chainlit.element import ElementBased
 from PIL import Image
 
-logger = logging.getLogger(__name__)
+from src.utils.logger import logger
 
 
 class ImageFileLoadHandler:

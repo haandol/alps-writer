@@ -1,7 +1,6 @@
 import os
-import logging
 
-logger = logging.getLogger(__name__)
+from src.utils.logger import logger
 
 
 def load_alps_context() -> str:

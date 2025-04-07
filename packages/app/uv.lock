@@ -118,6 +118,7 @@ dependencies = [
     { name = "markdown" },
     { name = "pdfplumber" },
     { name = "python-dotenv" },
+    { name = "structlog" },
     { name = "tavily-python" },
     { name = "tiktoken" },
 ]
@@ -132,6 +133,7 @@ requires-dist = [
     { name = "markdown", specifier = ">=3.7" },
     { name = "pdfplumber", specifier = ">=0.11.5" },
     { name = "python-dotenv", specifier = ">=1.0.1" },
+    { name = "structlog", specifier = ">=25.2.0" },
     { name = "tavily-python", specifier = ">=0.5.0" },
     { name = "tiktoken", specifier = ">=0.9.0" },
 ]
@@ -2054,6 +2056,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/1a/4c/9b5764bd22eec91c4039ef4c55334e9187085da2d8a2df7bd570869aae18/starlette-0.41.3.tar.gz", hash = "sha256:0e4ab3d16522a255be6b28260b938eae2482f98ce5cc934cb08dce8dc3ba5835", size = 2574159 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/96/00/2b325970b3060c7cecebab6d295afe763365822b1306a12eeab198f74323/starlette-0.41.3-py3-none-any.whl", hash = "sha256:44cedb2b7c77a9de33a8b74b2b90e9f50d11fcf25d8270ea525ad71a25374ff7", size = 73225 },
+]
+
+[[package]]
+name = "structlog"
+version = "25.2.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/78/b8/d3670aec25747e32d54cd5258102ae0d69b9c61c79e7aa326be61a570d0d/structlog-25.2.0.tar.gz", hash = "sha256:d9f9776944207d1035b8b26072b9b140c63702fd7aa57c2f85d28ab701bd8e92", size = 1367438 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/51/eb/244741c1abf7b4092686db0798a4c43491298f40ddec4226f5c4f6b5d3eb/structlog-25.2.0-py3-none-any.whl", hash = "sha256:0fecea2e345d5d491b72f3db2e5fcd6393abfc8cd06a4851f21fcd4d1a99f437", size = 68448 },
 ]
 
 [[package]]

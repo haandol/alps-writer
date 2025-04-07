@@ -1,9 +1,8 @@
-import logging
 import traceback
 
 import tiktoken
 
-logger = logging.getLogger(__name__)
+from src.utils.logger import logger
 
 # Claude models use the cl100k_base encoding
 ENCODING_NAME = "cl100k_base"

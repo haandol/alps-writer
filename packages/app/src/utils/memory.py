@@ -1,11 +1,8 @@
-import logging
 from abc import ABC, abstractmethod
 from typing import Dict, List, Any
 
 from langchain.memory import ConversationBufferMemory
 from langchain.schema import BaseMessage
-
-logger = logging.getLogger(__name__)
 
 
 class MemoryManager(ABC):
@@ -49,7 +46,6 @@ class MemoryManager(ABC):
                         user_message.get("content", ""),
                         ai_message.get("content", "")
                     )
-
 
 
 class RecentMemoryManager(MemoryManager):

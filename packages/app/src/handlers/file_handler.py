@@ -1,7 +1,6 @@
 import os
 import sys
 import json
-import logging
 import traceback
 from pathlib import Path
 from typing import Optional
@@ -10,7 +9,7 @@ import pdfplumber
 import chainlit as cl
 from chainlit.element import ElementBased
 
-logger = logging.getLogger(__name__)
+from src.utils.logger import logger
 
 
 class FileLoadHandler:
@@ -64,7 +63,8 @@ class FileLoadHandler:
         try:
             # Check if the PDF file exists
             if not file_path.exists():
-                raise FileNotFoundError(f"Could not found a PDF file: {pdf_path}")
+                raise FileNotFoundError(
+                    f"Could not found a PDF file: {pdf_path}")
 
             # Check if the PDF file has read permission
             if not os.access(pdf_path, os.R_OK):
@@ -92,8 +92,10 @@ class FileLoadHandler:
 
                         tables = page.extract_tables()
                         if tables:
-                            logger.debug(f"Page {page_num}: {len(tables)} tables found")
-                            text_parts.append(f"\n=== Page {page_num} tables ===\n")
+                            logger.debug(
+                                f"Page {page_num}: {len(tables)} tables found")
+                            text_parts.append(
+                                f"\n=== Page {page_num} tables ===\n")
                             for table_num, table in enumerate(tables, 1):
                                 text_parts.append(f"\n[Table {table_num}]\n")
                                 for row in table:
@@ -120,12 +122,14 @@ class FileLoadHandler:
                 return "Could not extract text from the PDF file."
 
             result = "\n".join(text_parts)
-            logger.info(f"PDF parsing completed: {len(result)} characters extracted")
+            logger.info(
+                f"PDF parsing completed: {len(result)} characters extracted")
             return result
 
         except Exception as e:
             self._log_exception("Error occurred while processing the PDF file")
-            raise Exception(f"Error occurred while processing the PDF file: {str(e)}")
+            raise Exception(
+                f"Error occurred while processing the PDF file: {str(e)}")
 
     def _log_exception(self, message: str) -> None:
         """

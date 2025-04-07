@@ -1,11 +1,10 @@
-import logging
-from copy import deepcopy
 from typing import List
+from copy import deepcopy
 
 from langchain.schema import BaseMessage
-from src.utils.token_counter import count_tokens
 
-logger = logging.getLogger(__name__)
+from src.utils.token_counter import count_tokens
+from src.utils.logger import logger
 
 
 class PromptCacheService:

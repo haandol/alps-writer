@@ -19,15 +19,9 @@ from src.handlers.file_handler import FileLoadHandler
 from src.handlers.image_file_handler import ImageFileLoadHandler
 from src.handlers.search_handler import WebSearchHandler
 from src.utils.memory import RecentMemoryManager
+from src.utils.logger import logger
 
 dotenv.load_dotenv()
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
-logger = logging.getLogger(__name__)
 
 # Set environment variables
 # disable oauth only for the local test
