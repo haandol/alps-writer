@@ -7,7 +7,7 @@ from typing import AsyncGenerator, List, Optional
 from langchain_aws import ChatBedrockConverse
 from langchain.schema import BaseMessage, HumanMessage, SystemMessage
 
-from src.constant import MAX_RECENT_HISTORY_TURNS, TEMPERATURE, MAX_TOKENS
+from src.constant import TEMPERATURE, MAX_TOKENS
 from src.prompts.alps import SYSTEM_PROMPT as ALPS_SYSTEM_PROMPT
 from src.prompts.web_qa import SYSTEM_PROMPT as WEB_QA_SYSTEM_PROMPT
 from src.utils.context import load_alps_context
@@ -56,7 +56,6 @@ class LLMCowriterService:
         self,
         message_content: str,
         recent_history: List[BaseMessage] = [],
-        relevant_history: str = '',
         text_context: Optional[str] = None,
         image_context: Optional[str] = None,
     ) -> List[BaseMessage]:
@@ -66,7 +65,6 @@ class LLMCowriterService:
         Args:
             message_content (str): Original user message content
             recent_history (List[BaseMessage]): Recent conversation history
-            relevant_history (str): Relevant conversation history from vector search
             text_context (Optional[str]): Text context from uploaded files
             image_context (Optional[str]): Image context from uploaded files
 
@@ -74,17 +72,9 @@ class LLMCowriterService:
             List[BaseMessage]: List of messages ready for LLM processing
         """
         logger.info(
-            f"Got recent history: {len(recent_history)} and relevant history: {len(relevant_history.strip())}")
+            f"Got recent history: {len(recent_history)}")
 
         message_contents = []
-
-        # Add relevant history if recent history is exceed MAX_RECENT_HISTORY_TURNS
-        if len(recent_history) >= MAX_RECENT_HISTORY_TURNS:
-            logger.info(
-                f"Using relevant history to user message: {len(relevant_history)}")
-            message_contents.append(
-                f"<relevant-conversation>\n{relevant_history}\n</relevant-conversation>"
-            )
 
         # Add context if available
         if text_context:
@@ -143,11 +133,18 @@ class LLMCowriterService:
             AsyncGenerator[str, None]: Generated text stream
         """
         try:
+            full_response = None
+            first_chunk = True
             async for chunk in self.llm.astream(messages):
-                for content in chunk.content:
-                    yield content.get("text", "")
+                if first_chunk:
+                    full_response = chunk
+                    first_chunk = False
+                else:
+                    full_response += chunk
+                    for content in chunk.content:
+                        yield content.get("text", "")
                 await asyncio.sleep(0)
-
+            logger.info('Usage metadata: %s', full_response.usage_metadata)
         except Exception as e:
             logger.error(traceback.format_exc())
             yield f"Error occurred while streaming from Bedrock: {str(e)}"

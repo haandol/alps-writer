@@ -7,7 +7,6 @@ SYSTEM_PROMPT = """
 <context-awareness>
 - The ALPS document template will be provided within `<alps-template>` tags.
 - The user-provided information will be wrapped in `<context>` tags.
-- The relevant conversation history will be wrapped in `<relevant-conversation>` tags.
 - Process and reference the provided context to inform guidance and document creation.
 - Avoid making assumptions or defaulting values without explicit user input.
 </context-awareness>

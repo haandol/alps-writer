@@ -89,7 +89,7 @@ flowchart LR
     Chainlit -- "Web Search" --> Tavily(Tavily API)
     Chainlit -- "Save File" --> FileSystem(Local)
     User -- "Upload/Download File" --> Chainlit
-    Chainlit -- "Context Management" --> Memory[Vector & Recent Memory]
+    Chainlit -- "Context Management" --> Memory[Recent Memory]
 ```
 
 ### 4.2 기술 스택
@@ -103,7 +103,7 @@ flowchart LR
 | **파일 저장**           | 로컬 파일 (`.md`) 저장                                           |
 | **히스토리 저장**       | AWS DynamoDB (선택적)                                            |
 | **인증**                | AWS Cognito OAuth (선택적)                                       |
-| **메모리 관리**         | Vector Memory (FAISS), Recent Memory (Window Buffer)             |
+| **메모리 관리**         | Recent Memory (Window Buffer)             |
 | **배포 환경**           | 로컬 실행 (MVP 1단계), 이후 ECS 배포 예정                        |
 
 ---
@@ -201,7 +201,6 @@ sequenceDiagram
   - 챕터별 질문을 통해 순차적 문서 작성 유도
 
 - **메모리 관리**:
-  - Vector Memory: FAISS를 사용한 의미론적 메모리 검색
   - Recent Memory: Window Buffer를 통한 최근 대화 컨텍스트 유지
   - 히스토리를 유지하면서 대화 컨텍스트 관리
 
@@ -225,7 +224,7 @@ sequenceDiagram
 - **메시지 처리**:
   - 사용자 메시지를 Chainlit의 `cl.Message` 객체로 관리
   - 메시지 히스토리를 세션 변수에 저장하여 대화 연속성 유지
-  - Vector Memory와 Recent Memory를 통한 효율적인 컨텍스트 관리
+  - Recent Memory를 통한 효율적인 컨텍스트 관리
 
 - **스트리밍 응답**:
   - `llm_cowriter_service.stream_llm_response` 메서드를 통해 응답 스트리밍
@@ -442,5 +441,5 @@ message_history = [
 - **다국어 지원 개선**: 현재는 기본적인 다국어 지원만 구현, 향후 확장
 - **사용자 피드백 시스템**: 문서 품질에 대한 피드백 수집 메커니즘
 - **ECS 배포**: 현재는 로컬 실행, 이후 AWS ECS를 통한 확장 가능한 배포 계획
-- **메모리 최적화**: Vector Memory와 Recent Memory의 성능 및 효율성 개선
+- **메모리 최적화**: Recent Memory의 성능 및 효율성 개선
 - **템플릿 섹션 분리**: ALPS 템플릿을 섹션별로 분리하여 RAG를 통한 토큰 사용량 최적화

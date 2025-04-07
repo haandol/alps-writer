@@ -18,7 +18,7 @@ from src.services.web_search import WebSearchService
 from src.handlers.file_handler import FileLoadHandler
 from src.handlers.image_file_handler import ImageFileLoadHandler
 from src.handlers.search_handler import WebSearchHandler
-from src.utils.memory import VectorMemoryManager, RecentMemoryManager
+from src.utils.memory import RecentMemoryManager
 
 dotenv.load_dotenv()
 
@@ -99,13 +99,8 @@ if not DISABLE_OAUTH:
         logger.info(f"Restored message_history: {len(message_history)}")
 
         # Initialize and restore the memory managers
-        vector_memory = VectorMemoryManager()
         recent_memory = RecentMemoryManager()
-
-        vector_memory.add_message_history(message_history)
         recent_memory.add_message_history(message_history)
-
-        cl.user_session.set("vector_memory", vector_memory)
         cl.user_session.set("recent_memory", recent_memory)
 
         message_history = recent_memory.get_conversation_history()
@@ -163,9 +158,7 @@ Hello! I'm ALPS Writer. I can help you write a technical specification for your 
     await cl.context.emitter.set_commands(COMMANDS)
     await cl.Message(content=welcome_message, metadata={"exclude_from_history": True}).send()
     # Initialize both memory systems
-    vector_memory = VectorMemoryManager()
     recent_memory = RecentMemoryManager()
-    cl.user_session.set("vector_memory", vector_memory)
     cl.user_session.set("recent_memory", recent_memory)
     cl.user_session.set("cache_point_indices", [])
 
@@ -200,9 +193,6 @@ async def main(message: cl.Message):
                 image_context = await image_file_handler.handle(element)
 
     # Get memory managers from user session
-    vector_memory = cast(
-        VectorMemoryManager, cl.user_session.get("vector_memory")
-    )
     recent_memory = cast(
         RecentMemoryManager, cl.user_session.get("recent_memory"),
     )
@@ -223,11 +213,6 @@ async def main(message: cl.Message):
     else:
         # Get recent conversation history from recent memory
         recent_history = recent_memory.get_conversation_history()
-        # Get relevant history from vector memory
-        relevant_history = vector_memory.get_relevant_history(
-            user_message_content,
-            recent_history=recent_history
-        )
 
         # Build messages for ALPS writer
         # Add cache points to history
@@ -238,7 +223,6 @@ async def main(message: cl.Message):
         messages = llm_cowriter_service.build_alps_messages(
             message_content=user_message_content,
             recent_history=cached_recent_history,
-            relevant_history=relevant_history,
             text_context=text_context,
             image_context=image_context,
         )
@@ -248,10 +232,8 @@ async def main(message: cl.Message):
     await msg.send()
 
     # Add AI response to both memory systems
-    vector_memory.add_ai_message(user_message_content, msg.content)
     recent_memory.add_ai_message(user_message_content, msg.content)
 
-    cl.user_session.set("vector_memory", vector_memory)
     cl.user_session.set("recent_memory", recent_memory)
 
     # Determine if a cache point should be created based on the entire message history
