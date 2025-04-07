@@ -5,7 +5,7 @@ import traceback
 from typing import AsyncGenerator, List, Optional
 
 from langchain_aws import ChatBedrockConverse
-from langchain.schema import HumanMessage, SystemMessage
+from langchain.schema import BaseMessage, HumanMessage, SystemMessage
 
 from src.constant import MAX_RECENT_HISTORY_TURNS, TEMPERATURE, MAX_TOKENS
 from src.prompts.alps import SYSTEM_PROMPT as ALPS_SYSTEM_PROMPT
@@ -55,23 +55,23 @@ class LLMCowriterService:
     def build_alps_messages(
         self,
         message_content: str,
-        recent_history: List[str] = [],
+        recent_history: List[BaseMessage] = [],
         relevant_history: str = '',
         text_context: Optional[str] = None,
         image_context: Optional[str] = None,
-    ) -> List[SystemMessage | HumanMessage]:
+    ) -> List[BaseMessage]:
         """
         Builds a list of messages with system message and user message containing context and history.
 
         Args:
-            message_content: Original user message content
-            recent_history: Recent conversation history
-            relevant_history: Relevant conversation history from vector search
-            text_context: Text context from uploaded files
-            image_context: Image context from uploaded files
+            message_content (str): Original user message content
+            recent_history (List[BaseMessage]): Recent conversation history
+            relevant_history (str): Relevant conversation history from vector search
+            text_context (Optional[str]): Text context from uploaded files
+            image_context (Optional[str]): Image context from uploaded files
 
         Returns:
-            List[SystemMessage | BaseMessage]: List of messages ready for LLM processing
+            List[BaseMessage]: List of messages ready for LLM processing
         """
         logger.info(
             f"Got recent history: {len(recent_history)} and relevant history: {len(relevant_history.strip())}")
@@ -79,7 +79,7 @@ class LLMCowriterService:
         message_contents = []
 
         # Add relevant history if recent history is exceed MAX_RECENT_HISTORY_TURNS
-        if len(recent_history) > MAX_RECENT_HISTORY_TURNS:
+        if len(recent_history) >= MAX_RECENT_HISTORY_TURNS:
             logger.info(
                 f"Using relevant history to user message: {len(relevant_history)}")
             message_contents.append(
@@ -93,7 +93,7 @@ class LLMCowriterService:
         # Add the original message
         message_contents.append(message_content)
 
-        # Create the final user message
+        # Build the final user message
         if image_context:
             user_message = HumanMessage(content=[
                 {
@@ -116,8 +116,8 @@ class LLMCowriterService:
         Builds a list of messages for web search based Q&A.
 
         Args:
-            query: User's search query
-            web_result: Search results from web search
+            query (str): User's search query
+            web_result (str): Search results from web search
 
         Returns:
             List[SystemMessage | HumanMessage]: List of messages ready for LLM processing
@@ -131,13 +131,13 @@ class LLMCowriterService:
 
     async def stream_llm_response(
         self,
-        messages: List[HumanMessage | SystemMessage],
+        messages: List[BaseMessage],
     ) -> AsyncGenerator[str, None]:
         """
         Streams LLM response for the given messages.
 
         Args:
-            messages: List of messages including system message and user message
+            messages (List[BaseMessage]): List of messages including system message and user message
 
         Returns:
             AsyncGenerator[str, None]: Generated text stream
@@ -147,6 +147,7 @@ class LLMCowriterService:
                 for content in chunk.content:
                     yield content.get("text", "")
                 await asyncio.sleep(0)
+
         except Exception as e:
             logger.error(traceback.format_exc())
             yield f"Error occurred while streaming from Bedrock: {str(e)}"
