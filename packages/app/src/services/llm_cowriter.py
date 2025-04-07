@@ -71,8 +71,7 @@ class LLMCowriterService:
         Returns:
             List[BaseMessage]: List of messages ready for LLM processing
         """
-        logger.info(
-            f"Got recent history: {len(recent_history)}")
+        logger.info(f"Got recent history: {len(recent_history)}")
 
         message_contents = []
 
