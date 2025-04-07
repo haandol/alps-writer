@@ -98,6 +98,7 @@ if not DISABLE_OAUTH:
         cl.user_session.set("recent_memory", recent_memory)
 
         message_history = recent_memory.get_conversation_history()
+        logger.info(f"Resumed with chat history #{len(message_history)}")
         if not message_history:
             return
 
@@ -127,6 +128,8 @@ if not DISABLE_OAUTH:
             f"raw_user_data: {raw_user_data}, "
             f"id_token: {id_token}"
         )
+
+        logger.info(f"User {default_user.identifier} logged in")
         return default_user
 
 
@@ -155,6 +158,8 @@ Hello! I'm ALPS Writer. I can help you write a technical specification for your 
     recent_memory = RecentMemoryManager()
     cl.user_session.set("recent_memory", recent_memory)
     cl.user_session.set("cache_point_indices", [])
+
+    logger.info("New chat started")
 
 
 @cl.on_message
