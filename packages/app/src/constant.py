@@ -31,3 +31,4 @@ TEMPERATURE: float = 0.33
 
 # Memory
 MAX_RECENT_HISTORY_TURNS: int = 60  # 30 pairs
+MAX_RELEVANT_HISTORY_TURNS: int = 5  # 5 turns
