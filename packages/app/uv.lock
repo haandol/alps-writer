@@ -121,6 +121,7 @@ dependencies = [
     { name = "pdfplumber" },
     { name = "python-dotenv" },
     { name = "tavily-python" },
+    { name = "tiktoken" },
 ]
 
 [package.metadata]
@@ -136,6 +137,7 @@ requires-dist = [
     { name = "pdfplumber", specifier = ">=0.11.5" },
     { name = "python-dotenv", specifier = ">=1.0.1" },
     { name = "tavily-python", specifier = ">=0.5.0" },
+    { name = "tiktoken", specifier = ">=0.9.0" },
 ]
 
 [[package]]
@@ -203,6 +205,7 @@ dependencies = [
     { name = "jmespath" },
     { name = "s3transfer" },
 ]
+sdist = { url = "https://files.pythonhosted.org/packages/c5/67/624011e0bf632818e786fcaa457e0a9421befede9ea7afe8dbe91ad4c8a3/boto3-1.37.25.tar.gz", hash = "sha256:23e9cbad028ef3723567f4556411ee8d0f732594316b4c78c174a03ba3ca3159", size = 111321 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/12/6a/05352f633876b28bc311092ba0be5286f604e36d33a1347fff7045721d99/boto3-1.37.25-py3-none-any.whl", hash = "sha256:00a025c621198508dc20c45224baaa7bd2a695323d999cce08b0d4deab5ada6f", size = 139561 },
 ]

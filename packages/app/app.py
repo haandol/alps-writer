@@ -2,7 +2,7 @@ import os
 import boto3
 import logging
 from pathlib import Path
-from typing import cast, Optional
+from typing import cast, Optional, List
 
 import dotenv
 import chainlit as cl
@@ -13,6 +13,7 @@ from chainlit.data.dynamodb import DynamoDBDataLayer
 
 from src.constant import COMMANDS, SECTIONS
 from src.services.llm_cowriter import LLMCowriterService
+from src.services.prompt_cache import PromptCacheService
 from src.services.web_search import WebSearchService
 from src.handlers.file_handler import FileLoadHandler
 from src.handlers.image_file_handler import ImageFileLoadHandler
@@ -38,6 +39,7 @@ MODEL_ID = os.environ.get("MODEL_ID", None)
 logger.info(f"MODEL_ID: {MODEL_ID}")
 
 # Initialize services and handlers
+prompt_cache_service = PromptCacheService()
 llm_cowriter_service = LLMCowriterService(MODEL_ID)
 web_search_service = WebSearchService()
 file_handler = FileLoadHandler()
@@ -106,6 +108,20 @@ if not DISABLE_OAUTH:
         cl.user_session.set("vector_memory", vector_memory)
         cl.user_session.set("recent_memory", recent_memory)
 
+        message_history = recent_memory.get_conversation_history()
+        if not message_history:
+            return
+
+        # Initialize and cache point indices (no restore for resume)
+        cache_point_indices = load_cache_point_indices()
+        if llm_cowriter_service.prompt_cache.should_create_cache_point(cache_point_indices, message_history):
+            # create cache point at the end of the message history
+            new_cache_point_indices = llm_cowriter_service.prompt_cache.create_cache_point(
+                history_index=len(message_history) - 1,
+                cache_point_indices=cache_point_indices,
+            )
+            save_cache_point_indices(new_cache_point_indices)
+
     @cl.oauth_callback
     async def oauth_callback(
         provider_id: str,
@@ -151,6 +167,7 @@ Hello! I'm ALPS Writer. I can help you write a technical specification for your 
     recent_memory = RecentMemoryManager()
     cl.user_session.set("vector_memory", vector_memory)
     cl.user_session.set("recent_memory", recent_memory)
+    cl.user_session.set("cache_point_indices", [])
 
 
 @cl.on_message
@@ -193,6 +210,7 @@ async def main(message: cl.Message):
     # Process general messages
     user_message_content = message.content
 
+    cache_point_indices = load_cache_point_indices()
     msg = cl.Message(content="")
     if search_result:
         messages = llm_cowriter_service.build_web_search_messages(
@@ -211,9 +229,15 @@ async def main(message: cl.Message):
             recent_history=recent_history
         )
 
+        # Build messages for ALPS writer
+        # Add cache points to history
+        cached_recent_history = prompt_cache_service.add_cache_points_to_messages(
+            cache_point_indices,
+            recent_history,
+        )
         messages = llm_cowriter_service.build_alps_messages(
             message_content=user_message_content,
-            recent_history=recent_history,
+            recent_history=cached_recent_history,
             relevant_history=relevant_history,
             text_context=text_context,
             image_context=image_context,
@@ -229,3 +253,21 @@ async def main(message: cl.Message):
 
     cl.user_session.set("vector_memory", vector_memory)
     cl.user_session.set("recent_memory", recent_memory)
+
+    # Determine if a cache point should be created based on the entire message history
+    new_recent_history = recent_memory.get_conversation_history()
+    if prompt_cache_service.should_create_cache_point(cache_point_indices, new_recent_history):
+        # Create cache point at the end of the message history
+        new_cache_point_indices = prompt_cache_service.create_cache_point(
+            history_index=len(new_recent_history) - 1,
+            cache_point_indices=cache_point_indices,
+        )
+        save_cache_point_indices(new_cache_point_indices)
+
+
+def load_cache_point_indices() -> List[int]:
+    return cl.user_session.get("cache_point_indices", [])
+
+
+def save_cache_point_indices(cache_point_indices: List[int]) -> None:
+    cl.user_session.set("cache_point_indices", cache_point_indices or [])
