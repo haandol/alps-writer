@@ -10,7 +10,6 @@ import { ReverseProxy } from "../constructs/reverse-proxy";
 interface IProps extends cdk.StackProps {
   readonly vpc: ec2.IVpc;
   readonly tableName: string;
-  readonly tavilyApiKey: string;
 }
 
 export class CommonAppStack extends cdk.Stack {

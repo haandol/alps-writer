@@ -27,7 +27,6 @@ const vpcStack = new VpcStack(app, `${Config.app.ns}Vpc`, {
 const commonAppStack = new CommonAppStack(app, `${Config.app.ns}CommonApp`, {
   vpc: vpcStack.vpc,
   tableName: Config.chatbot.tableName,
-  tavilyApiKey: Config.external.web.tavilyApiKey,
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT,
     region: process.env.CDK_DEFAULT_REGION,
