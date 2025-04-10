@@ -12,7 +12,6 @@ project_root/
   ├── lib/                    # Stacks and constructs
   │   ├── stacks/             # Stack classes
   │   └── constructs/         # Reusable constructs
-  ├── functions/              # Lambda function code
   ├── config/                 # Environment config files
   └── package.json
 ```
