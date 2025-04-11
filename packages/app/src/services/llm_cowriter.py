@@ -6,7 +6,7 @@ from langchain_aws import ChatBedrockConverse
 from langchain.schema import BaseMessage, HumanMessage, SystemMessage
 
 from src.constant import TEMPERATURE, MAX_TOKENS
-from src.prompts.alps import SYSTEM_PROMPT as ALPS_SYSTEM_PROMPT
+from src.prompts.cowriter import SYSTEM_PROMPT as ALPS_SYSTEM_PROMPT
 from src.prompts.web_qa import SYSTEM_PROMPT as WEB_QA_SYSTEM_PROMPT
 from src.utils.context import load_alps_context
 from src.utils.logger import logger
