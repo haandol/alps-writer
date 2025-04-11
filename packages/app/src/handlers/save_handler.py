@@ -47,7 +47,7 @@ class SaveHandler:
 
                         # Build messages for section printer
                         messages = self.section_printer_service.build_section_printer_messages(
-                            messages=recent_history,
+                            recent_history=recent_history,
                             section=section_group,
                             locale=locale
                         )

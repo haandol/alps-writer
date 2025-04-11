@@ -16,7 +16,7 @@ from chainlit.data.dynamodb import DynamoDBDataLayer
 from chainlit.logger import logger as cl_logger
 
 from src.constant import COMMANDS, SECTIONS
-from services.alps_cowriter import ALPSCowriterService
+from src.services.alps_cowriter import ALPSCowriterService
 from src.services.prompt_cache import PromptCacheService
 from src.services.web_search import WebSearchService
 from src.services.section_printer import SectionPrinterService

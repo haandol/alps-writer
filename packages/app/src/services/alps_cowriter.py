@@ -1,25 +1,18 @@
-import os
-import asyncio
-from typing import AsyncGenerator, List, Optional
+from typing import List, Optional
 
-from langchain_aws import ChatBedrockConverse
 from langchain.schema import BaseMessage, HumanMessage, SystemMessage
 
-from src.constant import TEMPERATURE, MAX_TOKENS
+from src.services.llm import LLMService
 from src.prompts.cowriter import SYSTEM_PROMPT as ALPS_SYSTEM_PROMPT
 from src.prompts.web_qa import SYSTEM_PROMPT as WEB_QA_SYSTEM_PROMPT
 from src.utils.context import load_alps_context
 from src.utils.logger import logger
 
 
-class ALPSCowriterService:
+class ALPSCowriterService(LLMService):
     def __init__(self, model_id: str):
-        self.llm = ChatBedrockConverse(
-            model_id=model_id,
-            temperature=TEMPERATURE,
-            max_tokens=MAX_TOKENS,
-            region_name=os.getenv("AWS_REGION"),
-        )
+        super().__init__(model_id)
+
         self.alps_context = load_alps_context()
         self.alps_system_prompt = ALPS_SYSTEM_PROMPT
         self.web_qa_system_prompt = WEB_QA_SYSTEM_PROMPT
@@ -116,30 +109,3 @@ class ALPSCowriterService:
                 content=f"<query>{query}</query>\n\n<web_result>{web_result}</web_result>"
             ),
         ]
-
-    async def stream_llm_response(
-        self,
-        messages: List[BaseMessage],
-    ) -> AsyncGenerator[str, None]:
-        """
-        Streams LLM response for the given messages.
-
-        Args:
-            messages (List[BaseMessage]): List of messages including system message and user message
-
-        Returns:
-            AsyncGenerator[str, None]: Generated text stream
-        """
-        full_response = None
-        first_chunk = True
-        async for chunk in self.llm.astream(messages):
-            if first_chunk:
-                full_response = chunk
-                first_chunk = False
-            else:
-                full_response += chunk
-                for content in chunk.content:
-                    yield content.get("text", "")
-            await asyncio.sleep(0)
-        logger.info("Usage metadata",
-                    usage_metadata=full_response.usage_metadata)
