@@ -2,7 +2,6 @@ import os
 import asyncio
 from typing import List, AsyncGenerator
 
-from pydantic import BaseModel
 from langchain.schema import BaseMessage, SystemMessage, HumanMessage
 from langchain_aws import ChatBedrockConverse
 
@@ -10,10 +9,6 @@ from src.constant import TEMPERATURE, MAX_TOKENS
 from src.prompts.section_printer import SYSTEM_PROMPT as SECTION_PRINTER_SYSTEM_PROMPT
 from src.utils.context import load_alps_context
 from src.utils.logger import logger
-
-
-class IncompleteSectionsOutput(BaseModel):
-    incomplete_sections: List[str]
 
 
 class SectionPrinterService:
@@ -102,19 +97,3 @@ class SectionPrinterService:
             await asyncio.sleep(0)
         logger.info("Usage metadata",
                     usage_metadata=full_response.usage_metadata)
-
-    async def check_incomplete_sections(self, messages: List[BaseMessage]) -> List[str]:
-        """
-        Checks if any sections are incomplete in the recent history.
-
-        Args:
-            messages (List[BaseMessage]): List of messages including system message and user message
-
-        Returns:
-            List[str]: A list of incomplete sections
-        """
-        llm_with_structured_output = self.llm.with_structured_output(
-            IncompleteSectionsOutput,
-        )
-        response = await llm_with_structured_output.invoke(messages)
-        return response.incomplete_sections
