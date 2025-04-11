@@ -7,6 +7,8 @@ from typing import cast, Optional
 from decimal import Decimal
 
 import dotenv
+dotenv.load_dotenv()
+
 import chainlit as cl
 import chainlit.data as cl_data
 from chainlit.types import ThreadDict
@@ -26,8 +28,6 @@ from src.utils.memory import RecentMemoryManager
 from src.utils.session import create_latest_cache_point, load_cache_point_indices
 from src.utils.chainlit_patch import patch_chainlit_json
 from src.utils.logger import logger
-
-dotenv.load_dotenv()
 
 # Patch Chainlit JSON serialization to handle Decimal values
 patch_chainlit_json()
