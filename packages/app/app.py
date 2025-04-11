@@ -42,10 +42,10 @@ MODEL_ID = os.environ.get("MODEL_ID", None)
 logger.info("Model configuration", model_id=MODEL_ID)
 
 # Initialize services and handlers
-prompt_cache_service = PromptCacheService()
 llm_cowriter_service = LLMCowriterService(MODEL_ID)
-web_search_service = WebSearchService()
 section_printer_service = SectionPrinterService(MODEL_ID)
+prompt_cache_service = PromptCacheService()
+web_search_service = WebSearchService()
 
 file_handler = FileLoadHandler()
 image_file_handler = ImageFileLoadHandler()
