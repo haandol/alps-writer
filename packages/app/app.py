@@ -75,7 +75,7 @@ if not DISABLE_OAUTH:
 
     @cl.on_chat_resume
     async def on_chat_resume(thread: ThreadDict):
-        logger.info("Chat resumed", thread_id=thread['id'])
+        logger.info("Chat resumed", thread_id=thread["id"])
         await cl.context.emitter.set_commands(COMMANDS)
 
         # Function to recursively convert Decimal to float in a dictionary
@@ -96,11 +96,11 @@ if not DISABLE_OAUTH:
         message_history = []
         for message in (m for m in thread["steps"]):
             # skip messages with exclude_from_history metadata
-            if message['metadata'].get('exclude_from_history', False):
+            if message["metadata"].get("exclude_from_history", False):
                 continue
 
             # skip empty messages
-            if message['output'] == "":
+            if message["output"] == "":
                 continue
 
             # skip error messages
@@ -110,16 +110,16 @@ if not DISABLE_OAUTH:
 
             if message["type"] == "user_message":
                 message_history.append(
-                    {"role": "user", "content": message['output']}
+                    {"role": "user", "content": message["output"]}
                 )
             elif message["type"] == "assistant_message":
                 message_history.append(
                     {"role": "assistant", "content": message["output"]}
                 )
             else:
-                logger.error("Skipping message with unknown type",
-                             message_type=message['type'],
-                             output=message['output'])
+                logger.debug("Skipping message with unknown type",
+                             message_type=message["type"],
+                             output=message["output"][:50])
                 continue
         logger.info("Restored message history", count=len(message_history))
 
@@ -132,7 +132,7 @@ if not DISABLE_OAUTH:
         cl.user_session.set("cache_point_indices", [])
         create_latest_cache_point(cl.user_session, prompt_cache_service)
 
-        await cl.context.emitter.send_toast('Chat Resumed', 'success')
+        await cl.context.emitter.send_toast("Chat Resumed", "success")
 
     @cl.oauth_callback
     async def oauth_callback(
@@ -265,7 +265,7 @@ async def main(message: cl.Message):
         except Exception as e:
             logger.error("Error streaming LLM response",
                          traceback=traceback.format_exc())
-            await cl.context.emitter.send_toast(f'Error streaming LLM response: {str(e)}', 'error')
+            await cl.context.emitter.send_toast(f"Error streaming LLM response: {str(e)}", "error")
             return
     else:
         # Get recent conversation history from recent memory
@@ -291,7 +291,7 @@ async def main(message: cl.Message):
         except Exception as e:
             logger.error("Error streaming LLM response",
                          traceback=traceback.format_exc())
-            await cl.context.emitter.send_toast(f'Error streaming LLM response: {str(e)}', 'error')
+            await cl.context.emitter.send_toast(f"Error streaming LLM response: {str(e)}", "error")
             return
 
     # add AI response to memory systems
