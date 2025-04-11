@@ -8,6 +8,11 @@ COMMANDS: List[CommandDict] = [
         "icon": "globe",
         "description": "Enter a search term to search the web for the corresponding content",
     },
+    {
+        "id": "save",
+        "icon": "save",
+        "description": "Save the current document in the requested locale",
+    },
 ]
 
 # Sections

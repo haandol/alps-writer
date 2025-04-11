@@ -1,44 +1,56 @@
 import os
 import boto3
 import logging
+import traceback
 from pathlib import Path
-from typing import cast, Optional, List
+from typing import cast, Optional
+from decimal import Decimal
 
 import dotenv
 import chainlit as cl
 import chainlit.data as cl_data
-from chainlit.logger import logger as cl_logger
 from chainlit.types import ThreadDict
 from chainlit.data.dynamodb import DynamoDBDataLayer
+from chainlit.logger import logger as cl_logger
 
 from src.constant import COMMANDS, SECTIONS
 from src.services.llm_cowriter import LLMCowriterService
 from src.services.prompt_cache import PromptCacheService
 from src.services.web_search import WebSearchService
+from src.services.section_printer import SectionPrinterService
 from src.handlers.file_handler import FileLoadHandler
 from src.handlers.image_file_handler import ImageFileLoadHandler
 from src.handlers.search_handler import WebSearchHandler
+from src.handlers.save_handler import SaveHandler
 from src.utils.memory import RecentMemoryManager
+from src.utils.session import create_latest_cache_point, load_cache_point_indices
+from src.utils.chainlit_patch import patch_chainlit_json
 from src.utils.logger import logger
 
 dotenv.load_dotenv()
 
+# Patch Chainlit JSON serialization to handle Decimal values
+patch_chainlit_json()
+
 # Set environment variables
 # disable oauth only for the local test
 DISABLE_OAUTH = os.environ.get("DISABLE_OAUTH", "false").lower() == "true"
-logger.info(f"DISABLE_OAUTH: {DISABLE_OAUTH}")
+logger.info("OAuth configuration", disable_oauth=DISABLE_OAUTH)
 AWS_PROFILE_NAME = os.environ.get("AWS_PROFILE_NAME", None)
-logger.info(f"AWS_PROFILE_NAME: {AWS_PROFILE_NAME}")
+logger.info("AWS profile configuration", profile_name=AWS_PROFILE_NAME)
 MODEL_ID = os.environ.get("MODEL_ID", None)
-logger.info(f"MODEL_ID: {MODEL_ID}")
+logger.info("Model configuration", model_id=MODEL_ID)
 
 # Initialize services and handlers
 prompt_cache_service = PromptCacheService()
 llm_cowriter_service = LLMCowriterService(MODEL_ID)
 web_search_service = WebSearchService()
+section_printer_service = SectionPrinterService(MODEL_ID)
+
 file_handler = FileLoadHandler()
 image_file_handler = ImageFileLoadHandler()
 search_handler = WebSearchHandler(web_search_service)
+save_handler = SaveHandler(section_printer_service)
 
 
 def init_history_persistent_layer():
@@ -47,7 +59,7 @@ def init_history_persistent_layer():
     assert HISTORY_TABLE_NAME, "HISTORY_TABLE_NAME environment variable not set"
 
     AWS_DEFAULT_REGION = os.environ.get("AWS_DEFAULT_REGION", None)
-    logger.info(f"AWS_DEFAULT_REGION: {AWS_DEFAULT_REGION}")
+    logger.info("AWS region configuration", region=AWS_DEFAULT_REGION)
 
     # set history persistent db layer
     session = boto3.Session(profile_name=AWS_PROFILE_NAME)
@@ -63,8 +75,22 @@ if not DISABLE_OAUTH:
 
     @cl.on_chat_resume
     async def on_chat_resume(thread: ThreadDict):
-        logger.info(f"Chat resumed: {thread['id']}")
+        logger.info("Chat resumed", thread_id=thread['id'])
         await cl.context.emitter.set_commands(COMMANDS)
+
+        # Function to recursively convert Decimal to float in a dictionary
+        def convert_decimal_in_dict(obj):
+            if isinstance(obj, dict):
+                return {k: convert_decimal_in_dict(v) for k, v in obj.items()}
+            elif isinstance(obj, list):
+                return [convert_decimal_in_dict(item) for item in obj]
+            elif isinstance(obj, Decimal):
+                return float(obj)
+            else:
+                return obj
+
+        # Convert any Decimal values in the thread dictionary
+        thread = convert_decimal_in_dict(thread)
 
         # restore the message history from the thread
         message_history = []
@@ -79,38 +105,34 @@ if not DISABLE_OAUTH:
 
             # skip error messages
             if message["isError"]:
-                logger.debug(f"Skip Error message: {message}")
+                logger.debug("Skipping error message", message=message)
                 continue
 
             if message["type"] == "user_message":
                 message_history.append(
                     {"role": "user", "content": message['output']}
                 )
-            else:
+            elif message["type"] == "assistant_message":
                 message_history.append(
                     {"role": "assistant", "content": message["output"]}
                 )
-        logger.info(f"Restored message_history: {len(message_history)}")
+            else:
+                logger.error("Skipping message with unknown type",
+                             message_type=message['type'],
+                             output=message['output'])
+                continue
+        logger.info("Restored message history", count=len(message_history))
 
         # Initialize and restore the memory managers
         recent_memory = RecentMemoryManager()
         recent_memory.add_message_history(message_history)
         cl.user_session.set("recent_memory", recent_memory)
 
-        message_history = recent_memory.get_conversation_history()
-        logger.info(f"Resumed with chat history #{len(message_history)}")
-        if not message_history:
-            return
+        # create cache point at the end of the message history
+        cl.user_session.set("cache_point_indices", [])
+        create_latest_cache_point(cl.user_session, prompt_cache_service)
 
-        # Initialize and cache point indices (no restore for resume)
-        cache_point_indices = load_cache_point_indices()
-        if llm_cowriter_service.prompt_cache.should_create_cache_point(cache_point_indices, message_history):
-            # create cache point at the end of the message history
-            new_cache_point_indices = llm_cowriter_service.prompt_cache.create_cache_point(
-                history_index=len(message_history) - 1,
-                cache_point_indices=cache_point_indices,
-            )
-            save_cache_point_indices(new_cache_point_indices)
+        await cl.context.emitter.send_toast('Chat Resumed', 'success')
 
     @cl.oauth_callback
     async def oauth_callback(
@@ -122,14 +144,13 @@ if not DISABLE_OAUTH:
     ) -> Optional[cl.User]:
         """Callback for Cognito OAuth providers."""
 
-        logger.debug(
-            f"OAuth callback for provider {provider_id}, "
-            f"token: {token}, "
-            f"raw_user_data: {raw_user_data}, "
-            f"id_token: {id_token}"
-        )
+        logger.debug("OAuth callback received",
+                     provider_id=provider_id,
+                     token_length=len(token) if token else 0,
+                     raw_user_data=raw_user_data,
+                     id_token_length=len(id_token) if id_token else 0)
 
-        logger.info(f"User {default_user.identifier} logged in")
+        logger.info("User logged in", user_id=default_user.identifier)
         return default_user
 
 
@@ -147,6 +168,7 @@ Hello! I'm ALPS Writer. I can help you write a technical specification for your 
 
 **Available Commands:**
 - `/search <query>`: Reflect the web search results in the conversation
+- `/save <locale>`: Save the current document in the requested locale
 
 **Examples Messages:**
 - If you input a todo list, LLM will help you complete the todo list
@@ -154,7 +176,7 @@ Hello! I'm ALPS Writer. I can help you write a technical specification for your 
     """.format(SECTIONS="\n".join(SECTIONS)).strip()
     await cl.context.emitter.set_commands(COMMANDS)
     await cl.Message(content=welcome_message, metadata={"exclude_from_history": True}).send()
-    # Initialize both memory systems
+
     recent_memory = RecentMemoryManager()
     cl.user_session.set("recent_memory", recent_memory)
     cl.user_session.set("cache_point_indices", [])
@@ -168,6 +190,35 @@ async def main(message: cl.Message):
     # Process commands
     if message.command == "search":
         search_result = await search_handler.handle(message)
+    elif message.command == "save":
+        # Exclude the /save command from the history
+        message.metadata["exclude_from_history"] = True
+        await message.update()
+
+        recent_memory = cast(
+            RecentMemoryManager, cl.user_session.get("recent_memory"),
+        )
+        recent_history = recent_memory.get_conversation_history()
+        if not recent_history:
+            await cl.Message(
+                content="No conversation history found. Please start a conversation first.",
+                metadata={"exclude_from_history": True},
+            ).send()
+            return
+
+        # Create a cache point at the end of the message history before saving
+        create_latest_cache_point(cl.user_session, prompt_cache_service)
+
+        # Add cache points to history
+        cache_point_indices = load_cache_point_indices(cl.user_session)
+        cached_recent_history = prompt_cache_service.add_cache_points_to_messages(
+            cache_point_indices,
+            recent_history,
+        )
+        logger.info("cache_point_indices for save command",
+                    cache_point_indices=cache_point_indices)
+        await save_handler.handle_save_command(message, cached_recent_history)
+        return
 
     # Process file uploads
     text_context = None
@@ -199,56 +250,52 @@ async def main(message: cl.Message):
     # Process general messages
     user_message_content = message.content
 
-    cache_point_indices = load_cache_point_indices()
+    cache_point_indices = load_cache_point_indices(cl.user_session)
     msg = cl.Message(content="")
     if search_result:
         messages = llm_cowriter_service.build_web_search_messages(
             query=user_message_content,
             web_result=search_result,
         )
-        async for chunk in llm_cowriter_service.stream_llm_response(messages):
-            if chunk:
-                await msg.stream_token(chunk)
+        try:
+            async for chunk in llm_cowriter_service.stream_llm_response(messages):
+                if chunk:
+                    await msg.stream_token(chunk)
+            await msg.send()
+        except Exception as e:
+            logger.error("Error streaming LLM response",
+                         traceback=traceback.format_exc())
+            await cl.context.emitter.send_toast(f'Error streaming LLM response: {str(e)}', 'error')
+            return
     else:
         # Get recent conversation history from recent memory
         recent_history = recent_memory.get_conversation_history()
 
-        # Build messages for ALPS writer
         # Add cache points to history
         cached_recent_history = prompt_cache_service.add_cache_points_to_messages(
             cache_point_indices,
             recent_history,
         )
+        # Build messages for ALPS writer
         messages = llm_cowriter_service.build_alps_messages(
             message_content=user_message_content,
             recent_history=cached_recent_history,
             text_context=text_context,
             image_context=image_context,
         )
-        async for chunk in llm_cowriter_service.stream_llm_response(messages):
-            if chunk:
-                await msg.stream_token(chunk)
-    await msg.send()
+        try:
+            async for chunk in llm_cowriter_service.stream_llm_response(messages):
+                if chunk:
+                    await msg.stream_token(chunk)
+            await msg.send()
+        except Exception as e:
+            logger.error("Error streaming LLM response",
+                         traceback=traceback.format_exc())
+            await cl.context.emitter.send_toast(f'Error streaming LLM response: {str(e)}', 'error')
+            return
 
-    # Add AI response to both memory systems
+    # add AI response to memory systems
     recent_memory.add_ai_message(user_message_content, msg.content)
-
     cl.user_session.set("recent_memory", recent_memory)
-
-    # Determine if a cache point should be created based on the entire message history
-    new_recent_history = recent_memory.get_conversation_history()
-    if prompt_cache_service.should_create_cache_point(cache_point_indices, new_recent_history):
-        # Create cache point at the end of the message history
-        new_cache_point_indices = prompt_cache_service.create_cache_point(
-            history_index=len(new_recent_history) - 1,
-            cache_point_indices=cache_point_indices,
-        )
-        save_cache_point_indices(new_cache_point_indices)
-
-
-def load_cache_point_indices() -> List[int]:
-    return cl.user_session.get("cache_point_indices", [])
-
-
-def save_cache_point_indices(cache_point_indices: List[int]) -> None:
-    cl.user_session.set("cache_point_indices", cache_point_indices or [])
+    # update cache points
+    create_latest_cache_point(cl.user_session, prompt_cache_service)

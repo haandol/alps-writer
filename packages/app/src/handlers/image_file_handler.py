@@ -1,5 +1,4 @@
 import io
-import sys
 import base64
 import traceback
 from typing import Optional
@@ -27,10 +26,11 @@ class ImageFileLoadHandler:
             file_path = Path(file.path)
             file_ext = file_path.suffix.lower()
 
-            logger.info(f"Start processing the file: {file_path}")
-            logger.debug(
-                f"File information: size={file_path.stat().st_size}bytes, extension={file_ext}"
-            )
+            logger.info("Start processing the file",
+                        file_path=file_path)
+            logger.debug("File information",
+                         size=file_path.stat().st_size,
+                         extension=file_ext)
 
             # Process image files
             if file_ext in [".jpg", ".jpeg", ".png", ".gif", ".webp"]:
@@ -38,9 +38,11 @@ class ImageFileLoadHandler:
             else:
                 return None
         except Exception as e:
-            self._log_exception("Error occurred while processing the file")
-            await cl.Message(
-                content=f"Error occurred while processing the file: {str(e)}"
+            logger.error("Error occurred while processing the file",
+                         traceback=traceback.format_exc())
+            await cl.context.emitter.send_toast(
+                f"Error occurred while processing the file: {str(e)}",
+                "error"
             ).send()
             return None
 
@@ -74,20 +76,6 @@ class ImageFileLoadHandler:
                     }
                 }
         except Exception as e:
-            self._log_exception("Error occurred while processing the image")
+            logger.error("Error occurred while processing the image",
+                         traceback=traceback.format_exc())
             raise Exception(f"Failed to process the image: {str(e)}")
-
-    def _log_exception(self, message: str) -> None:
-        """
-        Log exception information in detail.
-
-        Args:
-            message (str): log message
-        """
-        exc_type, exc_value, exc_traceback = sys.exc_info()
-        logger.error(f"{message}:")
-        logger.error(f"Exception type: {exc_type.__name__}")
-        logger.error(f"Exception message: {str(exc_value)}")
-        logger.error("Stack trace:")
-        for line in traceback.format_tb(exc_traceback):
-            logger.error(line.strip())

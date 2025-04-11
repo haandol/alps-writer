@@ -26,6 +26,7 @@ def count_tokens(text: str) -> int:
         tokens = encoding.encode(text)
         return len(tokens)
     except Exception:
-        logger.error(traceback.format_exc())
+        logger.warning("Error on counting tokens",
+                       traceback=traceback.format_exc())
         # Fallback to approximate count if encoding fails
         return len(text) // 4  # Rough approximation

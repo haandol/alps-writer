@@ -50,18 +50,29 @@ class PromptCacheService:
             # Calculate the token count and sum it up
             message_tokens = count_tokens(content)
             total_tokens += message_tokens
-            logger.debug(f"Message {i} token count: {message_tokens}")
+            logger.debug("Message token count",
+                         index=i,
+                         token_count=message_tokens)
 
         logger.info(
-            f"Total tokens since last cache point (index {last_cache_point_index}): {total_tokens}")
+            "Total tokens since last cache point",
+            total_tokens=total_tokens,
+            last_cache_point_index=last_cache_point_index
+        )
 
         if total_tokens < self.MIN_TOKENS_FOR_CACHE:
             logger.info(
-                f"No cache point created: total token count {total_tokens} < {self.MIN_TOKENS_FOR_CACHE}")
+                "No cache point created",
+                total_tokens=total_tokens,
+                min_tokens=self.MIN_TOKENS_FOR_CACHE
+            )
             return False
 
         logger.info(
-            f"Cache point should be created: total token count {total_tokens} >= {self.MIN_TOKENS_FOR_CACHE}")
+            "Cache point should be created",
+            total_tokens=total_tokens,
+            min_tokens=self.MIN_TOKENS_FOR_CACHE
+        )
         return True
 
     def create_cache_point(self, history_index: int, cache_point_indices: List[int]) -> List[int]:
@@ -76,7 +87,10 @@ class PromptCacheService:
             List[int]: Updated list of cache point indices
         """
         logger.info(
-            f"Created cache point at index {history_index}, total: {len(cache_point_indices)}")
+            "Created cache point",
+            history_index=history_index,
+            total=len(cache_point_indices)
+        )
 
         return [*cache_point_indices, history_index][-self.MAX_CACHE_POINTS:]
 

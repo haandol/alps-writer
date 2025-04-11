@@ -10,5 +10,5 @@ def load_alps_context() -> str:
         with open(alps_path, "r", encoding="utf-8") as f:
             return f.read()
     except Exception as e:
-        logger.error(f"Failed to load ALPS context: {e}")
+        logger.error("Failed to load ALPS context", error=e)
         raise e

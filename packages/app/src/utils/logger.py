@@ -1,4 +1,4 @@
-import sys
+import os
 import structlog
 
 
@@ -22,7 +22,7 @@ def setup_logger(name: str = "alps_writer") -> structlog.BoundLogger:
     ]
 
     # Add different processors for development and production
-    if sys.stdout.isatty():
+    if os.getenv("ENVIRONMENT", "local") == "local":
         # Development: Console output in colored format
         processors.extend([
             structlog.dev.ConsoleRenderer(colors=True)

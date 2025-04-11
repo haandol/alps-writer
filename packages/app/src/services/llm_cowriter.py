@@ -1,6 +1,5 @@
 import os
 import asyncio
-import traceback
 from typing import AsyncGenerator, List, Optional
 
 from langchain_aws import ChatBedrockConverse
@@ -59,6 +58,7 @@ class LLMCowriterService:
     ) -> List[BaseMessage]:
         """
         Builds a list of messages with system message and user message containing context and history.
+        Prompt cache should be added to the history before building the messages.
 
         Args:
             message_content (str): Original user message content
@@ -69,7 +69,8 @@ class LLMCowriterService:
         Returns:
             List[BaseMessage]: List of messages ready for LLM processing
         """
-        logger.info(f"Got recent history: {len(recent_history)}")
+        logger.info("Got recent history",
+                    length=len(recent_history))
 
         message_contents = []
 
@@ -129,19 +130,16 @@ class LLMCowriterService:
         Returns:
             AsyncGenerator[str, None]: Generated text stream
         """
-        try:
-            full_response = None
-            first_chunk = True
-            async for chunk in self.llm.astream(messages):
-                if first_chunk:
-                    full_response = chunk
-                    first_chunk = False
-                else:
-                    full_response += chunk
-                    for content in chunk.content:
-                        yield content.get("text", "")
-                await asyncio.sleep(0)
-            logger.info(f"Usage metadata: {full_response.usage_metadata}")
-        except Exception as e:
-            logger.error(traceback.format_exc())
-            yield f"Error occurred while streaming from Bedrock: {str(e)}"
+        full_response = None
+        first_chunk = True
+        async for chunk in self.llm.astream(messages):
+            if first_chunk:
+                full_response = chunk
+                first_chunk = False
+            else:
+                full_response += chunk
+                for content in chunk.content:
+                    yield content.get("text", "")
+            await asyncio.sleep(0)
+        logger.info("Usage metadata",
+                    usage_metadata=full_response.usage_metadata)

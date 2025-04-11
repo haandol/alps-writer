@@ -1,5 +1,4 @@
 import os
-import sys
 import json
 import traceback
 from pathlib import Path
@@ -27,10 +26,11 @@ class FileLoadHandler:
             file_path = Path(file.path)
             file_ext = file_path.suffix.lower()
 
-            logger.info(f"Start processing the file: {file_path}")
-            logger.debug(
-                f"File information: size={file_path.stat().st_size}bytes, extension={file_ext}"
-            )
+            logger.info("Start processing the file",
+                        file_path=file_path)
+            logger.debug("File information",
+                         size=file_path.stat().st_size,
+                         extension=file_ext)
 
             if file_ext == ".pdf":
                 return await self._parse_pdf(file_path)
@@ -39,9 +39,12 @@ class FileLoadHandler:
             else:  # .md
                 return self._parse_text(file_path)
         except Exception as e:
-            self._log_exception("Error occurred while processing the file")
-            await cl.Message(
-                content=f"Error occurred while processing the file: {str(e)}"
+            logger.error(
+                "Error occurred while processing the file",
+                traceback=traceback.format_exc())
+            await cl.context.emitter.send_toast(
+                f"Error occurred while processing the file: {str(e)}",
+                "error"
             ).send()
             return None
 
@@ -58,7 +61,8 @@ class FileLoadHandler:
         text_parts = []
         pdf_path = str(file_path.absolute())
 
-        logger.info(f"Start parsing the PDF file: {pdf_path}")
+        logger.info("Start parsing the PDF file",
+                    file_path=pdf_path)
 
         try:
             # Check if the PDF file exists
@@ -73,27 +77,32 @@ class FileLoadHandler:
                 )
 
             with pdfplumber.open(pdf_path) as pdf:
-                logger.debug(f"PDF information: {len(pdf.pages)} pages")
+                logger.debug("PDF information",
+                             page_count=len(pdf.pages))
 
                 if len(pdf.pages) == 0:
                     logger.warning("No pages found in the PDF file")
                     return "No pages found in the PDF file."
 
                 for page_num, page in enumerate(pdf.pages, 1):
-                    logger.debug(f"Processing page {page_num}...")
+                    logger.debug("Processing page",
+                                 page_num=page_num)
                     try:
                         text = page.extract_text(layout=True)
                         if text:
                             text_parts.append(f"\n=== Page {page_num} ===\n")
                             text_parts.append(text)
                             logger.debug(
-                                f"Page {page_num}: Successfully extracted text ({len(text)} characters)"
-                            )
+                                "Successfully extracted text",
+                                page_num=page_num,
+                                length=len(text))
 
                         tables = page.extract_tables()
                         if tables:
                             logger.debug(
-                                f"Page {page_num}: {len(tables)} tables found")
+                                "Found tables",
+                                page_num=page_num,
+                                length=len(tables))
                             text_parts.append(
                                 f"\n=== Page {page_num} tables ===\n")
                             for table_num, table in enumerate(tables, 1):
@@ -109,9 +118,10 @@ class FileLoadHandler:
                                 text_parts.append("-" * 40)
 
                     except Exception as e:
-                        self._log_exception(
-                            f"Error occurred while processing the page {page_num}"
-                        )
+                        logger.error(
+                            "Error occurred while processing the page",
+                            page_num=page_num,
+                            traceback=traceback.format_exc())
                         text_parts.append(
                             f"\n[Error occurred while processing the page {page_num}: {str(e)}]\n"
                         )
@@ -123,28 +133,17 @@ class FileLoadHandler:
 
             result = "\n".join(text_parts)
             logger.info(
-                f"PDF parsing completed: {len(result)} characters extracted")
+                "PDF parsing completed",
+                length=len(result))
             return result
 
         except Exception as e:
-            self._log_exception("Error occurred while processing the PDF file")
+            logger.error(
+                "Error occurred while processing the PDF file",
+                traceback=traceback.format_exc())
             raise Exception(
-                f"Error occurred while processing the PDF file: {str(e)}")
-
-    def _log_exception(self, message: str) -> None:
-        """
-        Log exception information in detail.
-
-        Args:
-            message (str): log message
-        """
-        exc_type, exc_value, exc_traceback = sys.exc_info()
-        logger.error(f"{message}:")
-        logger.error(f"Exception type: {exc_type.__name__}")
-        logger.error(f"Exception message: {str(exc_value)}")
-        logger.error("Stack trace:")
-        for line in traceback.format_tb(exc_traceback):
-            logger.error(line.strip())
+                "Error occurred while processing the PDF file",
+                error=str(e))
 
     def _parse_json(self, file_path: Path) -> str:
         """Parse a JSON file and convert it to a string."""

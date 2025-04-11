@@ -34,7 +34,7 @@ uv sync
 1. Set up environment variables:
 
 ```bash
-cp env/dev.env .env
+cp env/local.env .env
 ```
 
 1. Open the `.env` file and edit your AWS profile and region:
