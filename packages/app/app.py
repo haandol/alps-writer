@@ -16,7 +16,7 @@ from chainlit.data.dynamodb import DynamoDBDataLayer
 from chainlit.logger import logger as cl_logger
 
 from src.constant import COMMANDS, SECTIONS
-from src.services.llm_cowriter import LLMCowriterService
+from services.alps_cowriter import ALPSCowriterService
 from src.services.prompt_cache import PromptCacheService
 from src.services.web_search import WebSearchService
 from src.services.section_printer import SectionPrinterService
@@ -42,7 +42,7 @@ MODEL_ID = os.environ.get("MODEL_ID", None)
 logger.info("Model configuration", model_id=MODEL_ID)
 
 # Initialize services and handlers
-llm_cowriter_service = LLMCowriterService(MODEL_ID)
+alps_cowriter_service = ALPSCowriterService(MODEL_ID)
 section_printer_service = SectionPrinterService(MODEL_ID)
 prompt_cache_service = PromptCacheService()
 web_search_service = WebSearchService()
@@ -253,12 +253,12 @@ async def main(message: cl.Message):
     cache_point_indices = load_cache_point_indices(cl.user_session)
     msg = cl.Message(content="")
     if search_result:
-        messages = llm_cowriter_service.build_web_search_messages(
+        messages = alps_cowriter_service.build_web_search_messages(
             query=user_message_content,
             web_result=search_result,
         )
         try:
-            async for chunk in llm_cowriter_service.stream_llm_response(messages):
+            async for chunk in alps_cowriter_service.stream_llm_response(messages):
                 if chunk:
                     await msg.stream_token(chunk)
             await msg.send()
@@ -277,14 +277,14 @@ async def main(message: cl.Message):
             recent_history,
         )
         # Build messages for ALPS writer
-        messages = llm_cowriter_service.build_alps_messages(
+        messages = alps_cowriter_service.build_alps_messages(
             message_content=user_message_content,
             recent_history=cached_recent_history,
             text_context=text_context,
             image_context=image_context,
         )
         try:
-            async for chunk in llm_cowriter_service.stream_llm_response(messages):
+            async for chunk in alps_cowriter_service.stream_llm_response(messages):
                 if chunk:
                     await msg.stream_token(chunk)
             await msg.send()

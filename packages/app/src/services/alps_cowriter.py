@@ -12,7 +12,7 @@ from src.utils.context import load_alps_context
 from src.utils.logger import logger
 
 
-class LLMCowriterService:
+class ALPSCowriterService:
     def __init__(self, model_id: str):
         self.llm = ChatBedrockConverse(
             model_id=model_id,
