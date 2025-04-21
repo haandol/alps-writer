@@ -1,4 +1,4 @@
-# ALPS Writer (Agentic Lean Prototyping Specification Writer)
+# ALPS Writer (Agentic Lean Prototyping Specification Writer) ⛰️📝
 
 This project is a demo of an LLM-based interactive technical/functional specification writing tool. It is a web application that helps developers, product managers, and planners create MVP technical specifications more efficiently.
 
