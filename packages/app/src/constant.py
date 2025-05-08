@@ -1,7 +1,20 @@
 from typing import List
+from enum import Enum
 
 from chainlit.types import CommandDict
 
+
+# LLM
+class LLMBackend(Enum):
+    AWS = "aws"
+    ANTHROPIC = "anthropic"
+
+
+MAX_TOKENS: int = 8192
+TEMPERATURE: float = 0.33
+
+
+# Chainlit COMMANDS
 COMMANDS: List[CommandDict] = [
     {
         "id": "search",
@@ -15,7 +28,7 @@ COMMANDS: List[CommandDict] = [
     },
 ]
 
-# Sections
+# ALPS Sections
 SECTIONS: List[str] = [
     "- Section 1. Overview",
     "- Section 2. MVP Goals and Key Metrics",
@@ -29,7 +42,3 @@ SECTIONS: List[str] = [
     "- Section 10. MVP Metrics",
     "- Section 11. Out of Scope",
 ]
-
-# LLM
-MAX_TOKENS: int = 8192
-TEMPERATURE: float = 0.33

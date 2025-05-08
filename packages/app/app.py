@@ -1,33 +1,34 @@
 import os
-import boto3
 import logging
 import traceback
 from pathlib import Path
-from typing import cast, Optional
 from decimal import Decimal
+from typing import cast, Optional
 
+
+import boto3
 import dotenv
-dotenv.load_dotenv()
-
 import chainlit as cl
 import chainlit.data as cl_data
-from chainlit.types import ThreadDict
 from chainlit.data.dynamodb import DynamoDBDataLayer
+from chainlit.types import ThreadDict
 from chainlit.logger import logger as cl_logger
+dotenv.load_dotenv()  # noqa: E402
 
-from src.constant import COMMANDS, SECTIONS
-from src.services.alps_cowriter import ALPSCowriterService
-from src.services.prompt_cache import PromptCacheService
-from src.services.web_search import WebSearchService
-from src.services.section_printer import SectionPrinterService
-from src.handlers.file_handler import FileLoadHandler
-from src.handlers.image_file_handler import ImageFileLoadHandler
-from src.handlers.search_handler import WebSearchHandler
 from src.handlers.save_handler import SaveHandler
-from src.utils.memory import RecentMemoryManager
-from src.utils.session import create_latest_cache_point, load_cache_point_indices
+from src.handlers.search_handler import WebSearchHandler
+from src.handlers.image_file_handler import ImageFileLoadHandler
+from src.handlers.file_handler import FileLoadHandler
+from src.services.section_printer import SectionPrinterService
+from src.services.web_search import WebSearchService
+from src.services.prompt_cache import PromptCacheService
+from src.services.alps_cowriter import ALPSCowriterService
+from src.constant import COMMANDS, SECTIONS, LLMBackend
 from src.utils.chainlit_patch import patch_chainlit_json
+from src.utils.session import create_latest_cache_point, load_cache_point_indices
+from src.utils.memory import RecentMemoryManager
 from src.utils.logger import logger
+
 
 # Patch Chainlit JSON serialization to handle Decimal values
 patch_chainlit_json()
@@ -38,13 +39,20 @@ DISABLE_OAUTH = os.environ.get("DISABLE_OAUTH", "false").lower() == "true"
 logger.info("OAuth configuration", disable_oauth=DISABLE_OAUTH)
 AWS_PROFILE_NAME = os.environ.get("AWS_PROFILE_NAME", None)
 logger.info("AWS profile configuration", profile_name=AWS_PROFILE_NAME)
-MODEL_ID = os.environ.get("MODEL_ID", None)
-logger.info("Model configuration", model_id=MODEL_ID)
+AWS_BEDROCK_MODEL_ID = os.environ.get("AWS_BEDROCK_MODEL_ID", None)
+logger.info("AWS Bedrock model configuration", model_id=AWS_BEDROCK_MODEL_ID)
+ANTHROPIC_MODEL_ID = os.environ.get("ANTHROPIC_MODEL_ID", None)
+logger.info("Anthropic model configuration", model_id=ANTHROPIC_MODEL_ID)
+# default is AWS, only use Anthropic if ANTHROPIC_MODEL_ID is set
+MODEL_ID = ANTHROPIC_MODEL_ID or AWS_BEDROCK_MODEL_ID
+assert MODEL_ID, "MODEL_ID must be set"
+LLM_BACKEND = LLMBackend.ANTHROPIC if ANTHROPIC_MODEL_ID else LLMBackend.AWS
+logger.info("LLM backend configuration", backend=LLM_BACKEND)
 
 # Initialize services and handlers
-alps_cowriter_service = ALPSCowriterService(MODEL_ID)
-section_printer_service = SectionPrinterService(MODEL_ID)
-prompt_cache_service = PromptCacheService()
+alps_cowriter_service = ALPSCowriterService(LLM_BACKEND, MODEL_ID)
+section_printer_service = SectionPrinterService(LLM_BACKEND, MODEL_ID)
+prompt_cache_service = PromptCacheService(LLM_BACKEND)
 web_search_service = WebSearchService()
 
 file_handler = FileLoadHandler()
@@ -117,9 +125,11 @@ if not DISABLE_OAUTH:
                     {"role": "assistant", "content": message["output"]}
                 )
             else:
-                logger.debug("Skipping message with unknown type",
-                             message_type=message["type"],
-                             output=message["output"][:50])
+                logger.debug(
+                    "Skipping message with unknown type",
+                    message_type=message["type"],
+                    output=message["output"][:50],
+                )
                 continue
         logger.info("Restored message history", count=len(message_history))
 
@@ -144,12 +154,13 @@ if not DISABLE_OAUTH:
     ) -> Optional[cl.User]:
         """Callback for Cognito OAuth providers."""
 
-        logger.debug("OAuth callback received",
-                     provider_id=provider_id,
-                     token_length=len(token) if token else 0,
-                     raw_user_data=raw_user_data,
-                     id_token_length=len(id_token) if id_token else 0)
-
+        logger.debug(
+            "OAuth callback received",
+            provider_id=provider_id,
+            token_length=len(token) if token else 0,
+            raw_user_data=raw_user_data,
+            id_token_length=len(id_token) if id_token else 0,
+        )
         logger.info("User logged in", user_id=default_user.identifier)
         return default_user
 
@@ -263,8 +274,10 @@ async def main(message: cl.Message):
                     await msg.stream_token(chunk)
             await msg.send()
         except Exception as e:
-            logger.error("Error streaming LLM response",
-                         traceback=traceback.format_exc())
+            logger.error(
+                "Error streaming LLM response",
+                traceback=traceback.format_exc(),
+            )
             await cl.context.emitter.send_toast(f"Error streaming LLM response: {str(e)}", "error")
             return
     else:
@@ -289,8 +302,9 @@ async def main(message: cl.Message):
                     await msg.stream_token(chunk)
             await msg.send()
         except Exception as e:
-            logger.error("Error streaming LLM response",
-                         traceback=traceback.format_exc())
+            logger.error(
+                "Error streaming LLM response", traceback=traceback.format_exc(),
+            )
             await cl.context.emitter.send_toast(f"Error streaming LLM response: {str(e)}", "error")
             return
 

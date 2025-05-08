@@ -5,8 +5,17 @@ An AI-powered tool that generates technical/functional specification documents t
 ## Requirements
 
 1. Python 3.13 or higher
-2. Configured AWSCLI
-3. Enabled AWS Bedrock for `Anthropic Claude 3.5 Sonnet V2` and `Amazon Titan Embeddings Text V2`
+
+### Choose ONE of the following LLM providers:
+
+#### For AWS Bedrock Users
+
+1. Configured AWSCLI
+2. Enabled AWS Bedrock for `Anthropic Claude 3.7 Sonnet V1`
+
+#### For Anthropic Direct API Users
+
+1. Anthropic API Key for `Claude 3.7 Sonnet`
 
 ## Installation
 
@@ -19,29 +28,46 @@ cd alps-writer
 
 > Tip: If you're using VS Code or equivalent IDEs that support Dev Containers, you can utilize this feature.
 
-1. Install UV:
+2. Install UV:
 
 ```bash
 pip install uv
 ```
 
-1. Install required packages:
+3. Install required packages:
 
 ```bash
 uv sync
 ```
 
-1. Set up environment variables:
+4. Set up environment variables:
 
 ```bash
 cp env/local.env .env
 ```
 
-1. Open the `.env` file and edit your AWS profile and region:
+5. Configure your LLM provider in the `.env` file:
 
+#### For AWS Bedrock users:
 ```env
 AWS_DEFAULT_REGION="us-west-2"
 AWS_PROFILE_NAME="default"
+AWS_BEDROCK_MODEL_ID="us.anthropic.claude-3-7-sonnet-20250219-v1:0"
+
+# Comment out or remove these lines
+# ANTHROPIC_MODEL_ID=""
+# ANTHROPIC_API_KEY=""
+```
+
+#### For Anthropic Direct API users:
+```env
+# Comment out or remove these lines
+# AWS_DEFAULT_REGION=""
+# AWS_PROFILE_NAME=""
+# AWS_BEDROCK_MODEL_ID=""
+
+ANTHROPIC_MODEL_ID="claude-3-7-sonnet-20250219"
+ANTHROPIC_API_KEY="your-anthropic-api-key"
 ```
 
 ### **Optional** Enable Authentication on Local Machine

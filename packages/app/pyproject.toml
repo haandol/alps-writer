@@ -9,6 +9,7 @@ dependencies = [
     "boto3>=1.36.12",
     "chainlit>=2.4.1",
     "langchain>=0.3.17",
+    "langchain-anthropic>=0.3.12",
     "langchain-aws>=0.2.12",
     "markdown>=3.7",
     "pdfplumber>=0.11.5",
@@ -20,3 +21,8 @@ dependencies = [
 
 [tool.ruff]
 ignore = ["E402"]
+
+[tool.ruff.isort]
+known-first-party = ["dotenv"]
+known-local-folder = ["src"]
+section-order = ["future", "standard-library", "first-party", "third-party", "local-folder"]

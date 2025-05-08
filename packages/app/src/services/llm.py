@@ -3,21 +3,34 @@ import asyncio
 from typing import List, AsyncGenerator
 
 from langchain_aws import ChatBedrockConverse
+from langchain_anthropic import ChatAnthropic
 from langchain.schema import BaseMessage
 
-from src.constant import MAX_TOKENS, TEMPERATURE
+from src.constant import MAX_TOKENS, TEMPERATURE, LLMBackend
 from src.utils.logger import logger
 
 
 class LLMService:
-    def __init__(self, model_id: str):
+    def __init__(self, llm_backend: LLMBackend, model_id: str):
+        self.llm_backend = llm_backend
         self.model_id = model_id
-        self.llm = ChatBedrockConverse(
-            model_id=self.model_id,
-            temperature=TEMPERATURE,
-            max_tokens=MAX_TOKENS,
-            region_name=os.getenv("AWS_REGION"),
-        )
+
+        if self.llm_backend == LLMBackend.AWS:
+            AWS_PROFILE_NAME = os.getenv("AWS_PROFILE_NAME", None)
+            logger.info("AWS profile configuration",
+                        profile_name=AWS_PROFILE_NAME)
+            self.llm = ChatBedrockConverse(
+                model_id=self.model_id,
+                temperature=TEMPERATURE,
+                max_tokens=MAX_TOKENS,
+                profile_name=AWS_PROFILE_NAME,
+            )
+        elif self.llm_backend == LLMBackend.ANTHROPIC:
+            self.llm = ChatAnthropic(
+                model=self.model_id,
+                temperature=TEMPERATURE,
+                max_tokens=MAX_TOKENS,
+            )
 
     async def stream_llm_response(
         self,
@@ -41,7 +54,10 @@ class LLMService:
             else:
                 full_response += chunk
                 for content in chunk.content:
-                    yield content.get("text", "")
+                    if isinstance(content, dict):
+                        yield content.get("text", "")
+                    else:
+                        yield content
             await asyncio.sleep(0)
         logger.info("Usage metadata",
                     usage_metadata=full_response.usage_metadata)

@@ -5,13 +5,14 @@ from langchain.schema import BaseMessage, HumanMessage, SystemMessage
 from src.services.llm import LLMService
 from src.prompts.cowriter import SYSTEM_PROMPT as ALPS_SYSTEM_PROMPT
 from src.prompts.web_qa import SYSTEM_PROMPT as WEB_QA_SYSTEM_PROMPT
+from src.constant import LLMBackend
 from src.utils.context import load_alps_context
 from src.utils.logger import logger
 
 
 class ALPSCowriterService(LLMService):
-    def __init__(self, model_id: str):
-        super().__init__(model_id)
+    def __init__(self, llm_backend: LLMBackend, model_id: str):
+        super().__init__(llm_backend, model_id)
 
         self.alps_context = load_alps_context()
         self.alps_system_prompt = ALPS_SYSTEM_PROMPT
@@ -30,17 +31,28 @@ class ALPSCowriterService(LLMService):
             "Please answer in user's language, if you don't know the language, answer in English."
         ]
 
-        return SystemMessage(
-            content=[
-                {
-                    "type": "text",
-                    "text": "\n".join(system_message_contents),
-                },
-                {
-                    "cachePoint": {"type": "default"},
-                },
-            ],
-        )
+        if self.llm_backend == LLMBackend.AWS:
+            return SystemMessage(
+                content=[
+                    {
+                        "type": "text",
+                        "text": "\n".join(system_message_contents),
+                    },
+                    {
+                        "cachePoint": {"type": "default"}
+                    }
+                ],
+            )
+        else:
+            return SystemMessage(
+                content=[
+                    {
+                        "type": "text",
+                        "text": "\n".join(system_message_contents),
+                        "cache_control": {"type": "ephemeral"}
+                    }
+                ]
+            )
 
     def build_alps_messages(
         self,
@@ -104,7 +116,14 @@ class ALPSCowriterService(LLMService):
             List[SystemMessage | HumanMessage]: List of messages ready for LLM processing
         """
         return [
-            SystemMessage(content=self.web_qa_system_prompt),
+            SystemMessage(
+                content=[
+                    {
+                        "type": "text",
+                        "text": self.web_qa_system_prompt
+                    },
+                ],
+            ),
             HumanMessage(
                 content=f"<query>{query}</query>\n\n<web_result>{web_result}</web_result>"
             ),

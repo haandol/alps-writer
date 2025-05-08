@@ -4,13 +4,14 @@ from langchain.schema import BaseMessage, SystemMessage, HumanMessage
 
 from src.services.llm import LLMService
 from src.prompts.section_printer import SYSTEM_PROMPT
+from src.constant import LLMBackend
 from src.utils.context import load_alps_context
 from src.utils.logger import logger
 
 
 class SectionPrinterService(LLMService):
-    def __init__(self, model_id: str):
-        super().__init__(model_id)
+    def __init__(self, llm_backend: LLMBackend, model_id: str):
+        super().__init__(llm_backend, model_id)
 
         self.alps_context = load_alps_context()
         self.section_printer_system_prompt = SYSTEM_PROMPT
@@ -28,17 +29,28 @@ class SectionPrinterService(LLMService):
             "Please print the section in the requested locale.",
         ]
 
-        return SystemMessage(
-            content=[
-                {
-                    "type": "text",
-                    "text": "\n".join(system_message_contents),
-                },
-                {
-                    "cachePoint": {"type": "default"},
-                },
-            ],
-        )
+        if self.llm_backend == LLMBackend.AWS:
+            return SystemMessage(
+                content=[
+                    {
+                        "type": "text",
+                        "text": "\n".join(system_message_contents),
+                    },
+                    {
+                        "cachePoint": {"type": "default"}
+                    }
+                ],
+            )
+        else:
+            return SystemMessage(
+                content=[
+                    {
+                        "type": "text",
+                        "text": "\n".join(system_message_contents),
+                        "cache_control": {"type": "ephemeral"}
+                    }
+                ]
+            )
 
     def build_section_printer_messages(self, recent_history: List[BaseMessage], section: str, locale: str) -> List[BaseMessage]:
         """

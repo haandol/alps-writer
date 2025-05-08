@@ -5,6 +5,7 @@ from langchain.schema import BaseMessage
 
 from src.utils.token_counter import count_tokens
 from src.utils.logger import logger
+from src.constant import LLMBackend
 
 
 class PromptCacheService:
@@ -19,6 +20,9 @@ class PromptCacheService:
 
     MAX_CACHE_POINTS = 3  # 1 has been used for the system message
     MIN_TOKENS_FOR_CACHE = 2000
+
+    def __init__(self, llm_backend: LLMBackend):
+        self.llm_backend = llm_backend
 
     def should_create_cache_point(self, cache_point_indices: List[int], messages: List[BaseMessage]) -> bool:
         """
@@ -114,12 +118,17 @@ class PromptCacheService:
                 # Check if message content is already a list of content items
                 if isinstance(message.content, list):
                     message.content.append(
-                        {"cachePoint": {"type": "default"}},
+                        {
+                            "cachePoint": {"type": "default"},
+                        }
                     )
                 else:
                     # Convert string content to a list with text and cache point
                     message.content = [
-                        {"type": "text", "text": message.content},
-                        {"cachePoint": {"type": "default"}}
+                        {
+                            "type": "text",
+                            "text": message.content,
+                            "cache_control": {"type": "ephemeral"},
+                        },
                     ]
         return new_messages
