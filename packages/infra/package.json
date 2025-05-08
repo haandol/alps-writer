@@ -24,7 +24,7 @@
   "dependencies": {
     "@aws/pdk": "^0.26.3",
     "@types/node": "^22.14.0",
-    "aws-cdk-lib": "2.188.0",
+    "aws-cdk-lib": "2.189.1",
     "cdk-nag": "^2.35.63",
     "constructs": "^10.4.2",
     "joi": "^17.13.3",
