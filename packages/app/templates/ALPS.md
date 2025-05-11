@@ -251,39 +251,6 @@ flowchart LR
    - Return a 500 error for server errors
      </example>
 
-#### 6.1.4 Scoped API Specification (Optional)
-
-- Describe the API specifications for this feature.
-
-<example>
-User Story: As a user, I want to sign up, so I can access the service.
-
-- Endpoint: POST /api/users
-- Request Body:
-  {
-  "email": string,
-  "password": string
-  }
-- Response Body:
-  {
-  "userId": string,
-  "email": string
-  }
-  </example>
-
-#### 6.1.5 Scoped Data Model / Schema
-
-- Define the database table/collection schema for this feature.
-
-<example>
-**users** table:
-
-- id: PRIMARY KEY
-- email: STRING (UNIQUE)
-- password: STRING (HASHED)
-- createdAt: TIMESTAMP
-  </example>
-
 ---
 
 ## Section 7. Data Model
