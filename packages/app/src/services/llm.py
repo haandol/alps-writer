@@ -17,13 +17,12 @@ class LLMService:
 
         if self.llm_backend == LLMBackend.AWS:
             AWS_PROFILE_NAME = os.getenv("AWS_PROFILE_NAME", None)
-            logger.info("AWS profile configuration",
-                        profile_name=AWS_PROFILE_NAME)
+            logger.info("AWS profile configuration", profile_name=AWS_PROFILE_NAME)
             self.llm = ChatBedrockConverse(
-                model_id=self.model_id,
+                model=self.model_id,
                 temperature=TEMPERATURE,
                 max_tokens=MAX_TOKENS,
-                profile_name=AWS_PROFILE_NAME,
+                credentials_profile_name=AWS_PROFILE_NAME,
             )
         elif self.llm_backend == LLMBackend.ANTHROPIC:
             self.llm = ChatAnthropic(
@@ -59,5 +58,4 @@ class LLMService:
                     else:
                         yield content
             await asyncio.sleep(0)
-        logger.info("Usage metadata",
-                    usage_metadata=full_response.usage_metadata)
+        logger.info("Usage metadata", usage_metadata=full_response.usage_metadata)
