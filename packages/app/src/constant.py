@@ -10,7 +10,7 @@ class LLMBackend(Enum):
     ANTHROPIC = "anthropic"
 
 
-MAX_TOKENS: int = 8192
+MAX_TOKENS: int = 1024 * 16
 TEMPERATURE: float = 0.33
 
 
