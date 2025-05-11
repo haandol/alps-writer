@@ -21,6 +21,7 @@ interface IProps extends cdk.StackProps {
   readonly loadBalancer: elbv2.IApplicationLoadBalancer;
   readonly userPoolClient: cognito.IUserPoolClient;
   readonly appRegion: string;
+  readonly bedrockModelId: string;
   readonly historyTableName: string;
   readonly tavilyApiKey: string;
   readonly callbackUrls: string[];
@@ -28,6 +29,7 @@ interface IProps extends cdk.StackProps {
 
 interface AppEnvVars {
   appRegion: ssm.IStringParameter;
+  bedrockModelId: ssm.IStringParameter;
   historyTableName: ssm.IStringParameter;
   chainlitAuthSecret: secretsmanager.ISecret;
   tavilyApiKey: ssm.IStringParameter;
@@ -109,6 +111,12 @@ export class AlpsAppStack extends cdk.Stack {
       stringValue: props.appRegion,
       tier: ssm.ParameterTier.STANDARD,
     });
+    const bedrockModelId = new ssm.StringParameter(this, "BedrockModelId", {
+      description: "Bedrock Model ID",
+      parameterName: `${ns}BedrockModelId`,
+      stringValue: props.bedrockModelId,
+      tier: ssm.ParameterTier.STANDARD,
+    });
     const historyTableName = new ssm.StringParameter(this, "HistoryTableName", {
       description: "History table name",
       parameterName: `${ns}HistoryTableName`,
@@ -162,6 +170,7 @@ export class AlpsAppStack extends cdk.Stack {
 
     return {
       appRegion,
+      bedrockModelId,
       historyTableName,
       chainlitAuthSecret,
       tavilyApiKey,

@@ -14,6 +14,7 @@ export interface IProps {
   readonly cluster: ecs.ICluster;
   readonly loadBalancer: elbv2.IApplicationLoadBalancer;
   readonly appRegion: ssm.IStringParameter;
+  readonly bedrockModelId: ssm.IStringParameter;
   readonly historyTableName: ssm.IStringParameter;
   readonly chainlitAuthSecret: secretsmanager.ISecret;
   readonly tavilyApiKey: ssm.IStringParameter;
@@ -42,6 +43,7 @@ export class AlpsChainlitApp extends Construct {
 
     const secrets: { [key: string]: ecs.Secret } = {
       AWS_REGION: ecs.Secret.fromSsmParameter(props.appRegion),
+      AWS_BEDROCK_MODEL_ID: ecs.Secret.fromSsmParameter(props.bedrockModelId),
       HISTORY_TABLE_NAME: ecs.Secret.fromSsmParameter(props.historyTableName),
       CHAINLIT_AUTH_SECRET: ecs.Secret.fromSecretsManager(
         props.chainlitAuthSecret

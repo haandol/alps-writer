@@ -9,6 +9,7 @@ stage = "Dev"
 callbackUrls = ["http://localhost:8000/auth/oauth/aws-cognito/callback"]
 
 [chatbot]
+bedrockModelId = "us.anthropic.claude-3-7-sonnet-20250219-v1:0"
 tableName = "chat-history"
 
 [external.web]

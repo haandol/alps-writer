@@ -54,6 +54,7 @@ const alpsAppStack = new AlpsAppStack(app, `${Config.app.ns}AlpsApp`, {
   loadBalancer: commonAppStack.loadBalancer,
   userPoolClient: authStack.userPoolClient,
   appRegion: process.env.CDK_DEFAULT_REGION as string,
+  bedrockModelId: Config.chatbot.bedrockModelId,
   historyTableName: Config.chatbot.tableName,
   tavilyApiKey: Config.external.web.tavilyApiKey,
   callbackUrls: Config.auth.callbackUrls,

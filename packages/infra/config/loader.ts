@@ -15,6 +15,7 @@ interface IConfig {
     callbackUrls: string[];
   };
   chatbot: {
+    bedrockModelId: string;
     tableName: string;
   };
   external: {
@@ -47,6 +48,7 @@ const schema = joi
     }),
     chatbot: joi
       .object({
+        bedrockModelId: joi.string().required(),
         tableName: joi.string().required(),
       })
       .required(),
