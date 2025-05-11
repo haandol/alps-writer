@@ -16,13 +16,13 @@ class LLMService:
         self.model_id = model_id
 
         if self.llm_backend == LLMBackend.AWS:
-            AWS_PROFILE_NAME = os.getenv("AWS_PROFILE_NAME", None)
-            logger.info("AWS profile configuration", profile_name=AWS_PROFILE_NAME)
+            AWS_PROFILE = os.getenv("AWS_PROFILE", None)
+            logger.info("AWS profile configuration", profile_name=AWS_PROFILE)
             self.llm = ChatBedrockConverse(
                 model=self.model_id,
                 temperature=TEMPERATURE,
                 max_tokens=MAX_TOKENS,
-                credentials_profile_name=AWS_PROFILE_NAME,
+                credentials_profile_name=AWS_PROFILE,
             )
         elif self.llm_backend == LLMBackend.ANTHROPIC:
             self.llm = ChatAnthropic(
