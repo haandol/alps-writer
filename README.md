@@ -21,7 +21,7 @@ This project is a demo of an LLM-based interactive technical/functional specific
 1. Python 3.13 or higher
 2. Node.js 20 or higher
 3. Docker
-4. AWS CLI configuration
+4. AWS CLI configuration or Claude API Key
 
 ## Project Structure
 
@@ -51,11 +51,10 @@ The following features are planned for production-ready release:
 
 - [x] Apply RAG and chat-history-memory features to reduce token usage
 - [x] Enable Prompt Caching for reducing token usage
+- [ ] TaskManager feature that reduce blast radius during develop using Agentic IDEs
 - [ ] Add Save command for upload completed document to S3 with one click
-- [ ] Integrate DeepResearch feature to expedite research cycle
 - [ ] Migrate from Chainlit to custom solution that supports concurrent user sessions per each conversation
 - [ ] Build document management system for specification generation and versioning
-- [ ] Enhance document quality with revision system via Thinking models
 
 ## License
 
