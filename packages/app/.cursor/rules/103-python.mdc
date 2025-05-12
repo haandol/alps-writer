@@ -1,7 +1,7 @@
 ---
 description: 
-globs: 
-alwaysApply: true
+globs: *.py,*.toml
+alwaysApply: false
 ---
 <python-version>
   - Use 3.13
