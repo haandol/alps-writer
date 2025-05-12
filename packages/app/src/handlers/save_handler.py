@@ -104,8 +104,9 @@ class SaveHandler:
                     ).send()
 
             except Exception as e:
-                logger.error("Error on generating document",
-                             traceback=traceback.format_exc())
+                logger.error(
+                    "Error on generating document", traceback=traceback.format_exc()
+                )
                 step.output = f"An error occurred while saving the document: {str(e)}"
 
     def _combine_document_sections(self, document_sections: Dict[str, str]) -> str:

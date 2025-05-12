@@ -1,4 +1,3 @@
-import os
 from typing import Dict, List, Optional
 
 from tavily import TavilyClient
@@ -7,6 +6,8 @@ from tavily.errors import (
     InvalidAPIKeyError,
     UsageLimitExceededError,
 )
+
+from src.config import config
 
 
 class WebSearchService:
@@ -17,7 +18,7 @@ class WebSearchService:
         Initialize the Tavily API client.
         The TAVILY_API_KEY environment variable is required.
         """
-        self.client = TavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
+        self.client = TavilyClient(api_key=config.tavily_api_key)
 
     async def search(self, query: str) -> Optional[List[Dict]]:
         """
@@ -32,12 +33,14 @@ class WebSearchService:
         try:
             response = self.client.search(
                 query,
-                max_results=5,
+                max_results=config.tavily_max_results,
             )
             return response.get("results", [])
         except (MissingAPIKeyError, InvalidAPIKeyError) as e:
             raise Exception("The Tavily API key is invalid.") from e
         except UsageLimitExceededError as e:
-            raise Exception("The Tavily API usage limit has been exceeded.") from e
+            raise Exception(
+                "The Tavily API usage limit has been exceeded.") from e
         except Exception as e:
-            raise Exception(f"An error occurred during web search: {str(e)}") from e
+            raise Exception(
+                f"An error occurred during web search: {str(e)}") from e

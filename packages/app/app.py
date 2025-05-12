@@ -1,10 +1,8 @@
-import os
 import logging
 import traceback
 from pathlib import Path
 from decimal import Decimal
 from typing import cast, Optional
-
 
 import boto3
 import dotenv
@@ -15,6 +13,7 @@ from chainlit.types import ThreadDict
 from chainlit.logger import logger as cl_logger
 dotenv.load_dotenv()  # noqa: E402
 
+from src.config import config
 from src.handlers.save_handler import SaveHandler
 from src.handlers.search_handler import WebSearchHandler
 from src.handlers.image_file_handler import ImageFileLoadHandler
@@ -23,7 +22,7 @@ from src.services.section_printer import SectionPrinterService
 from src.services.web_search import WebSearchService
 from src.services.prompt_cache import PromptCacheService
 from src.services.alps_cowriter import ALPSCowriterService
-from src.constant import COMMANDS, SECTIONS, LLMBackend
+from src.constant import COMMANDS, SECTIONS
 from src.utils.chainlit_patch import patch_chainlit_json
 from src.utils.session import create_latest_cache_point, load_cache_point_indices
 from src.utils.memory import RecentMemoryManager
@@ -33,26 +32,12 @@ from src.utils.logger import logger
 # Patch Chainlit JSON serialization to handle Decimal values
 patch_chainlit_json()
 
-# Set environment variables
-# disable oauth only for the local test
-DISABLE_OAUTH = os.environ.get("DISABLE_OAUTH", "false").lower() == "true"
-logger.info("OAuth configuration", disable_oauth=DISABLE_OAUTH)
-AWS_PROFILE_NAME = os.environ.get("AWS_PROFILE_NAME", None)
-logger.info("AWS profile configuration", profile_name=AWS_PROFILE_NAME)
-AWS_BEDROCK_MODEL_ID = os.environ.get("AWS_BEDROCK_MODEL_ID", None)
-logger.info("AWS Bedrock model configuration", model_id=AWS_BEDROCK_MODEL_ID)
-ANTHROPIC_MODEL_ID = os.environ.get("ANTHROPIC_MODEL_ID", None)
-logger.info("Anthropic model configuration", model_id=ANTHROPIC_MODEL_ID)
-# default is AWS, only use Anthropic if ANTHROPIC_MODEL_ID is set
-MODEL_ID = ANTHROPIC_MODEL_ID or AWS_BEDROCK_MODEL_ID
-assert MODEL_ID, "MODEL_ID must be set"
-LLM_BACKEND = LLMBackend.ANTHROPIC if ANTHROPIC_MODEL_ID else LLMBackend.AWS
-logger.info("LLM backend configuration", backend=LLM_BACKEND)
-
 # Initialize services and handlers
-alps_cowriter_service = ALPSCowriterService(LLM_BACKEND, MODEL_ID)
-section_printer_service = SectionPrinterService(LLM_BACKEND, MODEL_ID)
-prompt_cache_service = PromptCacheService(LLM_BACKEND)
+alps_cowriter_service = ALPSCowriterService(
+    config.llm_backend, config.model_id)
+section_printer_service = SectionPrinterService(
+    config.llm_backend, config.model_id)
+prompt_cache_service = PromptCacheService(config.llm_backend)
 web_search_service = WebSearchService()
 
 file_handler = FileLoadHandler()
@@ -63,22 +48,22 @@ save_handler = SaveHandler(section_printer_service)
 
 def init_history_persistent_layer():
     """Initialize the history persistent layer for the ChainLit defaults."""
-    HISTORY_TABLE_NAME = os.environ.get("HISTORY_TABLE_NAME", "")
-    assert HISTORY_TABLE_NAME, "HISTORY_TABLE_NAME environment variable not set"
-
-    AWS_DEFAULT_REGION = os.environ.get("AWS_DEFAULT_REGION", None)
-    logger.info("AWS region configuration", region=AWS_DEFAULT_REGION)
+    if not config.history_table_name:
+        logger.warning(
+            "HISTORY_TABLE_NAME is not set, skipping history persistent layer initialization")
+        return
 
     # set history persistent db layer
-    session = boto3.Session(profile_name=AWS_PROFILE_NAME)
+    session = boto3.Session(profile_name=config.aws_profile)
     cl_data._data_layer = DynamoDBDataLayer(
-        table_name=HISTORY_TABLE_NAME,
-        client=session.client("dynamodb", region_name=AWS_DEFAULT_REGION),
+        table_name=config.history_table_name,
+        client=session.client(
+            "dynamodb", region_name=config.aws_default_region),
     )
     cl_logger.getChild("DynamoDB").setLevel(logging.INFO)
 
 
-if not DISABLE_OAUTH:
+if not config.disable_oauth:
     init_history_persistent_layer()
 
     @cl.on_chat_resume

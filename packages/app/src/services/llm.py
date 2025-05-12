@@ -1,4 +1,3 @@
-import os
 import asyncio
 from typing import List, AsyncGenerator
 
@@ -6,6 +5,7 @@ from langchain_aws import ChatBedrockConverse
 from langchain_anthropic import ChatAnthropic
 from langchain.schema import BaseMessage
 
+from src.config import config
 from src.constant import MAX_TOKENS, TEMPERATURE, LLMBackend
 from src.utils.logger import logger
 
@@ -16,7 +16,7 @@ class LLMService:
         self.model_id = model_id
 
         if self.llm_backend == LLMBackend.AWS:
-            AWS_PROFILE = os.getenv("AWS_PROFILE", None)
+            AWS_PROFILE = config.aws_profile
             logger.info("AWS profile configuration", profile_name=AWS_PROFILE)
             self.llm = ChatBedrockConverse(
                 model=self.model_id,
@@ -58,4 +58,5 @@ class LLMService:
                     else:
                         yield content
             await asyncio.sleep(0)
-        logger.info("Usage metadata", usage_metadata=full_response.usage_metadata)
+        logger.info("Usage metadata",
+                    usage_metadata=full_response.usage_metadata)
