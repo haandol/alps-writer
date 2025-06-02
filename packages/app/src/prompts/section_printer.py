@@ -101,7 +101,7 @@ Your task is to output the requested section of the final ALPS document in the s
 </alps-sections>
 
 <output-format>
-  - When outputting multiple sections, always separate the top-level chapters (Section 1, Section 2, ..., Section N) with the delimiter: `\n---\n`
+  - When outputting multiple sections, always separate the top-level chapters (Section 1, Section 2, ..., Section N) with the delimiter: `\n\n---\n\n`
   - Do not add any extra text, headers, or summary outside of the confirmed content for each section.
   - If only one section is requested, do not include the delimiter before or after the content.
 </output-format>
