@@ -13,21 +13,21 @@
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
-    "@types/node": "22.13.13",
-    "aws-cdk": "2.1007.0",
+    "@types/node": "22.15.29",
+    "aws-cdk": "2.1017.1",
     "jest": "^29.7.0",
-    "projen": "^0.91.20",
-    "ts-jest": "^29.3.1",
+    "projen": "^0.92.9",
+    "ts-jest": "^29.3.4",
     "ts-node": "^10.9.2",
-    "typescript": "~5.8.2"
+    "typescript": "~5.8.3"
   },
   "dependencies": {
-    "@aws/pdk": "^0.26.3",
+    "@aws/pdk": "^0.26.11",
     "@types/node": "^22.14.0",
-    "aws-cdk-lib": "2.189.1",
-    "cdk-nag": "^2.35.63",
+    "aws-cdk-lib": "2.200.1",
+    "cdk-nag": "^2.36.10",
     "constructs": "^10.4.2",
     "toml": "^3.0.0",
-    "zod": "^3.25.36"
+    "zod": "^3.25.50"
   }
 }
