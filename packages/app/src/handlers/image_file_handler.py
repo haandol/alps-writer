@@ -1,5 +1,4 @@
 import io
-import base64
 import traceback
 from typing import Optional
 from pathlib import Path
@@ -26,11 +25,10 @@ class ImageFileLoadHandler:
             file_path = Path(file.path)
             file_ext = file_path.suffix.lower()
 
-            logger.info("Start processing the file",
-                        file_path=file_path)
-            logger.debug("File information",
-                         size=file_path.stat().st_size,
-                         extension=file_ext)
+            logger.info("Start processing the file", file_path=file_path)
+            logger.debug(
+                "File information", size=file_path.stat().st_size, extension=file_ext
+            )
 
             # Process image files
             if file_ext in [".jpg", ".jpeg", ".png", ".gif", ".webp"]:
@@ -38,11 +36,12 @@ class ImageFileLoadHandler:
             else:
                 return None
         except Exception as e:
-            logger.error("Error occurred while processing the file",
-                         traceback=traceback.format_exc())
+            logger.error(
+                "Error occurred while processing the file",
+                traceback=traceback.format_exc(),
+            )
             await cl.context.emitter.send_toast(
-                f"Error occurred while processing the file: {str(e)}",
-                "error"
+                f"Error occurred while processing the file: {str(e)}", "error"
             ).send()
             return None
 
@@ -64,18 +63,15 @@ class ImageFileLoadHandler:
                 img.save(img_byte_arr, format=img.format)
                 img_byte_arr = img_byte_arr.getvalue()
 
-                # Encode the image to base64
-                base64_img = base64.b64encode(img_byte_arr).decode("utf-8")
-
                 return {
-                    "type": "image",
-                    "source": {
-                        "type": "base64",
-                        "mediaType": f"image/{img.format.lower()}",
-                        "data": base64_img
+                    "image": {
+                        "format": img.format.lower(),
+                        "source": {"bytes": img_byte_arr},
                     }
                 }
         except Exception as e:
-            logger.error("Error occurred while processing the image",
-                         traceback=traceback.format_exc())
+            logger.error(
+                "Error occurred while processing the image",
+                traceback=traceback.format_exc(),
+            )
             raise Exception(f"Failed to process the image: {str(e)}")

@@ -1,6 +1,6 @@
 from typing import List
 
-from langchain.schema import BaseMessage, SystemMessage, HumanMessage
+from strands.types.content import Message
 
 from src.services.llm import LLMService
 from src.prompts.section_printer import SYSTEM_PROMPT
@@ -16,12 +16,12 @@ class SectionPrinterService(LLMService):
         self.alps_context = load_alps_context()
         self.section_printer_system_prompt = SYSTEM_PROMPT
 
-    def _build_system_message(self) -> SystemMessage:
+    def _build_system_prompt(self) -> str:
         """
         Builds a system message for ALPS template generation.
 
         Returns:
-            SystemMessage: The system message containing ALPS template and language instruction
+            str: The system prompt string including ALPS template and instruction
         """
         system_message_contents: List[str] = [
             self.section_printer_system_prompt,
@@ -29,52 +29,35 @@ class SectionPrinterService(LLMService):
             "Please print the section in the requested locale.",
         ]
 
-        if self.llm_backend == LLMBackend.AWS:
-            return SystemMessage(
-                content=[
-                    {
-                        "type": "text",
-                        "text": "\n".join(system_message_contents),
-                    },
-                    {
-                        "cachePoint": {"type": "default"}
-                    }
-                ],
-            )
-        else:
-            return SystemMessage(
-                content=[
-                    {
-                        "type": "text",
-                        "text": "\n".join(system_message_contents),
-                        "cache_control": {"type": "ephemeral"}
-                    }
-                ]
-            )
+        return "\n".join(system_message_contents)
 
-    def build_section_printer_messages(self, recent_history: List[BaseMessage], section: str, locale: str) -> List[BaseMessage]:
+    def build_section_printer_messages(
+        self, recent_history: List[Message], section: str, locale: str
+    ) -> List[Message]:
         """
         Builds a list of messages for section printer.
         Prompt cache should be added to the history before building the messages.
 
         Args:
-            recent_history (List[BaseMessage]): Recent conversation history
+            recent_history (List[Message]): Recent conversation history
             section (str): Section to print
             locale (str): Locale to print the section in
 
         Returns:
-            List[BaseMessage]: List of messages for section printer
+            List[Message]: List of messages for section printer
         """
-        logger.info("Got recent history",
-                    length=len(recent_history))
+        logger.info("Got recent history", length=len(recent_history))
 
-        system_message = self._build_system_message()
-        user_message = HumanMessage(
-            content=[
+        user_message: Message = {
+            "role": "user",
+            "content": [
                 {
-                    "type": "text",
                     "text": f"<locale>{locale}</locale>\n<section>{section}</section>\nPlease print the section in the requested locale.",
                 },
             ],
-        )
-        return [system_message, *recent_history, user_message]
+        }
+        # Do not include system message here; provided separately to model.stream
+        return [*recent_history, user_message]
+
+    def get_system_prompt(self) -> str:
+        return self._build_system_prompt()

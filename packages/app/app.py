@@ -11,6 +11,7 @@ import chainlit.data as cl_data
 from chainlit.data.dynamodb import DynamoDBDataLayer
 from chainlit.types import ThreadDict
 from chainlit.logger import logger as cl_logger
+
 dotenv.load_dotenv()  # noqa: E402
 
 from src.config import config
@@ -33,10 +34,8 @@ from src.utils.logger import logger
 patch_chainlit_json()
 
 # Initialize services and handlers
-alps_cowriter_service = ALPSCowriterService(
-    config.llm_backend, config.model_id)
-section_printer_service = SectionPrinterService(
-    config.llm_backend, config.model_id)
+alps_cowriter_service = ALPSCowriterService(config.llm_backend, config.model_id)
+section_printer_service = SectionPrinterService(config.llm_backend, config.model_id)
 prompt_cache_service = PromptCacheService(config.llm_backend)
 web_search_service = WebSearchService()
 
@@ -50,15 +49,15 @@ def init_history_persistent_layer():
     """Initialize the history persistent layer for the ChainLit defaults."""
     if not config.history_table_name:
         logger.warning(
-            "HISTORY_TABLE_NAME is not set, skipping history persistent layer initialization")
+            "HISTORY_TABLE_NAME is not set, skipping history persistent layer initialization"
+        )
         return
 
     # set history persistent db layer
     session = boto3.Session(profile_name=config.aws_profile)
     cl_data._data_layer = DynamoDBDataLayer(
         table_name=config.history_table_name,
-        client=session.client(
-            "dynamodb", region_name=config.aws_default_region),
+        client=session.client("dynamodb", region_name=config.aws_default_region),
     )
     cl_logger.getChild("DynamoDB").setLevel(logging.INFO)
 
@@ -102,9 +101,7 @@ if not config.disable_oauth:
                 continue
 
             if message["type"] == "user_message":
-                message_history.append(
-                    {"role": "user", "content": message["output"]}
-                )
+                message_history.append({"role": "user", "content": message["output"]})
             elif message["type"] == "assistant_message":
                 message_history.append(
                     {"role": "assistant", "content": message["output"]}
@@ -171,7 +168,10 @@ Hello! I'm ALPS Writer. I can help you write a technical specification for your 
 - If you input the item you want to buy, LLM will search for reviews and prices of the item
     """.format(SECTIONS="\n".join(SECTIONS)).strip()
     await cl.context.emitter.set_commands(COMMANDS)
-    await cl.Message(content=welcome_message, metadata={"exclude_from_history": True}).send()
+    await cl.Message(
+        content=welcome_message,
+        metadata={"exclude_from_history": True},
+    ).send()
 
     recent_memory = RecentMemoryManager()
     cl.user_session.set("recent_memory", recent_memory)
@@ -192,7 +192,8 @@ async def main(message: cl.Message):
         await message.update()
 
         recent_memory = cast(
-            RecentMemoryManager, cl.user_session.get("recent_memory"),
+            RecentMemoryManager,
+            cl.user_session.get("recent_memory"),
         )
         recent_history = recent_memory.get_conversation_history()
         if not recent_history:
@@ -211,8 +212,10 @@ async def main(message: cl.Message):
             cache_point_indices,
             recent_history,
         )
-        logger.info("cache_point_indices for save command",
-                    cache_point_indices=cache_point_indices)
+        logger.info(
+            "cache_point_indices for save command",
+            cache_point_indices=cache_point_indices,
+        )
         await save_handler.handle_save_command(message, cached_recent_history)
         return
 
@@ -240,7 +243,8 @@ async def main(message: cl.Message):
 
     # Get memory managers from user session
     recent_memory = cast(
-        RecentMemoryManager, cl.user_session.get("recent_memory"),
+        RecentMemoryManager,
+        cl.user_session.get("recent_memory"),
     )
 
     # Process general messages
@@ -254,7 +258,10 @@ async def main(message: cl.Message):
             web_result=search_result,
         )
         try:
-            async for chunk in alps_cowriter_service.stream_llm_response(messages):
+            async for chunk in alps_cowriter_service.stream_llm_response(
+                messages,
+                system_prompt=alps_cowriter_service.get_system_prompt_for_web_qa(),
+            ):
                 if chunk:
                     await msg.stream_token(chunk)
             await msg.send()
@@ -263,7 +270,9 @@ async def main(message: cl.Message):
                 "Error streaming LLM response",
                 traceback=traceback.format_exc(),
             )
-            await cl.context.emitter.send_toast(f"Error streaming LLM response: {str(e)}", "error")
+            await cl.context.emitter.send_toast(
+                f"Error streaming LLM response: {str(e)}", "error"
+            )
             return
     else:
         # Get recent conversation history from recent memory
@@ -282,15 +291,21 @@ async def main(message: cl.Message):
             image_context=image_context,
         )
         try:
-            async for chunk in alps_cowriter_service.stream_llm_response(messages):
+            async for chunk in alps_cowriter_service.stream_llm_response(
+                messages,
+                system_prompt=alps_cowriter_service.get_system_prompt_for_alps(),
+            ):
                 if chunk:
                     await msg.stream_token(chunk)
             await msg.send()
         except Exception as e:
             logger.error(
-                "Error streaming LLM response", traceback=traceback.format_exc(),
+                "Error streaming LLM response",
+                traceback=traceback.format_exc(),
             )
-            await cl.context.emitter.send_toast(f"Error streaming LLM response: {str(e)}", "error")
+            await cl.context.emitter.send_toast(
+                f"Error streaming LLM response: {str(e)}", "error"
+            )
             return
 
     # add AI response to memory systems

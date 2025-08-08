@@ -5,7 +5,7 @@ from typing import Dict, List
 from pathlib import Path
 
 import chainlit as cl
-from langchain.schema import BaseMessage
+from strands.types.content import Message
 
 from src.services.section_printer import SectionPrinterService
 from src.utils.logger import logger
@@ -28,7 +28,7 @@ class SaveHandler:
         ]
 
     async def handle_save_command(
-        self, message: cl.Message, recent_history: List[BaseMessage]
+        self, message: cl.Message, recent_history: List[Message]
     ) -> None:
         """
         Handle the /save command to generate and save a document in the specified locale.
@@ -67,7 +67,8 @@ class SaveHandler:
                             async for (
                                 chunk
                             ) in self.section_printer_service.stream_llm_response(
-                                messages
+                                messages,
+                                system_prompt=self.section_printer_service.get_system_prompt(),
                             ):
                                 section_content += chunk
                                 await each_step.stream_token(chunk)

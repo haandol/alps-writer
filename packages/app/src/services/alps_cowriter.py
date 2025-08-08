@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from langchain.schema import BaseMessage, HumanMessage, SystemMessage
+from strands.types.content import Message
 
 from src.services.llm import LLMService
 from src.prompts.cowriter import SYSTEM_PROMPT as ALPS_SYSTEM_PROMPT
@@ -18,66 +18,45 @@ class ALPSCowriterService(LLMService):
         self.alps_system_prompt = ALPS_SYSTEM_PROMPT
         self.web_qa_system_prompt = WEB_QA_SYSTEM_PROMPT
 
-    def _build_system_message(self) -> SystemMessage:
+    def _build_system_prompt(self) -> str:
         """
         Builds a system message for ALPS template generation.
 
         Returns:
-            SystemMessage: The system message containing ALPS template and language instruction
+            str: The system prompt string including ALPS template and instruction
         """
         system_message_contents: List[str] = [
             self.alps_system_prompt,
             f"<alps-template>{self.alps_context}</alps-template>",
-            "Please answer in user's language, if you don't know the language, answer in English."
+            "Please answer in user's language, if you don't know the language, answer in English.",
         ]
 
-        if self.llm_backend == LLMBackend.AWS:
-            return SystemMessage(
-                content=[
-                    {
-                        "type": "text",
-                        "text": "\n".join(system_message_contents),
-                    },
-                    {
-                        "cachePoint": {"type": "default"}
-                    }
-                ],
-            )
-        else:
-            return SystemMessage(
-                content=[
-                    {
-                        "type": "text",
-                        "text": "\n".join(system_message_contents),
-                        "cache_control": {"type": "ephemeral"}
-                    }
-                ]
-            )
+        # Strands models accept a separate system prompt string
+        return "\n".join(system_message_contents)
 
     def build_alps_messages(
         self,
         message_content: str,
-        recent_history: List[BaseMessage] = [],
+        recent_history: List[Message] = [],
         text_context: Optional[str] = None,
         image_context: Optional[str] = None,
-    ) -> List[BaseMessage]:
+    ) -> List[Message]:
         """
         Builds a list of messages with system message and user message containing context and history.
         Prompt cache should be added to the history before building the messages.
 
         Args:
             message_content (str): Original user message content
-            recent_history (List[BaseMessage]): Recent conversation history
+            recent_history (List[Message]): Recent conversation history
             text_context (Optional[str]): Text context from uploaded files
             image_context (Optional[str]): Image context from uploaded files
 
         Returns:
-            List[BaseMessage]: List of messages ready for LLM processing
+            List[Message]: List of messages ready for LLM processing
         """
-        logger.info("Got recent history",
-                    length=len(recent_history))
+        logger.info("Got recent history", length=len(recent_history))
 
-        message_contents = []
+        message_contents: List[str] = []
 
         # Add context if available
         if text_context:
@@ -88,23 +67,29 @@ class ALPSCowriterService(LLMService):
 
         # Build the final user message
         if image_context:
-            user_message = HumanMessage(content=[
-                {
-                    "type": "text",
-                    "text": "\n\n".join(message_contents)
-                },
-                image_context,
-            ])
+            user_message: Message = {
+                "role": "user",
+                "content": [
+                    {"text": "\n\n".join(message_contents)},
+                    image_context,  # already in Bedrock image content format
+                ],
+            }
         else:
-            user_message = HumanMessage(content="\n\n".join(message_contents))
+            user_message = {
+                "role": "user",
+                "content": [
+                    {"text": "\n\n".join(message_contents)},
+                ],
+            }
 
-        return [self._build_system_message(), *recent_history, user_message]
+        # Do not include system message here; strands uses separate system_prompt
+        return [*recent_history, user_message]
 
     def build_web_search_messages(
         self,
         query: str,
         web_result: str,
-    ) -> List[SystemMessage | HumanMessage]:
+    ) -> List[Message]:
         """
         Builds a list of messages for web search based Q&A.
 
@@ -113,18 +98,21 @@ class ALPSCowriterService(LLMService):
             web_result (str): Search results from web search
 
         Returns:
-            List[SystemMessage | HumanMessage]: List of messages ready for LLM processing
+            List[Message]: List of messages ready for LLM processing
         """
         return [
-            SystemMessage(
-                content=[
+            {
+                "role": "user",
+                "content": [
                     {
-                        "type": "text",
-                        "text": self.web_qa_system_prompt
+                        "text": f"<query>{query}</query>\n\n<web_result>{web_result}</web_result>",
                     },
                 ],
-            ),
-            HumanMessage(
-                content=f"<query>{query}</query>\n\n<web_result>{web_result}</web_result>"
-            ),
+            }
         ]
+
+    def get_system_prompt_for_web_qa(self) -> str:
+        return self.web_qa_system_prompt
+
+    def get_system_prompt_for_alps(self) -> str:
+        return self._build_system_prompt()
