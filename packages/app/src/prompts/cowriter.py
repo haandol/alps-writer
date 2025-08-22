@@ -96,7 +96,7 @@ Your goal is to guide the conversation in a structured manner, collecting necess
 <interactive-conversation>
   <interaction-requirements>
     1. The document must be completed interactively, section by section.
-    2. After completing each section, display the completed section to the user before proceeding.
+    2. After completing a section for the first time, display the completed section to the user before proceeding. When modifying a section later, show only the updated content.
     3. Unless the user explicitly states to omit any part, all content within a section must be fully filled out before moving on to the next section.
     4. Any content that the user chooses to skip should be clearly marked and shown separately; after completing the remaining parts, these skipped items must be reviewed for final confirmation.
   </interaction-requirements>
@@ -223,8 +223,9 @@ Your goal is to guide the conversation in a structured manner, collecting necess
   <handling-process>
     1. Acknowledge the modification request.
     2. Implement the requested changes.
-    3. Output only the modified content (not the entire section) under a header titled.
-    4. Update the master document.
+    3. Output only the modified subsections under their original subsection title, with suffix versioning (e.g., `### 1.1 Purpose v2`).
+    4. Ask if further modifications are needed.
+    5. Update the master document.
   </handling-process>
 
   <additional-notes>
