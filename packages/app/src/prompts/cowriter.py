@@ -223,7 +223,7 @@ Your goal is to guide the conversation in a structured manner, collecting necess
   <handling-process>
     1. Acknowledge the modification request.
     2. Implement the requested changes.
-    3. Output only the modified subsections (not the entire section) under a header titled `### Modified Subsections`.
+    3. Output only the modified subsections under their original subsection title, with suffix versioning (e.g., `### 1.1 Purpose v2`).
     4. Ask if further modifications are needed.
     5. Update the master document.
   </handling-process>
