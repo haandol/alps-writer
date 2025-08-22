@@ -87,14 +87,13 @@ Rel(user, system, "Uses", "HTTPS")
 
 ## Section 5. Design Specification
 
-- Define the minimum UI/UX guidelines that will be directly reflected in MVP development.
+- Define the UX guidelines and page flow that will be directly reflected in MVP development.
 
-### 5.1 Screen Structure and User Flow
+### 5.1 User Flow and Page Structure
 
-#### 5.1.1 Key Screens (Features)
+#### 5.1.1 Key Pages (Features)
 
-- List the key screens that must be implemented in the MVP. (Use the same feature IDs as Section 6.1 where applicable.)
-- Responsive design is recommended.
+- List the key pages that must be implemented in the MVP. (Use the same feature IDs as Section 6.1 where applicable.)
 
 <example>
 - F3: Main Screen
@@ -102,9 +101,9 @@ Rel(user, system, "Uses", "HTTPS")
 - F5: Post List/Detail Screen
 </example>
 
-#### 5.1.2 Screen Navigation
+#### 5.1.2 Page Navigation
 
-- Summarize how users navigate between screens and key scenarios.
+- Summarize how users navigate between pages and key scenarios.
 
 <example>
 1. The user accesses the main screen.
@@ -112,38 +111,6 @@ Rel(user, system, "Uses", "HTTPS")
 3. View post list → Enter the post details screen → Create a post (Login required).
 (Optional) This flow can be visualized using a Mermaid Sequence Diagram.
 </example>
-
-### 5.2 Page Layout
-
-- Define the layout of each page (header, content, footer).
-- Each unique page layout should be described in a separate subsection (e.g., 5.2.1, 5.2.2, ...).
-- Keep the layout simple and express it in a way that could be sketched on paper.
-- Exclude font, color, and style-related details.
-
-#### 5.2.1 Main Screen Layout Example
-
-<example>
-- Header (Logo, Sign-up/Login button)
-  - Logo: Left-aligned, height 40px
-  - Login/Sign-up button: Right-aligned, padding 8px 16px
-- Main Content (Post list, search bar)
-  - Search bar: Centered at the top, width 50%
-  - Post List: Grid layout
-    - PC: 3-column grid (24px spacing)
-    - Tablet: 2-column grid
-    - Mobile: 1-column grid
-  - Post Card:
-    - Thumbnail: 16:9 aspect ratio
-    - Title: Limit to 2 lines
-    - Summary: Limit to 3 lines
-- Footer (Basic links)
-  - Height: 60px
-  - Links: Left-aligned, 24px spacing
-</example>
-
-#### 5.2.2 [Additional Layouts as Needed]
-
-- For each unique layout, add a new subsection (e.g., 5.2.2 Post Creation Screen Layout).
 
 ---
 
@@ -196,10 +163,10 @@ Rel(user, system, "Uses", "HTTPS")
 - As a user, I enter an email and password and click the "Sign Up" button.
 </example>
 
-#### 7.1.2 UI Flow
+#### 7.1.2 User Flow
 
-- Describe how this feature appears in the UI.
-- Keep the UI flow simple and concise.
+- Describe the user flow for this feature.
+- Keep the flow simple and concise.
 
 <example>
 1. Display a sign-up form with:
@@ -243,7 +210,7 @@ Rel(user, system, "Uses", "HTTPS")
 - As a returning user, I want to log in with my email and password, so that I can access my account.
 </example>
 
-#### 7.2.2 UI Flow
+#### 7.2.2 User Flow
 
 <example>
 1. Display a login form.
