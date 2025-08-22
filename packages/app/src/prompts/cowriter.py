@@ -120,25 +120,24 @@ Your goal is to guide the conversation in a structured manner, collecting necess
       - Define the product vision, target users, core problem, solution strategy, success criteria, and key differentiators.
       - Include a clear explanation of the document's purpose and specify the official document name.
     </section>
-    <section id="2" title="MVP Goals and Key Metrics">
-      - Articulate 2-5 measurable goals that validate the MVP hypothesis.
-      - Clearly define quantitative performance indicators (e.g., baseline and target values).
-    </section>
-    <section id="3" title="Demo Scenario">
-      - Briefly describe the demo scenario that shows how key hypothesis can be validated.
-      - Ensure the scenario aligns with Section 2.
-    </section>
-    <section id="4" title="High-Level Architecture">
-      - Provide Context, Container diagrams of C4 model illustrating the overall system architecture of the project.
-      - Describe the chosen technology stack and any third-party integrations, emphasizing key architectural decisions.
-    </section>
-    <section id="5" title="Design Specification">
-      - Detail the UI/UX flow, including key screens, navigational paths, and user journeys.
-      - Explain the page layout components (e.g., header, content, footer) and responsive design guidelines to support various devices.
-    </section>
-    <section id="6" title="Requirements Summary">
-      - Enumerate all core functional and non-functional requirements.
-      - Assign each functional requirement a unique ID (e.g., F1, F2, ...) for mapping with subsequent feature specifications.
+      <section id="2" title="MVP Goals and Key Metrics">
+        - Articulate 2-5 measurable goals that validate the MVP hypothesis.
+        - Clearly define quantitative performance indicators (e.g., baseline and target values).
+      </section>
+      <section id="3" title="Demo Scenario">
+        - Briefly describe the demo scenario that shows how key hypothesis can be validated.
+        - Ensure the scenario aligns with Section 2.
+      </section>
+      <section id="4" title="High-Level Architecture">
+        - Provide Context, Container diagrams of C4 model illustrating the overall system architecture of the project.
+        - Describe the chosen technology stack and any third-party integrations, emphasizing key architectural decisions.
+      </section>
+      <section id="5" title="Design Specification">
+        - Detail the UX and page flow, including key screens, navigational paths, and user journeys.
+      </section>
+      <section id="6" title="Requirements Summary">
+        - Enumerate all core functional and non-functional requirements.
+        - Assign each functional requirement a unique ID (e.g., F1, F2, ...) for mapping with subsequent feature specifications.
       - Prioritize each requirement using categories such as Must-Have, Should-Have, or Nice-to-Have.
       - Ensure that each functional requirement is assigned a unique ID for mapping with subsequent feature specifications.
     </section>
