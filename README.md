@@ -29,7 +29,8 @@ This project is a demo of an LLM-based interactive technical/functional specific
 alps-writer/
 ├── packages/
 │   ├── app/          # Main application code
-│   └── infra/        # AWS CDK infrastructure code
+│   ├── infra/        # AWS CDK infrastructure code
+│   └── mcp-server/   # MCP server for ALPS template tools
 └── docs/             # Project documentation
 ```
 
@@ -44,6 +45,12 @@ You can run this project either locally on your machine:
 Or deploy it to your personal AWS account:
 
 - [Infrastructure Installation Guide](packages/infra/README.md)
+
+### MCP Server (Optional)
+
+Use ALPS template tools with Claude Desktop, Cursor, or other MCP-compatible clients:
+
+- [MCP Server Installation Guide](packages/mcp-server/README.md)
 
 ## Next Steps
 
