@@ -1,2 +1,0 @@
-[console_scripts]
-alps-mcp-server = alps_mcp_server:main

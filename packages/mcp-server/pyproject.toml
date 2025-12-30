@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "mcp",
+    "pytest>=9.0.2",
 ]
 
 [project.optional-dependencies]
