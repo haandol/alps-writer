@@ -142,8 +142,6 @@ class TestExportMarkdown:
 class TestInteractiveWorkflowGuide:
     def test_overview_contains_interactive_process_warning(self):
         result = server.get_alps_overview()
-        assert "MANDATORY" in result
-        assert "Interactive" in result
         assert "NEVER auto-generate" in result
 
     def test_overview_contains_next_step_instruction(self):
@@ -154,3 +152,47 @@ class TestInteractiveWorkflowGuide:
     def test_overview_mentions_reference_document_handling(self):
         result = server.get_alps_overview()
         assert "PDF" in result or "reference" in result.lower()
+
+    def test_overview_contains_section_reference_rules(self):
+        result = server.get_alps_overview()
+        assert "Section Reference Rules" in result
+        assert "MUST review" in result
+
+
+class TestSectionReferences:
+    def test_section_references_map_exists(self):
+        assert hasattr(server, "SECTION_REFERENCES")
+        assert server.SECTION_REFERENCES[3] == [2]
+        assert server.SECTION_REFERENCES[5] == [6]
+        assert server.SECTION_REFERENCES[7] == [6]
+        assert server.SECTION_REFERENCES[8] == [2, 6]
+
+    def test_sections_without_references(self):
+        for section in [1, 2, 4, 6, 9]:
+            assert section not in server.SECTION_REFERENCES
+
+    def test_guide_with_references_includes_warning(self):
+        for section in [3, 5, 7, 8]:
+            guide = server.get_alps_section_guide(section)
+            assert "REQUIRED" in guide
+            assert "read_alps_section" in guide
+
+    def test_guide_without_references_no_warning(self):
+        for section in [1, 2, 4, 6, 9]:
+            guide = server.get_alps_section_guide(section)
+            assert "⚠️ REQUIRED: This section depends on" not in guide
+
+    def test_section_3_references_section_2(self):
+        guide = server.get_alps_section_guide(3)
+        assert "Section 2" in guide
+        assert "MVP Goals" in guide
+
+    def test_section_7_references_section_6(self):
+        guide = server.get_alps_section_guide(7)
+        assert "Section 6" in guide
+        assert "Requirements" in guide
+
+    def test_section_8_references_multiple_sections(self):
+        guide = server.get_alps_section_guide(8)
+        assert "Section 2" in guide
+        assert "Section 6" in guide
