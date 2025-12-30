@@ -1,5 +1,6 @@
 """ALPS Writer MCP Server - Provides ALPS template tools for spec writing."""
 
+import re
 from pathlib import Path
 
 from mcp.server.fastmcp import FastMCP
@@ -7,115 +8,187 @@ from mcp.server.fastmcp import FastMCP
 TEMPLATES_DIR = Path(__file__).parent / "templates"
 CHAPTERS_DIR = TEMPLATES_DIR / "chapters"
 
-mcp = FastMCP("alps-writer")
+# Current working document path
+WORKING_DOC: Path | None = None
+
+mcp = FastMCP(
+    "alps-writer",
+    instructions="""You are an ALPS (Agentic Lean Prototyping Spec) writing assistant.
+
+<critical_rules>
+<rule name="check_guide_first">
+Before writing ANY section, you MUST call `get_alps_section_guide(section_number)` first.
+- Never write a section based only on the overview
+- The section guide contains required questions and completion criteria
+</rule>
+
+<rule name="interactive_only">
+You MUST write ALPS documents through interactive conversation:
+- Ask ONE question at a time from the section guide
+- Wait for user response before proceeding
+- Show example/draft after each answer for confirmation
+- NEVER write an entire section at once
+</rule>
+
+<rule name="reference_documents">
+Even when user provides reference documents (PRD, existing specs, etc.):
+- Still follow interactive conversation flow
+- Extract information from reference, but confirm each part with user
+- Show draft for each subsection and ask for confirmation
+- Do NOT auto-generate the entire document from reference
+</rule>
+</critical_rules>
+
+<workflow>
+1. Call `init_alps_document(project_name, output_path)` to create document
+   - Or call `load_alps_document(doc_path)` to resume existing document
+2. Call `get_alps_overview()` to understand the template structure
+3. For each section:
+   a. Call `get_alps_section_guide(N)` to get the conversation guide
+   b. Call `get_alps_section(N)` to get the template format
+   c. Ask questions one by one as specified in the guide
+   d. Show draft after each answer, get confirmation
+   e. Call `save_alps_section(N, content)` to save immediately after confirmation
+4. Call `get_alps_document_status()` to review progress
+5. Call `export_alps_markdown()` to get clean markdown output
+</workflow>
+
+<example_interaction>
+<turn role="user">Let's write an ALPS document for my project</turn>
+<turn role="assistant">[calls init_alps_document("my-project", "~/Documents/my-project.alps.md")]</turn>
+<turn role="assistant">I've created the document at ~/Documents/my-project.alps.md. Let's start with Section 1.</turn>
+<turn role="assistant">[calls get_alps_section_guide(1), get_alps_section(1)]</turn>
+<turn role="assistant">First question: What is the main purpose of this project?</turn>
+<turn role="user">It's a task management app</turn>
+<turn role="assistant">
+Got it. Here's the draft for the purpose:
+
+**Purpose**: Task management application for...
+
+Does this look correct? Any additions?
+</turn>
+<turn role="user">Yes, looks good</turn>
+<turn role="assistant">[calls save_alps_section(1, content)]</turn>
+<turn role="assistant">Section 1 saved. Next question: What is the official project name?</turn>
+</example_interaction>"""
+)
 
 SECTION_GUIDES = {
-    1: """## Section 1. Overview - 대화 가이드
+    1: """<section_guide number="1" title="Overview">
+<purpose>제품 비전, 타겟 사용자, 핵심 문제, 솔루션 전략, 성공 기준, 차별점 정의</purpose>
 
-**목적**: 제품 비전, 타겟 사용자, 핵심 문제, 솔루션 전략, 성공 기준, 차별점 정의
-
-**질문 순서**:
+<questions>
 1. 프로젝트의 주요 목적은 무엇인가요?
 2. 공식 프로젝트 이름은 무엇인가요?
 3. 타겟 사용자는 누구인가요?
 4. 해결하려는 핵심 문제는 무엇인가요?
 5. 솔루션 전략과 핵심 차별점은?
+</questions>
 
-**완료 기준**: 모든 항목 작성 후 전체 섹션 출력, 사용자 확인 받기""",
+<completion>모든 항목 작성 후 전체 섹션 출력, 사용자 확인 받기</completion>
+</section_guide>""",
 
-    2: """## Section 2. MVP Goals and Key Metrics - 대화 가이드
+    2: """<section_guide number="2" title="MVP Goals and Key Metrics">
+<purpose>MVP 가설을 검증할 2-5개의 측정 가능한 목표 정의</purpose>
 
-**목적**: MVP 가설을 검증할 2-5개의 측정 가능한 목표 정의
-
-**질문 순서**:
+<questions>
 1. MVP로 검증하려는 핵심 가설은 무엇인가요?
 2. 이를 검증할 측정 가능한 목표 2-5개를 정의해주세요
 3. 각 목표의 baseline(현재)과 target(목표) 값은?
+</questions>
 
-**완료 기준**: 정량적 지표 포함된 목표 작성 후 확인""",
+<completion>정량적 지표 포함된 목표 작성 후 확인</completion>
+</section_guide>""",
 
-    3: """## Section 3. Demo Scenario - 대화 가이드
+    3: """<section_guide number="3" title="Demo Scenario">
+<purpose>핵심 가설을 검증할 수 있는 데모 시나리오 작성</purpose>
 
-**목적**: 핵심 가설을 검증할 수 있는 데모 시나리오 작성
-
-**질문 순서**:
+<questions>
 1. Section 2의 목표를 어떻게 시연할 수 있을까요?
 2. 데모의 시작점과 끝점은?
 3. 핵심 사용자 여정은?
+</questions>
 
-**완료 기준**: Section 2와 정렬된 시나리오 작성 후 **반드시 확인 필요**""",
+<completion required="true">Section 2와 정렬된 시나리오 작성 후 반드시 확인 필요</completion>
+</section_guide>""",
 
-    4: """## Section 4. High-Level Architecture - 대화 가이드
+    4: """<section_guide number="4" title="High-Level Architecture">
+<purpose>C4 모델의 Context, Container 다이어그램으로 시스템 아키텍처 설명</purpose>
 
-**목적**: C4 모델의 Context, Container 다이어그램으로 시스템 아키텍처 설명
-
-**질문 순서**:
+<questions>
 1. 시스템의 주요 컴포넌트는 무엇인가요?
 2. 외부 시스템/서비스 연동은?
 3. 기술 스택 선택 이유는?
+</questions>
 
-**완료 기준**: Context/Container 다이어그램 설명 포함""",
+<completion>Context/Container 다이어그램 설명 포함</completion>
+</section_guide>""",
 
-    5: """## Section 5. Design Specification - 대화 가이드
+    5: """<section_guide number="5" title="Design Specification">
+<purpose>UX, 페이지 플로우, 주요 화면, 사용자 여정 상세화</purpose>
 
-**목적**: UX, 페이지 플로우, 주요 화면, 사용자 여정 상세화
-
-**질문 순서**:
+<questions>
 1. 주요 화면(페이지)은 몇 개인가요?
 2. 각 화면의 핵심 기능은?
 3. 화면 간 네비게이션 흐름은?
+</questions>
 
-**완료 기준**: 주요 화면과 플로우 정의""",
+<completion>주요 화면과 플로우 정의</completion>
+</section_guide>""",
 
-    6: """## Section 6. Requirements Summary - 대화 가이드
+    6: """<section_guide number="6" title="Requirements Summary">
+<purpose>기능/비기능 요구사항 열거, 우선순위 지정</purpose>
 
-**목적**: 기능/비기능 요구사항 열거, 우선순위 지정
-
-**질문 순서**:
+<questions>
 1. 핵심 기능 요구사항을 나열해주세요
 2. 각 요구사항의 우선순위는? (Must-Have / Should-Have / Nice-to-Have)
 3. 비기능 요구사항은? (최대 3개)
+</questions>
 
-**중요**: 각 기능 요구사항에 고유 ID 부여 (F1, F2, ...)
-**완료 기준**: 모든 요구사항 ID 부여 후 **반드시 확인 필요**""",
+<important>각 기능 요구사항에 고유 ID 부여 (F1, F2, ...)</important>
+<completion required="true">모든 요구사항 ID 부여 후 반드시 확인 필요</completion>
+</section_guide>""",
 
-    7: """## Section 7. Feature-Level Specification - 대화 가이드
+    7: """<section_guide number="7" title="Feature-Level Specification">
+<purpose>Section 6의 각 요구사항에 대한 상세 사용자 스토리 작성</purpose>
 
-**목적**: Section 6의 각 요구사항에 대한 상세 사용자 스토리 작성
-
-**질문 순서** (각 기능별 반복):
+<questions repeat="each_feature">
 1. 사용자 스토리: "As a [역할], I want to [행동] so that [이점]"
 2. 기능 범위와 엣지 케이스는?
 3. 에러 처리 방법은?
 4. 인수 기준(Acceptance Criteria)은?
+</questions>
 
-**중요**: 
+<important>
 - Section 6의 요구사항 ID와 1:1 매핑 필수
-- 각 7.x 서브섹션마다 **개별 확인 필요**
+- 각 7.x 서브섹션마다 개별 확인 필요
+</important>
+<completion>모든 F1, F2... 에 대응하는 7.1, 7.2... 작성</completion>
+</section_guide>""",
 
-**완료 기준**: 모든 F1, F2... 에 대응하는 7.1, 7.2... 작성""",
+    8: """<section_guide number="8" title="MVP Metrics">
+<purpose>데이터 수집/분석 방법, 성공 임계값 정의</purpose>
 
-    8: """## Section 8. MVP Metrics - 대화 가이드
-
-**목적**: 데이터 수집/분석 방법, 성공 임계값 정의
-
-**질문 순서**:
+<questions>
 1. Section 2의 각 목표를 어떻게 측정할 건가요?
 2. 데이터 수집 방법은?
 3. 성공/실패 판단 기준은?
+</questions>
 
-**완료 기준**: 각 KPI별 측정 방법과 임계값 정의""",
+<completion>각 KPI별 측정 방법과 임계값 정의</completion>
+</section_guide>""",
 
-    9: """## Section 9. Out of Scope - 대화 가이드
+    9: """<section_guide number="9" title="Out of Scope">
+<purpose>향후 반복에서 다룰 기능, 기술 부채 로드맵</purpose>
 
-**목적**: 향후 반복에서 다룰 기능, 기술 부채 로드맵
-
-**질문 순서**:
+<questions>
 1. MVP에서 제외된 기능은?
 2. 향후 개선 계획은?
 3. 알려진 기술 부채는?
+</questions>
 
-**완료 기준**: 제외 항목과 향후 로드맵 정리""",
+<completion>제외 항목과 향후 로드맵 정리</completion>
+</section_guide>""",
 }
 
 
@@ -187,6 +260,202 @@ def get_alps_section_guide(section: int) -> str:
         Conversation guide with questions and completion criteria.
     """
     return SECTION_GUIDES.get(section, f"Section {section} not found.")
+
+
+# ============ File-based Document Management Tools ============
+
+SECTION_TITLES = {
+    1: "Overview",
+    2: "MVP Goals and Key Metrics",
+    3: "Demo Scenario",
+    4: "High-Level Architecture",
+    5: "Design Specification",
+    6: "Requirements Summary",
+    7: "Feature-Level Specification",
+    8: "MVP Metrics",
+    9: "Out of Scope",
+}
+
+
+def _parse_sections(content: str) -> dict[int, str]:
+    """Parse XML-tagged sections from document content.
+    
+    Returns section content WITHOUT the header (## Section N. Title).
+    """
+    sections = {}
+    pattern = r'<section id="(\d+)">\s*## Section \d+\.[^\n]*\n+(.*?)</section>'
+    for match in re.finditer(pattern, content, re.DOTALL):
+        sections[int(match.group(1))] = match.group(2).strip()
+    return sections
+
+
+def _build_document(project_name: str, sections: dict[int, str]) -> str:
+    """Build full document with XML section tags."""
+    lines = [f"# {project_name} ALPS\n"]
+    for num in range(1, 10):
+        content = sections.get(num, "<!-- Not started -->")
+        lines.append(f'<section id="{num}">\n## Section {num}. {SECTION_TITLES[num]}\n\n{content}\n</section>\n')
+    return "\n".join(lines)
+
+
+def _extract_project_name(content: str) -> str:
+    """Extract project name from document header."""
+    match = re.match(r"# (.+?) ALPS", content)
+    return match.group(1) if match else "Untitled"
+
+
+@mcp.tool()
+def init_alps_document(project_name: str, output_path: str) -> str:
+    """Initialize a new ALPS document file.
+    
+    Args:
+        project_name: Name of the project
+        output_path: File path for the document (e.g., ~/Documents/my-project.alps.md)
+    
+    Returns:
+        Confirmation with file path.
+    """
+    global WORKING_DOC
+    
+    filepath = Path(output_path).expanduser()
+    if not filepath.suffix:
+        filepath = filepath.with_suffix(".alps.md")
+    
+    if filepath.exists():
+        WORKING_DOC = filepath
+        return f"Document already exists at {filepath}. Use load_alps_document() to resume."
+    
+    filepath.parent.mkdir(parents=True, exist_ok=True)
+    content = _build_document(project_name, {})
+    filepath.write_text(content, encoding="utf-8")
+    
+    WORKING_DOC = filepath
+    return f"Created ALPS document at {filepath}"
+
+
+@mcp.tool()
+def load_alps_document(doc_path: str) -> str:
+    """Load an existing ALPS document to resume editing.
+    
+    Args:
+        doc_path: Path to the .alps.md file
+    
+    Returns:
+        Document status summary.
+    """
+    global WORKING_DOC
+    
+    filepath = Path(doc_path).expanduser()
+    if not filepath.exists():
+        return f"Document not found at {filepath}"
+    
+    WORKING_DOC = filepath
+    return get_alps_document_status()
+
+
+@mcp.tool()
+def save_alps_section(section: int, content: str) -> str:
+    """Save content to a specific section in the ALPS document.
+    
+    Args:
+        section: Section number (1-9)
+        content: Markdown content for the section (without header)
+    
+    Returns:
+        Confirmation message.
+    """
+    if WORKING_DOC is None:
+        return "No document loaded. Call init_alps_document() or load_alps_document() first."
+    
+    if section not in SECTION_TITLES:
+        return f"Invalid section number: {section}. Must be 1-9."
+    
+    doc_content = WORKING_DOC.read_text(encoding="utf-8")
+    project_name = _extract_project_name(doc_content)
+    sections = _parse_sections(doc_content)
+    sections[section] = content
+    
+    WORKING_DOC.write_text(_build_document(project_name, sections), encoding="utf-8")
+    return f"Saved section {section} to {WORKING_DOC}"
+
+
+@mcp.tool()
+def read_alps_section(section: int) -> str:
+    """Read the current content of a specific section.
+    
+    Args:
+        section: Section number (1-9)
+    
+    Returns:
+        Current content of the section.
+    """
+    if WORKING_DOC is None:
+        return "No document loaded. Call init_alps_document() or load_alps_document() first."
+    
+    sections = _parse_sections(WORKING_DOC.read_text(encoding="utf-8"))
+    return sections.get(section, f"Section {section} not found.")
+
+
+@mcp.tool()
+def get_alps_document_status() -> str:
+    """Get the status of all sections in the current document.
+    
+    Returns:
+        Status summary showing which sections are completed/in-progress/not-started.
+    """
+    if WORKING_DOC is None:
+        return "No document loaded. Call init_alps_document() or load_alps_document() first."
+    
+    doc_content = WORKING_DOC.read_text(encoding="utf-8")
+    project_name = _extract_project_name(doc_content)
+    sections = _parse_sections(doc_content)
+    
+    lines = [f"ALPS Document: {project_name}", f"Location: {WORKING_DOC}", ""]
+    for num, title in SECTION_TITLES.items():
+        content = sections.get(num, "")
+        if not content or "<!-- Not started -->" in content:
+            status = "⬜ Not started"
+        elif len(content.strip()) > 50:
+            status = "✅ Written"
+        else:
+            status = "🟡 In progress"
+        lines.append(f"Section {num} ({title}): {status}")
+    
+    return "\n".join(lines)
+
+
+@mcp.tool()
+def export_alps_markdown(output_path: str | None = None) -> str:
+    """Export the ALPS document as clean markdown (without XML tags).
+    
+    Args:
+        output_path: Optional output file path. If not provided, returns the content.
+    
+    Returns:
+        Clean markdown content or confirmation message.
+    """
+    if WORKING_DOC is None:
+        return "No document loaded. Call init_alps_document() or load_alps_document() first."
+    
+    doc_content = WORKING_DOC.read_text(encoding="utf-8")
+    project_name = _extract_project_name(doc_content)
+    sections = _parse_sections(doc_content)
+    
+    lines = [f"# {project_name} ALPS\n"]
+    for num in range(1, 10):
+        content = sections.get(num, "")
+        if not content or "<!-- Not started -->" in content:
+            content = "*Not yet written*"
+        lines.append(f"## Section {num}. {SECTION_TITLES[num]}\n\n{content}\n\n---\n")
+    
+    result = "\n".join(lines)
+    
+    if output_path:
+        out = Path(output_path).expanduser()
+        out.write_text(result, encoding="utf-8")
+        return f"Exported to {out}"
+    
+    return result
 
 
 def main():
