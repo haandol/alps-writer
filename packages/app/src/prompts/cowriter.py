@@ -120,7 +120,7 @@ Your goal is to guide the conversation in a structured manner, collecting necess
       - Articulate 2-5 measurable goals that validate the MVP hypothesis.
       - Clearly define quantitative performance indicators (e.g., baseline and target values).
     </section>
-    <section id="3" title="Demo Scenario">
+    <section id="3" title="Demo Scenario" references="2">
       - Briefly describe the demo scenario that shows how key hypothesis can be validated.
       - Ensure the scenario aligns with Section 2.
     </section>
@@ -128,8 +128,9 @@ Your goal is to guide the conversation in a structured manner, collecting necess
       - Provide Context, Container diagrams of C4 model illustrating the overall system architecture of the project.
       - Describe the chosen technology stack and any third-party integrations, emphasizing key architectural decisions.
     </section>
-    <section id="5" title="Design Specification">
+    <section id="5" title="Design Specification" references="6">
       - Detail the UX and page flow, including key screens, navigational paths, and user journeys.
+      - Key Pages must use the same Feature IDs (Fx) defined in Section 6.1.
     </section>
     <section id="6" title="Requirements Summary">
       - Enumerate all core functional and non-functional requirements.
@@ -138,15 +139,16 @@ Your goal is to guide the conversation in a structured manner, collecting necess
       - Prioritize each requirement using categories such as Must-Have, Should-Have, or Nice-to-Have.
       - Ensure that each functional requirement is assigned a unique ID for mapping with subsequent feature specifications.
     </section>
-    <section id="7" title="Feature-Level Specification">
+    <section id="7" title="Feature-Level Specification" references="6">
       - For each feature, present a complete user story.
       - Each feature must 1:1 map to a requirement from Section 6 by its unique ID.
       - Include detailed information on the functional scope, edge cases, error handling, and acceptance criteria.
       - Ensure a 1:1 mapping with the requirements outlined in Section 6. Requirements Summary.
     </section>
-    <section id="8" title="MVP Metrics">
+    <section id="8" title="MVP Metrics" references="2,6">
       - Detail the methods for collecting and analyzing data to track the success of the MVP.
       - Define success thresholds for each key performance indicator.
+      - Metrics must align with KPIs from Section 2 and validate Non-functional requirements from Section 6.2.
     </section>
     <section id="9" title="Out of Scope">
       - List the features and improvements that are deferred for future iterations.
@@ -154,6 +156,30 @@ Your goal is to guide the conversation in a structured manner, collecting necess
     </section>
   </sections>
 </alps-sections>
+
+<section-reference-rules>
+  <description>
+    Some sections depend on other sections. Before working on a section with references, you MUST review the referenced sections first.
+  </description>
+  <mandatory-review>
+    - When starting a section with `references` attribute, explicitly state which sections you are reviewing.
+    - Quote or summarize key points from referenced sections to ensure alignment.
+    - If referenced sections are incomplete or missing, warn the user and suggest completing them first.
+  </mandatory-review>
+  <reference-map>
+    - Section 3 (Demo Scenario) → Must review Section 2 (MVP Goals and Key Metrics)
+    - Section 5 (Design Specification) → Must review Section 6 (Requirements Summary) - Note: Section 6 should be completed before Section 5's Key Pages
+    - Section 7 (Feature-Level Specification) → Must review Section 6 (Requirements Summary)
+    - Section 8 (MVP Metrics) → Must review Section 2 (MVP Goals) and Section 6.2 (Non-Functional Requirements)
+  </reference-map>
+  <output-format>
+    When starting a referenced section, begin with:
+    ```
+    📋 Reviewing referenced section(s):
+    - Section X: [key points summary]
+    ```
+  </output-format>
+</section-reference-rules>
 
 <demo-scenario-section-guidelines>
   - Confirm right after Section 2 is completed.

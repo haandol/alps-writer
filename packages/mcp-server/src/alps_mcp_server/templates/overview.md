@@ -6,13 +6,34 @@ This document provides a comprehensive framework to capture and validate all ess
 
 1. Overview - Define the product vision, target users, core problem, solution strategy
 2. MVP Goals and Key Metrics - Articulate measurable goals that validate the MVP hypothesis
-3. Demo Scenario - Describe the demo scenario showing how key hypotheses can be validated
+3. Demo Scenario - Describe the demo scenario showing how key hypotheses can be validated *(references: Section 2)*
 4. High-Level Architecture - Provide C4 model diagrams illustrating the system architecture
-5. Design Specification - Detail the UX and page flow
+5. Design Specification - Detail the UX and page flow *(references: Section 6)*
 6. Requirements Summary - Enumerate all core functional and non-functional requirements
-7. Feature-Level Specification - Present complete user stories for each feature
-8. MVP Metrics - Detail methods for collecting and analyzing data
+7. Feature-Level Specification - Present complete user stories for each feature *(references: Section 6)*
+8. MVP Metrics - Detail methods for collecting and analyzing data *(references: Section 2, 6)*
 9. Out of Scope - List features deferred for future iterations
+
+---
+
+## Section Reference Rules
+
+<section-references>
+Some sections depend on other sections. Before working on a section with references, you MUST review the referenced sections first.
+
+<reference-map>
+- Section 3 (Demo Scenario) → MUST review Section 2 (MVP Goals)
+- Section 5 (Design Specification) → MUST review Section 6 (Requirements Summary)
+- Section 7 (Feature-Level Specification) → MUST review Section 6 (Requirements Summary)
+- Section 8 (MVP Metrics) → MUST review Section 2 (MVP Goals) AND Section 6.2 (Non-Functional Requirements)
+</reference-map>
+
+<mandatory-actions>
+1. Call `read_alps_section(N)` for each referenced section
+2. Summarize key points from referenced sections before asking questions
+3. If referenced sections are incomplete, warn user and suggest completing them first
+</mandatory-actions>
+</section-references>
 
 ---
 

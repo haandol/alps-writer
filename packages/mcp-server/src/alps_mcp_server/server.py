@@ -33,6 +33,13 @@ mcp = FastMCP(
 </RULES>"""
 )
 
+SECTION_REFERENCES = {
+    3: [2],      # Demo Scenario → MVP Goals
+    5: [6],      # Design Spec → Requirements Summary
+    7: [6],      # Feature Spec → Requirements Summary
+    8: [2, 6],   # MVP Metrics → MVP Goals, Requirements (NFRs)
+}
+
 SECTION_GUIDES = {
     1: """<section_guide number="1" title="Overview">
 <purpose>제품 비전, 타겟 사용자, 핵심 문제, 솔루션 전략, 성공 기준, 차별점 정의</purpose>
@@ -60,8 +67,13 @@ SECTION_GUIDES = {
 <completion>정량적 지표 포함된 목표 작성 후 확인</completion>
 </section_guide>""",
 
-    3: """<section_guide number="3" title="Demo Scenario">
+    3: """<section_guide number="3" title="Demo Scenario" references="2">
 <purpose>핵심 가설을 검증할 수 있는 데모 시나리오 작성</purpose>
+
+<required_review>
+📋 MUST review Section 2 (MVP Goals) before writing this section.
+Call read_alps_section(2) and summarize key goals before proceeding.
+</required_review>
 
 <questions>
 1. Section 2의 목표를 어떻게 시연할 수 있을까요?
@@ -84,16 +96,21 @@ SECTION_GUIDES = {
 <completion>Context/Container 다이어그램 설명 포함</completion>
 </section_guide>""",
 
-    5: """<section_guide number="5" title="Design Specification">
+    5: """<section_guide number="5" title="Design Specification" references="6">
 <purpose>UX, 페이지 플로우, 주요 화면, 사용자 여정 상세화</purpose>
+
+<required_review>
+📋 MUST review Section 6 (Requirements Summary) before writing this section.
+Call read_alps_section(6) and list Feature IDs (F1, F2...) to use in Key Pages.
+</required_review>
 
 <questions>
 1. 주요 화면(페이지)은 몇 개인가요?
-2. 각 화면의 핵심 기능은?
+2. 각 화면의 핵심 기능은? (Section 6의 Feature ID 사용)
 3. 화면 간 네비게이션 흐름은?
 </questions>
 
-<completion>주요 화면과 플로우 정의</completion>
+<completion>주요 화면과 플로우 정의 (Feature ID 매핑 포함)</completion>
 </section_guide>""",
 
     6: """<section_guide number="6" title="Requirements Summary">
@@ -109,8 +126,13 @@ SECTION_GUIDES = {
 <completion required="true">모든 요구사항 ID 부여 후 반드시 확인 필요</completion>
 </section_guide>""",
 
-    7: """<section_guide number="7" title="Feature-Level Specification">
+    7: """<section_guide number="7" title="Feature-Level Specification" references="6">
 <purpose>Section 6의 각 요구사항에 대한 상세 사용자 스토리 작성</purpose>
+
+<required_review>
+📋 MUST review Section 6 (Requirements Summary) before writing this section.
+Call read_alps_section(6) and confirm all Feature IDs (F1, F2...) to map 1:1.
+</required_review>
 
 <questions repeat="each_feature">
 1. 사용자 스토리: "As a [역할], I want to [행동] so that [이점]"
@@ -126,8 +148,14 @@ SECTION_GUIDES = {
 <completion>모든 F1, F2... 에 대응하는 7.1, 7.2... 작성</completion>
 </section_guide>""",
 
-    8: """<section_guide number="8" title="MVP Metrics">
+    8: """<section_guide number="8" title="MVP Metrics" references="2,6">
 <purpose>데이터 수집/분석 방법, 성공 임계값 정의</purpose>
+
+<required_review>
+📋 MUST review referenced sections before writing:
+- Section 2 (MVP Goals): Call read_alps_section(2) for KPIs to measure
+- Section 6.2 (Non-Functional Requirements): Call read_alps_section(6) for NFRs to validate
+</required_review>
 
 <questions>
 1. Section 2의 각 목표를 어떻게 측정할 건가요?
@@ -223,6 +251,7 @@ def get_alps_section_guide(section: int) -> str:
     
     Use this before starting each section to guide the interactive conversation.
     Returns questions to ask, completion criteria, and important notes.
+    For sections with dependencies, includes required review instructions.
     
     Args:
         section: Section number (1-9)
@@ -230,7 +259,22 @@ def get_alps_section_guide(section: int) -> str:
     Returns:
         Conversation guide with questions and completion criteria.
     """
-    return SECTION_GUIDES.get(section, f"Section {section} not found.")
+    guide = SECTION_GUIDES.get(section)
+    if not guide:
+        return f"Section {section} not found."
+    
+    refs = SECTION_REFERENCES.get(section)
+    if refs:
+        ref_names = [f"Section {r} ({SECTION_TITLES[r]})" for r in refs]
+        warning = f"""⚠️ REQUIRED: This section depends on {', '.join(ref_names)}.
+Before proceeding, you MUST:
+1. Call read_alps_section({refs[0]}) to review referenced content
+2. Summarize key points from referenced section(s) in your response
+3. If referenced sections are incomplete, warn the user first
+
+"""
+        return warning + guide
+    return guide
 
 
 # ============ File-based Document Management Tools ============
