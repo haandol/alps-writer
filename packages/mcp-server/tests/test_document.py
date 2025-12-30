@@ -137,3 +137,20 @@ class TestExportMarkdown:
         server.init_alps_document("Test", str(temp_doc))
         result = server.export_alps_markdown()
         assert "*Not yet written*" in result
+
+
+class TestInteractiveWorkflowGuide:
+    def test_overview_contains_interactive_process_warning(self):
+        result = server.get_alps_overview()
+        assert "MANDATORY" in result
+        assert "Interactive" in result
+        assert "NEVER auto-generate" in result
+
+    def test_overview_contains_next_step_instruction(self):
+        result = server.get_alps_overview()
+        assert "get_alps_section_guide(1)" in result
+        assert "Next Step" in result
+
+    def test_overview_mentions_reference_document_handling(self):
+        result = server.get_alps_overview()
+        assert "PDF" in result or "reference" in result.lower()

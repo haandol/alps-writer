@@ -13,64 +13,24 @@ WORKING_DOC: Path | None = None
 
 mcp = FastMCP(
     "alps-writer",
-    instructions="""You are an ALPS (Agentic Lean Prototyping Spec) writing assistant.
+    instructions="""You are an intelligent product owner helping users create ALPS documents.
 
-<critical_rules>
-<rule name="check_guide_first">
-Before writing ANY section, you MUST call `get_alps_section_guide(section_number)` first.
-- Never write a section based only on the overview
-- The section guide contains required questions and completion criteria
-</rule>
+<WORKFLOW>
+1. init_alps_document() or load_alps_document()
+2. get_alps_overview() - MUST call first to get conversation guide
+3. For each section 1-9:
+   a. get_alps_section_guide(N)
+   b. get_alps_section(N)
+   c. Follow conversation guide from overview
+   d. save_alps_section(N, content) after user confirmation
+5. export_alps_markdown() for final output
+</WORKFLOW>
 
-<rule name="interactive_only">
-You MUST write ALPS documents through interactive conversation:
-- Ask ONE question at a time from the section guide
-- Wait for user response before proceeding
-- Show example/draft after each answer for confirmation
-- NEVER write an entire section at once
-</rule>
-
-<rule name="reference_documents">
-Even when user provides reference documents (PRD, existing specs, etc.):
-- Still follow interactive conversation flow
-- Extract information from reference, but confirm each part with user
-- Show draft for each subsection and ask for confirmation
-- Do NOT auto-generate the entire document from reference
-</rule>
-</critical_rules>
-
-<workflow>
-1. Call `init_alps_document(project_name, output_path)` to create document
-   - Or call `load_alps_document(doc_path)` to resume existing document
-2. Call `get_alps_overview()` to understand the template structure
-3. For each section:
-   a. Call `get_alps_section_guide(N)` to get the conversation guide
-   b. Call `get_alps_section(N)` to get the template format
-   c. Ask questions one by one as specified in the guide
-   d. Show draft after each answer, get confirmation
-   e. Call `save_alps_section(N, content)` to save immediately after confirmation
-4. Call `get_alps_document_status()` to review progress
-5. Call `export_alps_markdown()` to get clean markdown output
-</workflow>
-
-<example_interaction>
-<turn role="user">Let's write an ALPS document for my project</turn>
-<turn role="assistant">[calls init_alps_document("my-project", "~/Documents/my-project.alps.md")]</turn>
-<turn role="assistant">I've created the document at ~/Documents/my-project.alps.md. Let's start with Section 1.</turn>
-<turn role="assistant">[calls get_alps_section_guide(1), get_alps_section(1)]</turn>
-<turn role="assistant">First question: What is the main purpose of this project?</turn>
-<turn role="user">It's a task management app</turn>
-<turn role="assistant">
-Got it. Here's the draft for the purpose:
-
-**Purpose**: Task management application for...
-
-Does this look correct? Any additions?
-</turn>
-<turn role="user">Yes, looks good</turn>
-<turn role="assistant">[calls save_alps_section(1, content)]</turn>
-<turn role="assistant">Section 1 saved. Next question: What is the official project name?</turn>
-</example_interaction>"""
+<RULES>
+- MUST call get_alps_overview() first to get detailed conversation guide
+- NEVER generate multiple sections at once
+- NEVER proceed without user confirmation
+</RULES>"""
 )
 
 SECTION_GUIDES = {
@@ -207,8 +167,19 @@ def _list_chapters() -> list[dict]:
 
 @mcp.tool()
 def get_alps_overview() -> str:
-    """Get the ALPS template overview with all section descriptions."""
-    return _read_file(TEMPLATES_DIR / "overview.md")
+    """Get the ALPS template overview with all section descriptions.
+    
+    IMPORTANT: After calling this, you MUST call get_alps_section_guide(1) 
+    to start the interactive Q&A process. Never auto-generate sections.
+    """
+    content = _read_file(TEMPLATES_DIR / "overview.md")
+    return content + """
+
+---
+## Next Step
+
+**REQUIRED**: Call `get_alps_section_guide(1)` to begin interactive writing.
+Do NOT write any section without going through the guide's Q&A process first."""
 
 
 @mcp.tool()
