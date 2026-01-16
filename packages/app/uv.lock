@@ -161,7 +161,7 @@ dependencies = [
 requires-dist = [
     { name = "awscli", specifier = ">=1.37.12" },
     { name = "boto3", specifier = ">=1.36.12" },
-    { name = "chainlit", specifier = "==2.6.6" },
+    { name = "chainlit", specifier = "==2.8.5" },
     { name = "markdown", specifier = ">=3.7" },
     { name = "pdfplumber", specifier = ">=0.11.5" },
     { name = "python-dotenv", specifier = ">=1.0.1" },
@@ -342,12 +342,12 @@ wheels = [
 
 [[package]]
 name = "chainlit"
-version = "2.6.6"
+version = "2.8.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiofiles" },
     { name = "asyncer" },
-    { name = "audioop-lts", marker = "python_full_version < '4'" },
+    { name = "audioop-lts" },
     { name = "click" },
     { name = "dataclasses-json" },
     { name = "fastapi" },
@@ -359,6 +359,7 @@ dependencies = [
     { name = "nest-asyncio" },
     { name = "packaging" },
     { name = "pydantic" },
+    { name = "pydantic-settings" },
     { name = "pyjwt" },
     { name = "python-dotenv" },
     { name = "python-multipart" },
@@ -369,9 +370,9 @@ dependencies = [
     { name = "uvicorn" },
     { name = "watchfiles" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ee/d2/92e253c1a20679acb648af8fbd3ecfc6dc737dea74d69fc1e5a742566be7/chainlit-2.6.6.tar.gz", hash = "sha256:2073a3d76e7416a7f5408520fe9bc22658ca140f27780c799d3f50dacaf41921", size = 9509544, upload-time = "2025-08-05T23:02:02.101Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/46/71/d0465682910792ff382d604b9973dcd0115c682dde6c22753eaa4304afe3/chainlit-2.8.5.tar.gz", hash = "sha256:ebe73b3ad9d7e545454432eb280618ef92d69d6470eb66488149c9bb7f6c526d", size = 9884512, upload-time = "2025-11-07T22:58:11.181Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b8/ed/582db28ca8d19c071b3a3d8c6dac0ed0d98599de71d5656a42e457344367/chainlit-2.6.6-py3-none-any.whl", hash = "sha256:f526386ce50fc493a217fd47702ecb4cf936d083c0d381c7672128ae2b0c851e", size = 9659040, upload-time = "2025-08-05T23:01:59.299Z" },
+    { url = "https://files.pythonhosted.org/packages/2f/e2/c9a1ff354acc05fe910a19a8053647674315c091f33fe3b1eef3c69fcbe7/chainlit-2.8.5-py3-none-any.whl", hash = "sha256:1d6ef81a14f4b9a526229b0e6839f364c8ef1a3335e648889d43c0c8f8444a8e", size = 9725985, upload-time = "2025-11-07T22:58:08.631Z" },
 ]
 
 [[package]]
