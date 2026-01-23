@@ -9,22 +9,23 @@ Claude Desktop, Cursor 등 MCP 호환 클라이언트에서 사용할 수 있습
 
 ```
 packages/mcp-server/
-├── src/
-│   └── alps_mcp_server/
-│       ├── __init__.py
-│       ├── server.py       # MCP 서버 구현
-│       └── templates/
-│           ├── overview.md
-│           └── chapters/   # 섹션별 템플릿
-│               ├── 01-overview.md
-│               ├── 02-mvp-goals.md
-│               ├── 03-demo-scenario.md
-│               ├── 04-architecture.md
-│               ├── 05-design-spec.md
-│               ├── 06-requirements.md
-│               ├── 07-feature-spec.md
-│               ├── 08-mvp-metrics.md
-│               └── 09-out-of-scope.md
+├── src/alps_mcp_server/
+│   ├── server.py              # MCP 서버 진입점 + 도구 등록
+│   ├── di/
+│   │   └── container.py       # 의존성 주입 컨테이너
+│   ├── tools/
+│   │   ├── templates/         # 템플릿 도구
+│   │   │   ├── controller.py  # MCP 인터페이스
+│   │   │   └── service.py     # 비즈니스 로직
+│   │   └── documents/         # 문서 관리 도구
+│   │       ├── controller.py
+│   │       └── service.py
+│   ├── interfaces/
+│   │   └── constants.py       # 상수 정의
+│   ├── guides/                # 섹션별 가이드 (01.md ~ 09.md)
+│   └── templates/
+│       ├── overview.md
+│       └── chapters/
 └── tests/
 ```
 
@@ -46,6 +47,14 @@ uv run alps-mcp-server
 # 테스트 실행
 uv run pytest
 ```
+
+## Architecture
+
+Controller-Service 패턴을 사용합니다:
+
+- **Controller**: MCP 도구 인터페이스 (docstring 포함)
+- **Service**: 비즈니스 로직
+- **DIContainer**: 의존성 주입을 통한 느슨한 결합
 
 ## Available Tools
 
@@ -92,10 +101,12 @@ uv run pytest
 
 ### Safe to Modify
 
+- `guides/` - 섹션 가이드 내용 수정
 - `templates/` - 템플릿 내용 수정
-- 새로운 도구 추가
+- 새로운 도구 추가 (tools/ 하위에 새 모듈 생성)
 
 ### Approach with Caution
 
-- `server.py` - MCP 서버 핵심 로직
+- `server.py` - 도구 등록 로직
+- `di/container.py` - 의존성 주입 설정
 - 기존 도구 시그니처 변경
