@@ -43,6 +43,11 @@ class DocumentController:
     def save_alps_section(self, section: int, content: str, subsection: int | None = None) -> str:
         """Save content to a specific section in the ALPS document.
         
+        ⚠️ BEFORE CALLING THIS TOOL:
+        1. 작성 완료된 섹션 내용을 사용자에게 먼저 출력하세요
+        2. "수정할 내용이 있으신가요?" 라고 확인을 요청하세요
+        3. 사용자가 확인한 후에만 이 도구를 호출하세요
+        
         ⚠️ CRITICAL FOR SECTION 7:
         Section 7 uses subsections (7.1, 7.2, 7.3...) for each feature.
         You MUST use the `subsection` parameter when saving Section 7 content.
