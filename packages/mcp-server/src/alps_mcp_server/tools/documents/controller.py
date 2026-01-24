@@ -33,10 +33,19 @@ class DocumentController:
     def save_alps_section(self, section: int, content: str, subsection: int | None = None) -> str:
         """Save content to a specific section in the ALPS document.
         
+        ⚠️ CRITICAL FOR SECTION 7:
+        Section 7 uses subsections (7.1, 7.2, 7.3...) for each feature.
+        You MUST use the `subsection` parameter when saving Section 7 content.
+        - save_alps_section(7, content, subsection=1) → saves to 7.1
+        - save_alps_section(7, content, subsection=2) → saves to 7.2
+        
+        DO NOT call save_alps_section(7, content) without subsection parameter.
+        This will overwrite ALL existing subsections!
+        
         Args:
             section: Section number (1-9)
             content: Markdown content for the section (without header)
-            subsection: Optional subsection number for Section 7 (e.g., 1 for 7.1)
+            subsection: Subsection number. REQUIRED for Section 7 (1 for 7.1, 2 for 7.2, etc.)
         
         Returns:
             Confirmation message.

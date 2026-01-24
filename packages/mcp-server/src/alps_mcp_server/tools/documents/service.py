@@ -76,6 +76,9 @@ class DocumentService:
         project_name = self._extract_project_name(doc_content)
         sections = self._parse_sections(doc_content)
         
+        if section == 7 and subsection is None:
+            return "ERROR: Section 7 requires subsection parameter. Use save_alps_section(7, content, subsection=N) where N is the feature number (1, 2, 3...)."
+        
         if section == 7 and subsection is not None:
             subsections = self._parse_subsections(sections.get(7, ""))
             subsections[subsection] = content
