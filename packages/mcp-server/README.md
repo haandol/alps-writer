@@ -53,7 +53,7 @@ Add to your MCP config:
 
 | Tool                       | Description                                 |
 | -------------------------- | ------------------------------------------- |
-| `init_alps_document`       | Create new ALPS document (.alps.md file)    |
+| `init_alps_document`       | Create new ALPS document (.alps.xml file)    |
 | `load_alps_document`       | Load existing document to resume editing    |
 | `save_alps_section`        | Save content to a specific section          |
 | `read_alps_section`        | Read current content of a section           |

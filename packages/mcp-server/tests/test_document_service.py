@@ -12,13 +12,13 @@ def service():
 
 @pytest.fixture
 def temp_doc(tmp_path, service):
-    doc_path = tmp_path / "test.alps.md"
+    doc_path = tmp_path / "test.alps.xml"
     service.init_document("TestProject", str(doc_path))
     return doc_path
 
 
 def test_init_document(tmp_path, service):
-    doc_path = tmp_path / "new.alps.md"
+    doc_path = tmp_path / "new.alps.xml"
     result = service.init_document("MyProject", str(doc_path))
     assert "Created" in result
     assert doc_path.exists()

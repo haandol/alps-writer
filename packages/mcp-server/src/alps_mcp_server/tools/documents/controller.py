@@ -10,9 +10,11 @@ class DocumentController:
     def init_alps_document(self, project_name: str, output_path: str) -> str:
         """Initialize a new ALPS document file.
         
+        Creates an XML-based document for reliable section parsing.
+        
         Args:
             project_name: Name of the project
-            output_path: File path for the document (e.g., ~/Documents/my-project.alps.md)
+            output_path: File path for the document (e.g., ~/Documents/my-project.alps.xml)
         
         Returns:
             Confirmation with file path.
@@ -31,7 +33,7 @@ class DocumentController:
         NEVER auto-fill sections based on existing content without user Q&A.
         
         Args:
-            doc_path: Path to the .alps.md file
+            doc_path: Path to the .alps.xml file
         
         Returns:
             Document status summary.
