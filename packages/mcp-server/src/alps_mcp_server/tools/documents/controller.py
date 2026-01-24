@@ -22,6 +22,14 @@ class DocumentController:
     def load_alps_document(self, doc_path: str) -> str:
         """Load an existing ALPS document to resume editing.
         
+        ⚠️ CRITICAL: After loading, you MUST follow the conversation guide:
+        1. Call get_alps_section_guide(N) for the section you want to work on
+        2. Ask 1-2 focused questions at a time - DO NOT auto-generate content
+        3. Wait for user response before proceeding
+        4. Get explicit confirmation before saving each section
+        
+        NEVER auto-fill sections based on existing content without user Q&A.
+        
         Args:
             doc_path: Path to the .alps.md file
         

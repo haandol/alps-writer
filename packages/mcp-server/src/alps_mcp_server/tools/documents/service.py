@@ -64,7 +64,16 @@ class DocumentService:
         if not filepath.exists():
             return f"Document not found at {filepath}"
         self._working_doc = filepath
-        return self.get_status()
+        status = self.get_status()
+        return f"""{status}
+
+---
+⚠️ CONVERSATION MODE REQUIRED:
+1. Call get_alps_section_guide(N) before working on any section
+2. Ask 1-2 focused questions at a time - DO NOT auto-generate content
+3. Wait for user response before proceeding
+4. Get explicit "yes" confirmation before calling save_alps_section()
+NEVER auto-fill sections without user Q&A, even if content already exists."""
 
     def save_section(self, section: int, content: str, subsection: int | None = None) -> str:
         if self._working_doc is None:
