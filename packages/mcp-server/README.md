@@ -40,6 +40,7 @@ Add to your MCP config:
 ## Available Tools
 
 ### Template Tools
+
 | Tool                     | Description                            |
 | ------------------------ | -------------------------------------- |
 | `get_alps_overview`      | Get the ALPS template overview         |
@@ -49,6 +50,7 @@ Add to your MCP config:
 | `get_alps_section_guide` | Get conversation guide for a section   |
 
 ### Document Management Tools
+
 | Tool                       | Description                                 |
 | -------------------------- | ------------------------------------------- |
 | `init_alps_document`       | Create new ALPS document (.alps.md file)    |
@@ -84,9 +86,10 @@ src/alps_mcp_server/
 
 ## Document Format
 
-The ALPS document uses XML tags for reliable section parsing:
+The ALPS document uses XML format for storage and reliable section parsing:
 
-```markdown
+```xml
+<alps-document>
 # Project Name ALPS
 
 <section id="1">
@@ -102,9 +105,11 @@ Content here...
 </section>
 
 ...
+</alps-document>
 ```
 
-Use `export_alps_markdown()` to get a clean markdown version without XML tags.
+- Storage format: `.alps.xml` (XML with section tags)
+- Output format: Clean markdown via `export_alps_markdown()`
 
 ## Development
 

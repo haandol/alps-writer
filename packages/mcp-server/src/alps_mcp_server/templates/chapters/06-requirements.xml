@@ -1,14 +1,13 @@
-## Section 6. Requirements Summary
-
+<section id="6" title="Requirements Summary">
+  <description>
 - List all core features (functional requirements) and non-functional requirements for the MVP.
 - Each core feature is assigned a unique ID (F1, F2, …), and will be mapped to Section 7.
 - Prioritize each requirement using: Must-Have, Should-Have, or Nice-to-Have.
 - Only features defined in this section are included in the MVP scope; additional features must be listed in Section 9.
 - Up to 3 non-functional requirements are allowed.
-
-### 6.1 Core Features (Functional Requirements)
-
-<example>
+  </description>
+  <subsection id="6.1" title="Core Features (Functional Requirements)">
+    <example>
 | ID | Feature | Priority |
 |----|---------|----------|
 | F1 | Email Sign-up | Must-Have |
@@ -16,18 +15,20 @@
 | F3 | Main Screen | Must-Have |
 | F4 | Post Creation | Should-Have |
 | F5 | Post List/Detail | Nice-to-Have |
-</example>
-
-### 6.2 Non-Functional Requirements
-
+    </example>
+  </subsection>
+  <subsection id="6.2" title="Non-Functional Requirements">
+    <description>
 - Define non-functional requirements such as security, performance, and scalability.
 - Set the minimum standards for the MVP phase.
 - Non-functional requirements are validated through Section 8 (MVP Metrics) or release testing.
-
-<example>
+    </description>
+    <example>
 | ID | Requirement | Priority |
 |----|-------------|----------|
 | NF1 | Minimum security (no email verification) | Must-Have |
 | NF2 | Performance (up to 1,000 daily users) | Should-Have |
 | NF3 | Latency (under 3 seconds) | Must-Have |
-</example>
+    </example>
+  </subsection>
+</section>

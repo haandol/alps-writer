@@ -30,20 +30,25 @@ Do NOT write any section without going through the guide's Q&A process first."""
         """
         return self.service.list_sections()
 
-    def get_alps_section(self, section: int) -> str:
+    def get_alps_section(self, section: int, include_examples: bool = False) -> str:
         """Get a specific ALPS template section by number.
         
         Args:
             section: Section number (1-9)
+            include_examples: Include example content (default: False for clean output)
         
         Returns:
-            The section template content.
+            The section template content in markdown format.
         """
-        return self.service.get_section(section)
+        return self.service.get_section(section, include_examples)
 
-    def get_alps_full_template(self) -> str:
-        """Get the complete ALPS template with all sections combined."""
-        return self.service.get_full_template()
+    def get_alps_full_template(self, include_examples: bool = False) -> str:
+        """Get the complete ALPS template with all sections combined.
+        
+        Args:
+            include_examples: Include example content (default: False for clean output)
+        """
+        return self.service.get_full_template(include_examples)
 
     def get_alps_section_guide(self, section: int) -> str:
         """Get conversation guide for writing a specific ALPS section.

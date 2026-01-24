@@ -21,7 +21,7 @@ def template_service():
 @pytest.fixture
 def temp_doc(tmp_path, doc_service):
     """Create a temporary document."""
-    doc_path = tmp_path / "test.alps.md"
+    doc_path = tmp_path / "test.alps.xml"
     doc_service.init_document("Test", str(doc_path))
     return doc_path
 
@@ -59,7 +59,7 @@ class TestParseAndBuild:
 
 class TestInitDocument:
     def test_creates_new_document(self, tmp_path, doc_service):
-        doc_path = tmp_path / "test.alps.md"
+        doc_path = tmp_path / "test.alps.xml"
         result = doc_service.init_document("TestProject", str(doc_path))
         assert "Created" in result
         assert doc_path.exists()
@@ -68,10 +68,10 @@ class TestInitDocument:
     def test_adds_suffix_if_missing(self, tmp_path, doc_service):
         doc_path = tmp_path / "test"
         doc_service.init_document("Test", str(doc_path))
-        assert (tmp_path / "test.alps.md").exists()
+        assert (tmp_path / "test.alps.xml").exists()
 
     def test_existing_document_not_overwritten(self, tmp_path, doc_service):
-        doc_path = tmp_path / "test.alps.md"
+        doc_path = tmp_path / "test.alps.xml"
         doc_path.write_text("existing content")
         result = doc_service.init_document("Test", str(doc_path))
         assert "already exists" in result
@@ -94,13 +94,14 @@ class TestSaveAndReadSection:
     def test_save_and_read_section(self, temp_doc, doc_service):
         doc_service.save_section(1, "New overview content")
         content = doc_service.read_section(1)
-        assert content == "New overview content"
+        assert "New overview content" in content
+        assert "## Section 1. Overview" in content
 
     def test_save_preserves_other_sections(self, temp_doc, doc_service):
         doc_service.save_section(1, "Section 1 content")
         doc_service.save_section(2, "Section 2 content")
-        assert doc_service.read_section(1) == "Section 1 content"
-        assert doc_service.read_section(2) == "Section 2 content"
+        assert "Section 1 content" in doc_service.read_section(1)
+        assert "Section 2 content" in doc_service.read_section(2)
 
     def test_save_without_loaded_doc_returns_error(self):
         service = DocumentService()

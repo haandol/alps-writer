@@ -1,12 +1,11 @@
-## Section 4. High-Level Architecture
-
-### 4.1 System Diagram
-
+<section id="4" title="High-Level Architecture">
+  <subsection id="4.1" title="System Diagram">
+    <description>
 - Provide Context and Container diagrams (C4 model) illustrating the overall system architecture of the project.
 - The Context diagram is essential; the Container diagram is optional.
 - Component and Code diagrams are excluded.
-
-<example>
+    </description>
+    <example>
 ```mermaid
 C4Context
 
@@ -20,15 +19,15 @@ System(system, "System", "Target System")
 Rel(user, system_ext, "Uses", "HTTPS")
 Rel(user, system, "Uses", "HTTPS")
 ```
-</example>
-
-### 4.2 Technology Stack
-
-- List the key technologies and frameworks to be used in the MVP.
-
-<example>
+    </example>
+  </subsection>
+  <subsection id="4.2" title="Technology Stack">
+    <description>List the key technologies and frameworks to be used in the MVP.</description>
+    <example>
 - Frontend: React (Tailwind CSS)
 - Backend: Node.js (Express)
 - Database: MongoDB
 - Infrastructure: AWS (EC2), GitHub Actions (CI/CD)
-</example>
+    </example>
+  </subsection>
+</section>

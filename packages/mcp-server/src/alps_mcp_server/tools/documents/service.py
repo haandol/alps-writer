@@ -48,7 +48,7 @@ class DocumentService:
     def init_document(self, project_name: str, output_path: str) -> str:
         filepath = Path(output_path).expanduser()
         if not filepath.suffix:
-            filepath = filepath.with_suffix(".alps.md")
+            filepath = filepath.with_suffix(".alps.xml")
         
         if filepath.exists():
             self._working_doc = filepath
@@ -94,8 +94,13 @@ class DocumentService:
     def read_section(self, section: int) -> str:
         if self._working_doc is None:
             return "No document loaded. Call init_alps_document() or load_alps_document() first."
+        if section not in SECTION_TITLES:
+            return f"Section {section} not found."
         sections = self._parse_sections(self._working_doc.read_text(encoding="utf-8"))
-        return sections.get(section, f"Section {section} not found.")
+        content = sections.get(section, "")
+        if not content or "<!-- Not started -->" in content:
+            content = "*Not yet written*"
+        return f"## Section {section}. {SECTION_TITLES[section]}\n\n{content}"
 
     def get_status(self) -> str:
         if self._working_doc is None:

@@ -1,0 +1,14 @@
+<section id="2" title="MVP Goals and Key Metrics">
+  <subsection id="2.1" title="Purpose">
+    <description>Briefly describe the hypothesis or goals to be validated through the MVP.</description>
+    <example>
+If we provide a 30% discount coupon upon sign-up, the revisit rate within 14 days will increase.
+    </example>
+  </subsection>
+  <subsection id="2.2" title="Key Performance Indicators (KPIs)">
+    <description>Define the quantitative metrics to evaluate the purpose (hypothesis) stated above.</description>
+    <example>
+Revisit rate within 14 days after sign-up: 30% or higher
+    </example>
+  </subsection>
+</section>

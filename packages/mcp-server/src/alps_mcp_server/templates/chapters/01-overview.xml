@@ -1,0 +1,41 @@
+<section id="1" title="Overview">
+  <subsection id="1.1" title="Purpose">
+    <description>Briefly describe the overall purpose and overview of the document.</description>
+  </subsection>
+  <subsection id="1.2" title="Document Name">
+    <description>Provide the official name of the document.</description>
+  </subsection>
+  <subsection id="1.3" title="Target Users">
+    <description>Define the primary target users or personas for this product.</description>
+    <example>
+- Small business owners who need to manage inventory
+- Marketing teams in mid-sized companies
+    </example>
+  </subsection>
+  <subsection id="1.4" title="Core Problem">
+    <description>Describe the core problem that this product aims to solve.</description>
+    <example>
+- Users spend too much time manually tracking inventory across multiple spreadsheets.
+    </example>
+  </subsection>
+  <subsection id="1.5" title="Solution Strategy">
+    <description>Explain the high-level approach to solving the core problem.</description>
+    <example>
+- Provide a centralized dashboard that automatically syncs inventory data from multiple sources.
+    </example>
+  </subsection>
+  <subsection id="1.6" title="Success Criteria">
+    <description>Define the criteria that will determine whether the product is successful.</description>
+    <example>
+- 80% of users can complete inventory updates in under 5 minutes.
+- User satisfaction score of 4.0 or higher.
+    </example>
+  </subsection>
+  <subsection id="1.7" title="Key Differentiators">
+    <description>List the unique features or advantages that set this product apart from competitors.</description>
+    <example>
+- AI-powered demand forecasting
+- One-click integration with major e-commerce platforms
+    </example>
+  </subsection>
+</section>
