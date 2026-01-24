@@ -29,10 +29,9 @@ def temp_doc(tmp_path, doc_service):
 class TestParseAndBuild:
     def test_build_document_creates_all_sections(self, doc_service):
         doc = doc_service._build_document("TestProject", {})
-        assert "# TestProject ALPS" in doc
+        assert '<alps-document project="TestProject">' in doc
         for i in range(1, 10):
-            assert f'<section id="{i}">' in doc
-            assert f"## Section {i}." in doc
+            assert f'<section id="{i}" title=' in doc
 
     def test_build_document_with_content(self, doc_service):
         doc = doc_service._build_document("Test", {1: "Overview content here"})
@@ -92,24 +91,23 @@ class TestLoadDocument:
 
 class TestSaveAndReadSection:
     def test_save_and_read_section(self, temp_doc, doc_service):
-        doc_service.save_section(1, "New overview content")
+        doc_service.save_section(1, "1", "Purpose", "New overview content")
         content = doc_service.read_section(1)
         assert "New overview content" in content
-        assert "## Section 1. Overview" in content
 
     def test_save_preserves_other_sections(self, temp_doc, doc_service):
-        doc_service.save_section(1, "Section 1 content")
-        doc_service.save_section(2, "Section 2 content")
+        doc_service.save_section(1, "1", "Purpose", "Section 1 content")
+        doc_service.save_section(2, "1", "Purpose", "Section 2 content")
         assert "Section 1 content" in doc_service.read_section(1)
         assert "Section 2 content" in doc_service.read_section(2)
 
     def test_save_without_loaded_doc_returns_error(self):
         service = DocumentService()
-        result = service.save_section(1, "content")
+        result = service.save_section(1, "1", "Purpose", "content")
         assert "No document loaded" in result
 
     def test_invalid_section_number(self, temp_doc, doc_service):
-        assert "Invalid section" in doc_service.save_section(10, "x")
+        assert "Invalid section" in doc_service.save_section(10, "1", "Test", "x")
         assert "not found" in doc_service.read_section(0)
 
 
@@ -119,14 +117,14 @@ class TestDocumentStatus:
         assert "⬜ Not started" in status
 
     def test_status_shows_written_after_save(self, temp_doc, doc_service):
-        doc_service.save_section(1, "A" * 100)  # >50 chars
+        doc_service.save_section(1, "1", "Purpose", "A" * 100)  # >50 chars
         status = doc_service.get_status()
         assert "Section 1 (Overview): ✅ Written" in status
 
 
 class TestExportMarkdown:
     def test_export_removes_xml_tags(self, temp_doc, doc_service):
-        doc_service.save_section(1, "Overview content")
+        doc_service.save_section(1, "1", "Purpose", "Overview content")
         result = doc_service.export_markdown()
         assert "<section" not in result
         assert "</section>" not in result

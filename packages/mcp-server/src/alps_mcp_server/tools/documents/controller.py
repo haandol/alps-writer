@@ -40,43 +40,40 @@ class DocumentController:
         """
         return self.service.load_document(doc_path)
 
-    def save_alps_section(self, section: int, content: str, subsection: int | None = None) -> str:
-        """Save content to a specific section in the ALPS document.
+    def save_alps_section(self, section: int, subsection_id: str, title: str, content: str) -> str:
+        """Save content to a subsection in the ALPS document.
         
         ⚠️ BEFORE CALLING THIS TOOL:
-        1. 작성 완료된 섹션 내용을 사용자에게 먼저 출력하세요
+        1. 작성 완료된 내용을 사용자에게 먼저 출력하세요
         2. "수정할 내용이 있으신가요?" 라고 확인을 요청하세요
         3. 사용자가 확인한 후에만 이 도구를 호출하세요
         
-        ⚠️ CRITICAL FOR SECTION 7:
-        Section 7 uses subsections (7.1, 7.2, 7.3...) for each feature.
-        You MUST use the `subsection` parameter when saving Section 7 content.
-        - save_alps_section(7, content, subsection=1) → saves to 7.1
-        - save_alps_section(7, content, subsection=2) → saves to 7.2
-        
-        DO NOT call save_alps_section(7, content) without subsection parameter.
-        This will overwrite ALL existing subsections!
-        
         Args:
             section: Section number (1-9)
-            content: Markdown content for the section (without header)
-            subsection: Subsection number. REQUIRED for Section 7 (1 for 7.1, 2 for 7.2, etc.)
+            subsection_id: Subsection ID within the section (e.g., "1" for X.1, "1.2" for X.1.2)
+            title: Title of the subsection
+            content: Content for the subsection (markdown)
         
         Returns:
             Confirmation message.
+        
+        Examples:
+            save_alps_section(1, "1", "Purpose", "This project aims to...")
+            save_alps_section(7, "1.3", "Edge Cases", "- Empty input\\n- Network timeout")
         """
-        return self.service.save_section(section, content, subsection)
+        return self.service.save_section(section, subsection_id, title, content)
 
-    def read_alps_section(self, section: int) -> str:
-        """Read the current content of a specific section.
+    def read_alps_section(self, section: int, subsection_id: str | None = None) -> str:
+        """Read the current content of a section or subsection.
         
         Args:
             section: Section number (1-9)
+            subsection_id: Subsection ID (e.g., "1" for X.1). If omitted, returns entire section.
         
         Returns:
-            Current content of the section.
+            Current content of the section/subsection.
         """
-        return self.service.read_section(section)
+        return self.service.read_section(section, subsection_id)
 
     def get_alps_document_status(self) -> str:
         """Get the status of all sections in the current document.

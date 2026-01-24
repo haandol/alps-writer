@@ -36,14 +36,14 @@ def test_load_document(temp_doc, service):
 
 
 def test_save_and_read_section(temp_doc, service):
-    service.save_section(1, "Test content for section 1")
+    service.save_section(1, "1", "Purpose", "Test content for purpose")
     result = service.read_section(1)
     assert "Test content" in result
 
 
 def test_save_subsection(temp_doc, service):
-    service.save_section(7, "Feature 1 content", subsection=1)
-    service.save_section(7, "Feature 2 content", subsection=2)
+    service.save_section(7, "1", "Feature 1", "Feature 1 content")
+    service.save_section(7, "2", "Feature 2", "Feature 2 content")
     result = service.read_section(7)
     assert "Feature 1" in result
     assert "Feature 2" in result
@@ -56,7 +56,7 @@ def test_get_status(temp_doc, service):
 
 
 def test_export_markdown(temp_doc, service):
-    service.save_section(1, "Overview content here")
+    service.save_section(1, "1", "Purpose", "Overview content here")
     result = service.export_markdown()
     assert "# TestProject ALPS" in result
     assert "Overview content" in result
