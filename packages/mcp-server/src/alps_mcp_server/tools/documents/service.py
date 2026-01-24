@@ -109,7 +109,13 @@ NEVER auto-fill sections without user Q&A, even if content already exists."""
         sections[section] = "\n".join(parts)
         
         self._working_doc.write_text(self._build_document(project_name, sections), encoding="utf-8")
-        return f"Saved {sub_id}. {title}"
+        return f"""✅ Saved {sub_id}. {title}
+
+---
+### {sub_id}. {title}
+
+{content}
+---"""
 
     def read_section(self, section: int, subsection_id: str | None = None) -> str:
         if self._working_doc is None:
