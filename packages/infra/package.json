@@ -13,10 +13,10 @@
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
-    "@types/node": "25.0.3",
-    "aws-cdk": "2.1100.1",
+    "@types/node": "25.2.1",
+    "aws-cdk": "2.1105.0",
     "jest": "^30.2.0",
-    "projen": "^0.98.31",
+    "projen": "^0.99.10",
     "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
     "typescript": "~5.9.3"
@@ -24,10 +24,10 @@
   "dependencies": {
     "@aws/pdk": "^0.26.15",
     "@types/node": "^25.0.3",
-    "aws-cdk-lib": "2.233.0",
+    "aws-cdk-lib": "2.237.1",
     "cdk-nag": "^2.37.55",
-    "constructs": "^10.4.4",
+    "constructs": "^10.4.5",
     "toml": "^3.0.0",
-    "zod": "^4.2.1"
+    "zod": "^4.3.6"
   }
 }
