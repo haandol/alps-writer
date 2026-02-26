@@ -11,11 +11,11 @@ An AI-powered tool that generates technical/functional specification documents t
 #### For AWS Bedrock Users
 
 1. Configured AWSCLI
-2. Enabled AWS Bedrock for `Anthropic Claude 3.7 Sonnet V1`
+2. Enabled AWS Bedrock for `Anthropic Claude Sonnet 4.6`
 
 #### For Anthropic Direct API Users
 
-1. Anthropic API Key for `Claude 3.7 Sonnet`
+1. Anthropic API Key for `Claude Sonnet 4.6`
 
 ## Installation
 
@@ -51,8 +51,8 @@ cp env/local.env .env
 #### For AWS Bedrock users:
 ```env
 AWS_DEFAULT_REGION="us-west-2"
-AWS_PROFILE_NAME="default"
-AWS_BEDROCK_MODEL_ID="us.anthropic.claude-3-7-sonnet-20250219-v1:0"
+# AWS_PROFILE="default"
+AWS_BEDROCK_MODEL_ID="global.anthropic.claude-sonnet-4-6"
 
 # Comment out or remove these lines
 # ANTHROPIC_MODEL_ID=""
@@ -63,10 +63,10 @@ AWS_BEDROCK_MODEL_ID="us.anthropic.claude-3-7-sonnet-20250219-v1:0"
 ```env
 # Comment out or remove these lines
 # AWS_DEFAULT_REGION=""
-# AWS_PROFILE_NAME=""
+# AWS_PROFILE=""
 # AWS_BEDROCK_MODEL_ID=""
 
-ANTHROPIC_MODEL_ID="claude-3-7-sonnet-20250219"
+ANTHROPIC_MODEL_ID="claude-sonnet-4-6"
 ANTHROPIC_API_KEY="your-anthropic-api-key"
 ```
 
